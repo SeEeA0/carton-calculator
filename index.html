@@ -31,7 +31,7 @@
     .visual-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.visual-title{font-size:16px;font-weight:900;margin:0 0 12px;color:var(--brown)}
     .carton-viz{width:100%;max-width:520px;min-height:260px;margin:0 auto;border:9px solid var(--brown);background:var(--cream);display:grid;gap:2px;padding:6px;overflow:hidden}.carton-cell{border:1px solid #bd8b55;background:rgba(255,255,255,.35)}
     .pallet-stage{width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto;border:8px solid #222;background:#e9e4dc;display:flex;align-items:center;justify-content:center}.pallet-inner{position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);border:3px dashed #c8b9aa;overflow:hidden}.pallet-box{position:absolute;background:var(--cream);border:2px solid var(--brown);border-radius:4px}.pallet-box.rotated{background:#efe2cf}
-    .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:860px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:12px;color:var(--muted);background:#fbfaf8}.best td{background:rgba(22,130,74,.06);font-weight:800}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:rgba(22,130,74,.12);color:var(--green);font-size:12px;font-weight:900}
+    .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:860px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:12px;color:var(--muted);background:#fbfaf8}.best td{background:rgba(22,130,74,.06);font-weight:800}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:rgba(22,130,74,.12);color:var(--green);font-size:12px;font-weight:900}.clickable-row{cursor:pointer}.clickable-row:hover td{background:#fbfaf8}.selected-row td{background:rgba(22,130,74,.08)!important;font-weight:900}
     @media(max-width:900px){body{padding:14px}.grid,.visual-grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.input-group,.input-group.three{grid-template-columns:1fr}h1{font-size:34px}}
   </style>
 </head>
@@ -111,6 +111,19 @@
         </div>
       </div>
 
+      <div class="card">
+        <div class="section-title">추천 후보 선택</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>선택</th><th>입수 구조</th><th>입수</th><th>카톤 사이즈</th><th>파레트 1단</th><th>중량</th><th>방식</th></tr>
+            </thead>
+            <tbody id="resultCandidateRows"></tbody>
+          </table>
+        </div>
+        <p class="note">※ 후보를 클릭하면 아래 카톤/파레트 시각화와 리포트 숫자가 즉시 변경됩니다.</p>
+      </div>
+
       <div class="visual-grid">
         <div class="card">
           <div class="visual-title">카톤 내부 입수 예시</div>
@@ -132,6 +145,8 @@
 
 <script>
 let lastResult=null;
+let lastCandidates=[];
+let selectedCandidateIndex=0;
 const $=id=>document.getElementById(id);
 const n=id=>parseFloat($(id).value)||0;
 const i=id=>parseInt($(id).value,10)||0;
@@ -269,11 +284,16 @@ function drawPallet(d,fit){
   });
 }
 
-function calculate(){
+function renderResultCandidateRows(){
   const d=getData();
-  const candidates=makeCandidates(d);
-  if(!candidates.length){ alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 카톤 높이, 여유값을 확인해주세요.'); return; }
-  const c=candidates[0];
+  $('resultCandidateRows').innerHTML=lastCandidates.map((r,idx)=>`<tr class="clickable-row ${idx===selectedCandidateIndex?'selected-row':''}" onclick="selectCandidate(${idx})"><td>${idx===selectedCandidateIndex?'<span class="badge">선택</span>':idx+1}</td><td>${r.x}×${r.y}×${r.z}단</td><td>${fmt(r.qty)}개</td><td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td><td>${fmt(r.palletFit.count)}박스/단</td><td>${fmt(r.kg,2)}kg</td><td>${r.palletFit.name}</td></tr>`).join('');
+}
+
+function applyCandidate(idx){
+  const d=getData();
+  const c=lastCandidates[idx];
+  if(!c) return;
+  selectedCandidateIndex=idx;
   const totalBoxes=Math.ceil(d.total/c.qty);
   const fit=c.palletFit;
   const layers=Math.max(1,Math.floor((d.maxH-d.palletBaseH)/c.size.h));
@@ -290,6 +310,20 @@ function calculate(){
   $('palletText').textContent=`1.1m 파레트 / ${fmt(d.palletUse)}×${fmt(d.palletUse)} 적재영역 기준: ${fit.count}박스·1단 · ${fit.name} · 높이 ${layers}단`;
   drawCarton(c);
   drawPallet(d,fit);
+  renderResultCandidateRows();
+}
+
+function selectCandidate(idx){
+  applyCandidate(idx);
+}
+
+function calculate(){
+  const d=getData();
+  const candidates=makeCandidates(d);
+  if(!candidates.length){ alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 카톤 높이, 여유값을 확인해주세요.'); return; }
+  lastCandidates=candidates;
+  selectedCandidateIndex=0;
+  applyCandidate(0);
   $('input-page').style.display='none';
   $('result-page').style.display='block';
 }
