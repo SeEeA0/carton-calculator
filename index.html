@@ -30,8 +30,8 @@
     .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.summary-item{background:#fbfaf8;border:1px solid var(--line);border-radius:16px;padding:15px}.summary-item b{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}.summary-item span{font-size:22px;font-weight:900}
     .visual-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.visual-title{font-size:16px;font-weight:900;margin:0 0 12px;color:var(--brown)}
     .carton-viz{width:100%;max-width:520px;min-height:260px;margin:0 auto;border:9px solid var(--brown);background:var(--cream);display:grid;gap:2px;padding:6px;overflow:hidden}.carton-cell{border:1px solid #bd8b55;background:rgba(255,255,255,.35)}
-    .pallet-stage{width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto;border:8px solid #222;background:#e9e4dc;display:flex;align-items:center;justify-content:center}.pallet-inner{position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);border:3px dashed #c8b9aa;overflow:hidden}.pallet-box{position:absolute;background:var(--cream);border:2px solid var(--brown);border-radius:4px}
-    .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:12px;color:var(--muted);background:#fbfaf8}.best td{background:rgba(22,130,74,.06);font-weight:800}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:rgba(22,130,74,.12);color:var(--green);font-size:12px;font-weight:900}
+    .pallet-stage{width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto;border:8px solid #222;background:#e9e4dc;display:flex;align-items:center;justify-content:center}.pallet-inner{position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);border:3px dashed #c8b9aa;overflow:hidden}.pallet-box{position:absolute;background:var(--cream);border:2px solid var(--brown);border-radius:4px}.pallet-box.rotated{background:#efe2cf}
+    .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:860px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:12px;color:var(--muted);background:#fbfaf8}.best td{background:rgba(22,130,74,.06);font-weight:800}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:rgba(22,130,74,.12);color:var(--green);font-size:12px;font-weight:900}
     @media(max-width:900px){body{padding:14px}.grid,.visual-grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.input-group,.input-group.three{grid-template-columns:1fr}h1{font-size:34px}}
   </style>
 </head>
@@ -93,7 +93,7 @@
 
       <div class="card">
         <div class="section-title">추천 후보 미리보기</div>
-        <div class="table-wrap"><table><thead><tr><th>추천</th><th>입수 구조</th><th>입수</th><th>카톤 사이즈</th><th>중량</th></tr></thead><tbody id="previewRows"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>추천</th><th>입수 구조</th><th>입수</th><th>카톤 사이즈</th><th>파레트 1단</th><th>중량</th><th>방식</th></tr></thead><tbody id="previewRows"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -154,6 +154,51 @@ function cartonSize(x,y,z,o,d){
   };
 }
 
+function palletFit(boxW,boxL,use){
+  const candidates=[];
+  const add=(name,placements,cols,rows,rot=false)=>{
+    candidates.push({name,placements,count:placements.length,cols,rows,rot});
+  };
+
+  let placements=[];
+  let cols=Math.floor(use/boxW), rows=Math.floor(use/boxL);
+  for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) placements.push({x:x*boxW,y:y*boxL,w:boxW,l:boxL,rot:false});
+  add('정방향',placements,cols,rows,false);
+
+  placements=[];
+  cols=Math.floor(use/boxL); rows=Math.floor(use/boxW);
+  for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) placements.push({x:x*boxL,y:y*boxW,w:boxL,l:boxW,rot:true});
+  add('90도 회전',placements,cols,rows,true);
+
+  const maxNormalCols=Math.floor(use/boxW);
+  for(let nCols=1;nCols<=maxNormalCols;nCols++){
+    const usedW=nCols*boxW;
+    const normalRows=Math.floor(use/boxL);
+    const remainW=use-usedW;
+    const rotCols=Math.floor(remainW/boxL);
+    const rotRows=Math.floor(use/boxW);
+    placements=[];
+    for(let y=0;y<normalRows;y++) for(let x=0;x<nCols;x++) placements.push({x:x*boxW,y:y*boxL,w:boxW,l:boxL,rot:false});
+    for(let y=0;y<rotRows;y++) for(let x=0;x<rotCols;x++) placements.push({x:usedW+x*boxL,y:y*boxW,w:boxL,l:boxW,rot:true});
+    add('혼합 적재',placements,nCols+rotCols,Math.max(normalRows,rotRows),false);
+  }
+
+  const maxRotCols=Math.floor(use/boxL);
+  for(let rCols=1;rCols<=maxRotCols;rCols++){
+    const usedW=rCols*boxL;
+    const rotRows=Math.floor(use/boxW);
+    const remainW=use-usedW;
+    const normalCols=Math.floor(remainW/boxW);
+    const normalRows=Math.floor(use/boxL);
+    placements=[];
+    for(let y=0;y<rotRows;y++) for(let x=0;x<rCols;x++) placements.push({x:x*boxL,y:y*boxW,w:boxL,l:boxW,rot:true});
+    for(let y=0;y<normalRows;y++) for(let x=0;x<normalCols;x++) placements.push({x:usedW+x*boxW,y:y*boxL,w:boxW,l:boxL,rot:false});
+    add('혼합 적재',placements,rCols+normalCols,Math.max(rotRows,normalRows),true);
+  }
+
+  return candidates.sort((a,b)=>b.count-a.count)[0];
+}
+
 function makeCandidates(d){
   const maxQtyByWeight=Math.max(0,Math.floor(((d.maxKg*1000)-d.boxWeight-1)/d.g));
   const orientations=[{name:'정방향',w:d.w,l:d.l,h:d.h},{name:'90도 회전',w:d.l,l:d.w,h:d.h}];
@@ -171,8 +216,9 @@ function makeCandidates(d){
           if(size.w>d.maxBoxW || size.l>d.maxBoxL || size.h>d.maxBoxH) continue;
           const kg=(qty*d.g+d.boxWeight)/1000;
           if(kg>=d.maxKg) continue;
-          const score=qty*100000 - Math.abs(size.w-size.l) - size.h;
-          list.push({x,y,z,qty,size,kg,orientation:o.name,score});
+          const fit=palletFit(size.w,size.l,d.palletUse);
+          const score=fit.count*1000000 + qty*1000 - Math.abs(size.w-size.l) - size.h;
+          list.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,score});
         }
       }
     }
@@ -180,16 +226,10 @@ function makeCandidates(d){
   return list.sort((a,b)=>b.score-a.score).slice(0,8);
 }
 
-function palletFit(boxW,boxL,use){
-  const a={cols:Math.floor(use/boxW),rows:Math.floor(use/boxL),rot:false}; a.count=a.cols*a.rows;
-  const b={cols:Math.floor(use/boxL),rows:Math.floor(use/boxW),rot:true}; b.count=b.cols*b.rows;
-  return b.count>a.count?b:a;
-}
-
 function renderPreview(){
   const d=getData();
   const rows=makeCandidates(d);
-  $('previewRows').innerHTML=rows.map((r,idx)=>`<tr class="${idx===0?'best':''}"><td>${idx===0?'<span class="badge">BEST</span>':idx+1}</td><td>${r.x}×${r.y}×${r.z}단</td><td>${fmt(r.qty)}개</td><td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td><td>${fmt(r.kg,2)}kg</td></tr>`).join('');
+  $('previewRows').innerHTML=rows.map((r,idx)=>`<tr class="${idx===0?'best':''}"><td>${idx===0?'<span class="badge">BEST</span>':idx+1}</td><td>${r.x}×${r.y}×${r.z}단</td><td>${fmt(r.qty)}개</td><td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td><td>${fmt(r.palletFit.count)}박스/단</td><td>${fmt(r.kg,2)}kg</td><td>${r.palletFit.name}</td></tr>`).join('');
 }
 
 document.addEventListener('input',renderPreview);
@@ -208,27 +248,21 @@ function drawCarton(c){
   }
 }
 
-function drawPallet(c,d,fit){
+function drawPallet(d,fit){
   const el=$('palletViz');
   el.innerHTML='';
   const useRatio=Math.min(100,Math.max(10,d.palletUse/d.palletOuter*100));
   el.style.width=useRatio+'%';
   el.style.height=useRatio+'%';
-  const boxW=fit.rot?c.size.l:c.size.w;
-  const boxL=fit.rot?c.size.w:c.size.l;
-  const wPct=(boxW/d.palletUse)*100;
-  const lPct=(boxL/d.palletUse)*100;
-  for(let y=0;y<fit.rows;y++){
-    for(let x=0;x<fit.cols;x++){
-      const unit=document.createElement('div');
-      unit.className='pallet-box';
-      unit.style.left=(x*wPct)+'%';
-      unit.style.top=(y*lPct)+'%';
-      unit.style.width=`calc(${wPct}% - 4px)`;
-      unit.style.height=`calc(${lPct}% - 4px)`;
-      el.appendChild(unit);
-    }
-  }
+  fit.placements.forEach(p=>{
+    const unit=document.createElement('div');
+    unit.className='pallet-box' + (p.rot?' rotated':'');
+    unit.style.left=(p.x/d.palletUse*100)+'%';
+    unit.style.top=(p.y/d.palletUse*100)+'%';
+    unit.style.width=`calc(${p.w/d.palletUse*100}% - 4px)`;
+    unit.style.height=`calc(${p.l/d.palletUse*100}% - 4px)`;
+    el.appendChild(unit);
+  });
 }
 
 function calculate(){
@@ -237,7 +271,7 @@ function calculate(){
   if(!candidates.length){ alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 카톤 높이, 여유값을 확인해주세요.'); return; }
   const c=candidates[0];
   const totalBoxes=Math.ceil(d.total/c.qty);
-  const fit=palletFit(c.size.w,c.size.l,d.palletUse);
+  const fit=c.palletFit;
   const layers=Math.max(1,Math.floor((d.maxH-d.palletBaseH)/c.size.h));
   const boxesPerPallet=Math.max(1,fit.count*layers);
   const totalPallets=Math.ceil(totalBoxes/boxesPerPallet);
@@ -249,9 +283,9 @@ function calculate(){
   $('resTotalBoxes').textContent=fmt(totalBoxes)+'박스';
   $('resTotalPallets').textContent=fmt(totalPallets)+'PLT';
   $('cartonText').textContent=`입수 구조: ${c.x}×${c.y}×${c.z}단 / ${fmt(c.qty)}개 · 예상 중량 ${fmt(c.kg,2)}kg`;
-  $('palletText').textContent=`1.1m 파레트 / 1000×1000 적재영역 기준: ${fit.cols}×${fit.rows} / ${fit.count}박스·1단 · ${fit.rot?'90도 회전':'정방향'} · 높이 ${layers}단`;
+  $('palletText').textContent=`1.1m 파레트 / ${fmt(d.palletUse)}×${fmt(d.palletUse)} 적재영역 기준: ${fit.count}박스·1단 · ${fit.name} · 높이 ${layers}단`;
   drawCarton(c);
-  drawPallet(c,d,fit);
+  drawPallet(d,fit);
   $('input-page').style.display='none';
   $('result-page').style.display='block';
 }
