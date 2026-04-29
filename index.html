@@ -169,111 +169,62 @@ function cartonSize(x,y,z,o,d){
   };
 }
 
+const palletCache = new Map();
 function palletFit(boxW,boxL,use){
-  const candidates=[];
-  const orientations=[
-    {name:'정방향', w:boxW, l:boxL, rot:false},
-    {name:'90도 회전', w:boxL, l:boxW, rot:true}
-  ];
+  const key = `${Math.round(boxW)}_${Math.round(boxL)}_${Math.round(use)}`;
+  if(palletCache.has(key)) return palletCache.get(key);
 
-  const addCandidate=(name,placements,meta)=>{
+  const candidates=[];
+  const add=(name,placements)=>{
     if(!placements.length) return;
-    const usedArea=placements.reduce((sum,p)=>sum+(p.w*p.l),0);
-    candidates.push({
-      name,
-      placements,
-      count:placements.length,
-      cols:meta?.cols||0,
-      rows:meta?.rows||0,
-      rot:meta?.rot||false,
-      usedArea,
-      efficiency:usedArea/(use*use)
-    });
+    candidates.push({name,placements,count:placements.length});
   };
 
-  // 1) 실무형: 가운데를 비우고, 외곽을 빙 둘러 적재하는 링 구조
-  // 상단/하단 band + 좌측/우측 band를 조합해, 외곽을 최대한 빈틈없이 채웁니다.
-  orientations.forEach(topOri=>{
-    orientations.forEach(bottomOri=>{
-      orientations.forEach(sideOri=>{
-        const maxTopRows=Math.floor(use/topOri.l);
-        const maxBottomRows=Math.floor(use/bottomOri.l);
-        const maxSideCols=Math.floor(use/sideOri.w);
+  const dirs=[
+    {w:boxW,l:boxL,rot:false},
+    {w:boxL,l:boxW,rot:true}
+  ];
 
-        for(let topRows=1; topRows<=maxTopRows; topRows++){
-          const topH=topRows*topOri.l;
-          for(let bottomRows=1; bottomRows<=maxBottomRows; bottomRows++){
-            const bottomH=bottomRows*bottomOri.l;
-            const middleH=use-topH-bottomH;
-            if(middleH < sideOri.l) continue;
+  // 1) 빠른 링 적재: 상/하/좌/우 1~3줄만 검사해서 렉 방지
+  dirs.forEach(top=>{
+    dirs.forEach(side=>{
+      const maxTopRows=Math.min(3, Math.floor(use/top.l));
+      const maxSideCols=Math.min(3, Math.floor(use/side.w));
+      for(let band=1; band<=maxTopRows; band++){
+        const topH=band*top.l;
+        const bottomH=band*top.l;
+        const middleH=use-topH-bottomH;
+        if(middleH < side.l) continue;
+        for(let sideCols=1; sideCols<=maxSideCols; sideCols++){
+          const sideW=sideCols*side.w;
+          if(sideW*2 >= use) continue;
+          const placements=[];
+          const topCols=Math.floor(use/top.w);
+          const sideRows=Math.floor(middleH/side.l);
 
-            for(let leftCols=1; leftCols<=maxSideCols; leftCols++){
-              const leftW=leftCols*sideOri.w;
-              for(let rightCols=1; rightCols<=maxSideCols; rightCols++){
-                const rightW=rightCols*sideOri.w;
-                if(leftW+rightW >= use) continue; // 가운데 여백 유지
-
-                const placements=[];
-                const topCols=Math.floor(use/topOri.w);
-                const bottomCols=Math.floor(use/bottomOri.w);
-                const sideRows=Math.floor(middleH/sideOri.l);
-
-                // 상단
-                for(let r=0;r<topRows;r++){
-                  for(let c=0;c<topCols;c++){
-                    placements.push({x:c*topOri.w,y:r*topOri.l,w:topOri.w,l:topOri.l,rot:topOri.rot});
-                  }
-                }
-
-                // 하단
-                for(let r=0;r<bottomRows;r++){
-                  for(let c=0;c<bottomCols;c++){
-                    placements.push({x:c*bottomOri.w,y:use-bottomH+r*bottomOri.l,w:bottomOri.w,l:bottomOri.l,rot:bottomOri.rot});
-                  }
-                }
-
-                // 좌측
-                for(let c=0;c<leftCols;c++){
-                  for(let r=0;r<sideRows;r++){
-                    placements.push({x:c*sideOri.w,y:topH+r*sideOri.l,w:sideOri.w,l:sideOri.l,rot:sideOri.rot});
-                  }
-                }
-
-                // 우측
-                for(let c=0;c<rightCols;c++){
-                  for(let r=0;r<sideRows;r++){
-                    placements.push({x:use-rightW+c*sideOri.w,y:topH+r*sideOri.l,w:sideOri.w,l:sideOri.l,rot:sideOri.rot});
-                  }
-                }
-
-                addCandidate('중앙 비움 링 적재',placements,{cols:topCols,rows:topRows+bottomRows+sideRows,rot:false});
-              }
-            }
-          }
+          for(let r=0;r<band;r++) for(let c=0;c<topCols;c++) placements.push({x:c*top.w,y:r*top.l,w:top.w,l:top.l,rot:top.rot});
+          for(let r=0;r<band;r++) for(let c=0;c<topCols;c++) placements.push({x:c*top.w,y:use-bottomH+r*top.l,w:top.w,l:top.l,rot:top.rot});
+          for(let c=0;c<sideCols;c++) for(let r=0;r<sideRows;r++) placements.push({x:c*side.w,y:topH+r*side.l,w:side.w,l:side.l,rot:side.rot});
+          for(let c=0;c<sideCols;c++) for(let r=0;r<sideRows;r++) placements.push({x:use-sideW+c*side.w,y:topH+r*side.l,w:side.w,l:side.l,rot:side.rot});
+          add('중앙 비움 링 적재',placements);
         }
-      });
+      }
     });
   });
 
-  // 2) 링 구조가 불가능한 특수 상황을 위한 fallback: 일반 정방향/회전 적재
-  orientations.forEach(o=>{
+  // 2) 일반 적재 fallback
+  dirs.forEach(o=>{
     const cols=Math.floor(use/o.w), rows=Math.floor(use/o.l);
     const placements=[];
-    for(let y=0;y<rows;y++){
-      for(let x=0;x<cols;x++){
-        placements.push({x:x*o.w,y:y*o.l,w:o.w,l:o.l,rot:o.rot});
-      }
-    }
-    addCandidate(o.rot?'90도 회전 일반 적재':'정방향 일반 적재',placements,{cols,rows,rot:o.rot});
+    for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) placements.push({x:x*o.w,y:y*o.l,w:o.w,l:o.l,rot:o.rot});
+    add(o.rot?'90도 회전 일반 적재':'정방향 일반 적재',placements);
   });
 
-  // 우선순위: 1) 링 구조 중 최다 적재 2) 면적 효율 3) 일반 적재 fallback
-  const ringCandidates=candidates.filter(c=>c.name.includes('링'));
-  const pool=ringCandidates.length ? ringCandidates : candidates;
-  return pool.sort((a,b)=>{
-    if(b.count!==a.count) return b.count-a.count;
-    return b.efficiency-a.efficiency;
-  })[0];
+  const rings=candidates.filter(c=>c.name.includes('링'));
+  const pool=rings.length?rings:candidates;
+  const best=pool.sort((a,b)=>b.count-a.count)[0] || {name:'적재 불가',placements:[],count:0};
+  palletCache.set(key,best);
+  return best;
 }
 
 function makeCandidates(d){
@@ -313,7 +264,11 @@ function renderPreview(){
   $('previewRows').innerHTML=rows.map((r,idx)=>`<tr class="${idx===0?'best':''}"><td>${idx===0?'<span class="badge">BEST</span>':idx+1}</td><td>${r.x}×${r.y}×${r.z}단</td><td>${fmt(r.qty)}개</td><td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td><td>${fmt(r.palletFit.count)}박스/단</td><td>${fmt(r.kg,2)}kg</td><td>${r.palletFit.name}</td></tr>`).join('');
 }
 
-document.addEventListener('input',renderPreview);
+let previewTimer=null;
+document.addEventListener('input',()=>{
+  clearTimeout(previewTimer);
+  previewTimer=setTimeout(renderPreview,180);
+});
 renderPreview();
 
 function drawCarton(c){
