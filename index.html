@@ -113,6 +113,12 @@
 
       <div class="card">
         <div class="section-title">추천 후보 선택</div>
+        <div class="input-group three" style="margin-bottom:12px">
+          <div class="input-item"><label>수동 가로 입수</label><input type="number" id="manualX" min="1" placeholder="예: 7"></div>
+          <div class="input-item"><label>수동 세로 입수</label><input type="number" id="manualY" min="1" placeholder="예: 18"></div>
+          <div class="input-item"><label>수동 높이 단수</label><input type="number" id="manualZ" min="1" placeholder="예: 1"></div>
+        </div>
+        <button class="btn" type="button" onclick="applyManualCarton()" style="margin-bottom:14px">수동 카톤 입수로 미리보기</button>
         <div class="table-wrap">
           <table>
             <thead>
@@ -435,6 +441,45 @@ function applyCandidate(idx){
 
 function selectCandidate(idx){
   applyCandidate(idx);
+}
+
+function applyManualCarton(){
+  const d=getData();
+  const x=parseInt($('manualX').value,10)||0;
+  const y=parseInt($('manualY').value,10)||0;
+  const z=parseInt($('manualZ').value,10)||0;
+  if(!x||!y||!z){ alert('가로/세로/높이 입수를 모두 입력해주세요.'); return; }
+
+  const orientations=[
+    {name:'수동 정방향',w:d.w,l:d.l,h:d.h},
+    {name:'수동 90도 회전',w:d.l,l:d.w,h:d.h}
+  ];
+
+  const manualCandidates=[];
+  orientations.forEach(o=>{
+    const qty=x*y*z;
+    const size=cartonSize(x,y,z,o,d);
+    const kg=(qty*d.g+d.boxWeight)/1000;
+    if(size.w<=d.maxBoxW && size.l<=d.maxBoxL && size.h<=d.maxBoxH && kg<d.maxKg){
+      const fit=palletFit(size.w,size.l,d.palletUse);
+      manualCandidates.push({
+        x,y,z,qty,size,kg,
+        orientation:o.name,
+        palletFit:fit,
+        productPerPalletLayer:qty*fit.count,
+        score:999999999
+      });
+    }
+  });
+
+  if(!manualCandidates.length){
+    alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 / 높이 제한 조건을 초과합니다.');
+    return;
+  }
+
+  const manual=manualCandidates.sort((a,b)=>b.productPerPalletLayer-a.productPerPalletLayer)[0];
+  lastCandidates=[manual,...lastCandidates.filter(c=>!(c.x===manual.x&&c.y===manual.y&&c.z===manual.z&&c.size.w===manual.size.w&&c.size.l===manual.size.l))].slice(0,8);
+  applyCandidate(0);
 }
 
 function calculate(){
