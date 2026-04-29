@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YUYU LogiCalc - 카톤 & 파레트 적재 계산기</title>
+  <title>LogiCalc - 카톤 & 파레트 적재 계산기</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root{
@@ -39,15 +39,15 @@
 </head>
 <body>
   <div class="container" id="input-page">
-    <h1>YUYU LogiCalc</h1>
+    <h1>LogiCalc</h1>
     <p class="sub">완제품 기준 카톤박스 입수, 1.1m 파레트 / 1000×1000 적재영역 기준 1단 적재를 계산합니다.</p>
 
     <div class="grid">
       <div>
         <div class="card">
           <div class="section-title">기본 정보</div>
-          <div class="input-item"><label>업체명</label><input type="text" id="companyName" placeholder="예: 이훈휘"></div>
-          <div class="input-item"><label>제품명</label><input type="text" id="productName" placeholder="예: 풀네임 다적는게 좋을껄요"></div>
+          <div class="input-item"><label>업체명</label><input type="text" id="companyName" placeholder="예: 뷰티고객"></div>
+          <div class="input-item"><label>제품명</label><input type="text" id="productName" placeholder="예: 그린 베일 메이크업 베이스"></div>
         </div>
 
         <div class="card">
@@ -69,14 +69,13 @@
             <div class="input-item"><label>빈 카톤 무게 g / 모르면 0</label><input type="number" id="boxWeight" value="0" min="0"></div>
           </div>
           <div class="input-group">
-            <div class="input-item"><label>제품 간 여유 mm</label><input type="number" id="gap" value="2" min="0" step="0.5"></div>
-            <div class="input-item"><label>카톤 외곽 여유 mm</label><input type="number" id="margin" value="12" min="0" step="0.5"></div>
+            <div class="input-item"><label>제품 간 여유 mm</label><input type="number" id="gap" value="0" min="0" step="0.5"></div>
+            <div class="input-item"><label>카톤 외곽 여유 mm</label><input type="number" id="margin" value="20" min="0" step="0.5"></div>
           </div>
           <div class="input-group">
             <div class="input-item"><label>최대 카톤 가로 mm</label><input type="number" id="maxBoxW" value="500" min="1" max="500"></div>
             <div class="input-item"><label>최대 카톤 세로 mm</label><input type="number" id="maxBoxL" value="500" min="1" max="500"></div>
           </div>
-          <div class="input-item"><label>최대 카톤 높이 mm</label><input type="number" id="maxBoxH" value="300" min="1"></div>
         </div>
 
         <div class="card">
@@ -172,7 +171,7 @@ function getData(){
   return {
     company:$('companyName').value.trim(), product:$('productName').value.trim(), total:i('totalQty'),
     w:n('pW'), l:n('pL'), h:n('pH'), g:n('pG'), maxKg:n('maxKg'), boxWeight:n('boxWeight'),
-    gap:n('gap'), margin:n('margin'), maxBoxW:Math.min(500,n('maxBoxW')||500), maxBoxL:Math.min(500,n('maxBoxL')||500), maxBoxH:n('maxBoxH'),
+    gap:n('gap'), margin:n('margin'), maxBoxW:Math.min(500,n('maxBoxW')||500), maxBoxL:Math.min(500,n('maxBoxL')||500), maxBoxH:Infinity,
     palletOuter:n('palletOuter'), palletUse:n('palletUse')
   }
 }
@@ -260,7 +259,7 @@ function makeCandidates(d){
       const qty=x*y*z;
       if(qty<1 || qty>maxQtyByWeight) continue;
       const size=cartonSize(x,y,z,o,d);
-      if(size.w>d.maxBoxW || size.l>d.maxBoxL || size.h>d.maxBoxH) continue;
+      if(size.w>d.maxBoxW || size.l>d.maxBoxL) continue;
       const kg=(qty*d.g+d.boxWeight)/1000;
       if(kg>=d.maxKg) continue;
       const fit=palletFit(size.w,size.l,d.palletUse);
@@ -385,16 +384,16 @@ function applyManualCarton(){
   const manualCandidates=[];
   orientations.forEach(o=>{
     const qty=x*y*z; const size=cartonSize(x,y,z,o,d); const kg=(qty*d.g+d.boxWeight)/1000;
-    if(size.w<=d.maxBoxW&&size.l<=d.maxBoxL&&size.h<=d.maxBoxH&&kg<d.maxKg){const fit=palletFit(size.w,size.l,d.palletUse); manualCandidates.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,productPerPalletLayer:qty*fit.count,score:999999999});}
+    if(size.w<=d.maxBoxW&&size.l<=d.maxBoxL&&kg<d.maxKg){const fit=palletFit(size.w,size.l,d.palletUse); manualCandidates.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,productPerPalletLayer:qty*fit.count,score:999999999});}
   });
-  if(!manualCandidates.length){alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 / 높이 제한 조건을 초과합니다.');return;}
+  if(!manualCandidates.length){alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 조건을 초과합니다.');return;}
   const manual=manualCandidates.sort((a,b)=>b.productPerPalletLayer-a.productPerPalletLayer)[0];
   lastCandidates=[manual,...lastCandidates.filter(c=>!(c.x===manual.x&&c.y===manual.y&&c.z===manual.z&&c.size.w===manual.size.w&&c.size.l===manual.size.l))].slice(0,8);
   applyCandidate(0);
 }
 function calculate(){
   const d=getData(); const candidates=makeCandidates(d);
-  if(!candidates.length){alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 카톤 높이, 여유값을 확인해주세요.');return;}
+  if(!candidates.length){alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 여유값을 확인해주세요.');return;}
   lastCandidates=candidates; selectedCandidateIndex=0; applyCandidate(0); $('input-page').style.display='none'; $('result-page').style.display='block';
 }
 function backToInput(){ $('result-page').style.display='none'; $('input-page').style.display='block'; }
@@ -407,9 +406,7 @@ function downloadImg(){
     link.download='carton-pallet-result.png';
     link.href=canvas.toDataURL('image/png');
     link.click();
-  }).catch(()=>{
-    hiddenEls.forEach(el=>el.style.display='');
-  });
+  }).catch(()=>{ hiddenEls.forEach(el=>el.style.display=''); });
 }
 </script>
 </body>
