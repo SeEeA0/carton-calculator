@@ -454,14 +454,22 @@ function startDragPalletBox(e){
 
 function rotateSelectedPalletBox(){
   if(!selectedPalletBox){ alert('회전할 카톤박스를 먼저 클릭해주세요.'); return; }
-  const left=parseFloat(selectedPalletBox.style.left);
-  const top=parseFloat(selectedPalletBox.style.top);
-  const w=parseFloat(selectedPalletBox.style.width);
-  const h=parseFloat(selectedPalletBox.style.height);
-  selectedPalletBox.style.width=h+'%';
-  selectedPalletBox.style.height=w+'%';
-  selectedPalletBox.style.left=Math.min(left,100-h)+'%';
-  selectedPalletBox.style.top=Math.min(top,100-w)+'%';
+
+  const left=parseFloat(selectedPalletBox.style.left)||0;
+  const top=parseFloat(selectedPalletBox.style.top)||0;
+  const w=parseFloat(selectedPalletBox.dataset.w || selectedPalletBox.style.width)||0;
+  const h=parseFloat(selectedPalletBox.dataset.h || selectedPalletBox.style.height)||0;
+
+  if(!w || !h){ alert('선택한 카톤 사이즈를 읽지 못했습니다. 자동 배치로 초기화 후 다시 시도해주세요.'); return; }
+
+  const newW=h;
+  const newH=w;
+  selectedPalletBox.style.width=newW+'%';
+  selectedPalletBox.style.height=newH+'%';
+  selectedPalletBox.dataset.w=newW;
+  selectedPalletBox.dataset.h=newH;
+  selectedPalletBox.style.left=Math.min(left,100-newW)+'%';
+  selectedPalletBox.style.top=Math.min(top,100-newH)+'%';
   selectedPalletBox.classList.toggle('rotated');
   checkPalletCollisions();
 }
@@ -505,8 +513,10 @@ function drawPallet(d,fit){
     unit.className='pallet-box' + (p.rot?' rotated':'') + (palletEditMode?' editable':'');
     unit.style.left=(p.x/d.palletUse*100)+'%';
     unit.style.top=(p.y/d.palletUse*100)+'%';
-    unit.style.width=`calc(${p.w/d.palletUse*100}% - 4px)`;
-    unit.style.height=`calc(${p.l/d.palletUse*100}% - 4px)`;
+    unit.style.width=(p.w/d.palletUse*100)+'%';
+    unit.style.height=(p.l/d.palletUse*100)+'%';
+    unit.dataset.w=(p.w/d.palletUse*100);
+    unit.dataset.h=(p.l/d.palletUse*100);
     unit.addEventListener('click',e=>{ if(palletEditMode){ e.stopPropagation(); selectPalletBox(unit); } });
     unit.addEventListener('mousedown',startDragPalletBox);
     unit.addEventListener('touchstart',startDragPalletBox,{passive:false});
