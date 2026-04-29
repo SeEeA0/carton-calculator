@@ -17,7 +17,7 @@
     .hero{background:rgba(255,255,255,.78);border:1px solid var(--line);border-radius:32px;padding:36px;box-shadow:var(--shadow);margin-bottom:22px}.hero h1{margin:0;font-size:clamp(36px,5vw,70px);line-height:.98;letter-spacing:-.075em}.hero p{margin:18px 0 0;color:var(--muted);line-height:1.75;max-width:760px}
     .grid{display:grid;grid-template-columns:420px minmax(0,1fr);gap:22px;align-items:start}.panel{background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}.head{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.head h2,.head h3{margin:0;font-size:18px}.head small{color:var(--muted);font-weight:800}.body{padding:24px}.form3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.form2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}.field label{font-size:12px;font-weight:900;color:#625c54}.field input{border:1px solid var(--line);border-radius:18px;padding:15px;background:#fff;outline:none}.field input:focus{border-color:var(--brown2);box-shadow:0 0 0 4px rgba(183,138,86,.14)}.line{height:1px;background:var(--line);margin:10px 0 24px}.btns{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:16px;padding:14px 18px;font-weight:900;cursor:pointer}.btn.brown{background:var(--brown);border-color:var(--brown)}.btn.light{background:#fff;color:var(--ink);border-color:var(--line)}.note{font-size:13px;color:var(--muted);line-height:1.65;margin:14px 0 0}
     .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 10px 28px rgba(38,26,16,.04)}.label{font-size:12px;color:var(--muted);font-weight:900;margin-bottom:10px}.value{font-size:32px;font-weight:950;letter-spacing:-.06em}.unit{font-size:14px;color:var(--muted);font-weight:800;margin-left:3px}.status{display:inline-flex;margin-top:12px;border-radius:999px;padding:8px 11px;font-size:12px;font-weight:950}.ok{background:rgba(22,130,74,.1);color:var(--green)}.bad{background:rgba(199,67,67,.1);color:var(--red)}
-    .visuals{display:grid;grid-template-columns:1fr 1fr;gap:18px}.visual{background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 10px 28px rgba(38,26,16,.04)}.vtitle{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-weight:950}.vtitle span{font-size:12px;color:var(--muted);font-weight:850}.canvas{min-height:360px;padding:18px;background:#fbfaf8;display:flex;align-items:center;justify-content:center}.carton{width:100%;max-width:460px;aspect-ratio:1/.7;border:9px solid var(--brown);background:var(--cream);display:grid;gap:2px;padding:5px}.cell{border:1px solid rgba(183,138,86,.95);background:rgba(255,255,255,.35)}.pallet{width:100%;max-width:430px;aspect-ratio:1/1;border:6px solid #222;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);display:grid;gap:4px;padding:5px}.pcell{border:2px solid var(--brown);background:var(--cream);border-radius:4px}
+    .visuals{display:grid;grid-template-columns:1fr 1fr;gap:18px}.visual{background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 10px 28px rgba(38,26,16,.04)}.vtitle{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-weight:950}.vtitle span{font-size:12px;color:var(--muted);font-weight:850}.canvas{min-height:360px;padding:18px;background:#fbfaf8;display:flex;align-items:center;justify-content:center}.carton{width:100%;max-width:460px;aspect-ratio:1/.7;border:9px solid var(--brown);background:var(--cream);display:grid;gap:2px;padding:5px}.cell{border:1px solid rgba(183,138,86,.95);background:rgba(255,255,255,.35)}.pallet{width:100%;max-width:430px;aspect-ratio:1/1;border:6px solid #222;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);display:grid;gap:4px;padding:5px;box-shadow:0 0 0 22px rgba(91,51,24,.08)}.pcell{border:2px solid var(--brown);background:var(--cream);border-radius:4px}
     .tablewrap{overflow-x:auto;margin-top:18px}table{width:100%;min-width:860px;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden}th,td{text-align:left;padding:14px;border-bottom:1px solid var(--line);white-space:nowrap}th{font-size:12px;color:#665f57;background:#fbfaf8}.best td{background:rgba(22,130,74,.055);font-weight:850}.badge{display:inline-flex;border-radius:999px;padding:6px 9px;background:var(--soft);font-size:12px;font-weight:950;color:#665f57}.badge.good{background:rgba(22,130,74,.12);color:var(--green)}
     @media(max-width:1120px){.grid,.visuals{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:680px){.page{padding:16px}.top{display:block}.hero,.body{padding:20px}.form2,.form3,.cards{grid-template-columns:1fr}.hero h1{font-size:40px}.canvas{min-height:260px}}
   </style>
@@ -60,6 +60,11 @@
           <div class="field"><label>최대 세로 폭 mm</label><input id="maxCartonD" type="number" value="400" min="1" step="1"></div>
         </div>
         <div class="field"><label>최대 카톤 높이 mm</label><input id="maxCartonH" type="number" value="300" min="1" step="1"></div>
+        <div class="line"></div>
+        <div class="form2">
+          <div class="field"><label>파레트 전체 사이즈 mm</label><input id="palletOuter" type="number" value="1100" min="1" step="1"></div>
+          <div class="field"><label>실제 적재 영역 mm</label><input id="palletUsable" type="number" value="1000" min="1" step="1"></div>
+        </div>
 
         <div class="line"></div>
         <div class="form3">
@@ -85,7 +90,7 @@
 
       <div class="visuals">
         <div class="visual"><div class="vtitle">카톤 내부 입수 배치 <span id="layoutInfo">-</span></div><div class="canvas"><div class="carton" id="cartonLayout"></div></div></div>
-        <div class="visual"><div class="vtitle">1100 파레트 1단 배치 <span id="palletInfo">-</span></div><div class="canvas"><div class="pallet" id="palletLayout"></div></div></div>
+        <div class="visual"><div class="vtitle">파레트 1단 배치 <span id="palletInfo">-</span></div><div class="canvas"><div class="pallet" id="palletLayout"></div></div></div>
       </div>
 
       <div class="tablewrap">
@@ -108,6 +113,7 @@ function data(){return{
   weight:val('productWeight'), w:val('productW'), d:val('productD'), h:val('productH'),
   maxKg:val('maxWeight'), boxWeight:val('boxWeight'), gap:val('gap'), margin:val('margin'),
   maxW:val('maxCartonW'), maxD:val('maxCartonD'), maxH:val('maxCartonH'),
+  palletOuter:val('palletOuter'), palletUsable:val('palletUsable'),
   manualX:ival('countX'), manualY:ival('countY'), manualZ:ival('countZ')
 }}
 function cartonSize(x,y,z,o,d){
@@ -117,8 +123,7 @@ function cartonSize(x,y,z,o,d){
     h: Math.ceil(z*o.h + Math.max(0,z-1)*d.gap + d.margin*2)
   }
 }
-function palletFit(w,d){
-  const p=1100;
+function palletFit(w,d,p=1000){
   const a={cols:Math.floor(p/w),rows:Math.floor(p/d),rot:false}; a.count=a.cols*a.rows;
   const b={cols:Math.floor(p/d),rows:Math.floor(p/w),rot:true}; b.count=b.cols*b.rows;
   return b.count>a.count?b:a;
@@ -142,7 +147,7 @@ function makeCandidates(d){
       if(size.w>d.maxW||size.dep>d.maxD||size.h>d.maxH) continue;
       const kg=(qty*d.weight+d.boxWeight)/1000;
       if(kg>=d.maxKg) continue;
-      const pallet=palletFit(size.w,size.dep);
+      const pallet=palletFit(size.w,size.dep,d.palletUsable);
       const compact=Math.abs(size.w-size.dep);
       list.push({x,y,z,qty,size,kg,pallet,orientation:o.name,score:qty*100000+pallet.count*1000-compact-size.h});
     }
@@ -154,7 +159,7 @@ function chosen(d,cands){
     const o={name:'수동 입력',w:d.w,d:d.d,h:d.h};
     const size=cartonSize(d.manualX,d.manualY,d.manualZ,o,d);
     const qty=d.manualX*d.manualY*d.manualZ;
-    return {x:d.manualX,y:d.manualY,z:d.manualZ,qty,size,kg:(qty*d.weight+d.boxWeight)/1000,pallet:palletFit(size.w,size.dep),orientation:'수동 입력'};
+    return {x:d.manualX,y:d.manualY,z:d.manualZ,qty,size,kg:(qty*d.weight+d.boxWeight)/1000,pallet:palletFit(size.w,size.dep,d.palletUsable),orientation:'수동 입력'};
   }
   return cands[0]||null;
 }
@@ -169,10 +174,14 @@ function renderCarton(c){
 function renderPallet(c){
   const el=$('palletLayout'); el.innerHTML='';
   if(!c){$('palletInfo').textContent='-';return}
+  const d=data();
   const cols=Math.max(1,c.pallet.cols), rows=Math.max(1,c.pallet.rows);
+  const usable=Math.min(100, Math.max(10, (d.palletUsable / d.palletOuter) * 100));
+  el.style.width=usable+'%';
+  el.style.height=usable+'%';
   el.style.gridTemplateColumns=`repeat(${cols},1fr)`; el.style.gridTemplateRows=`repeat(${rows},1fr)`;
   for(let i=0;i<Math.min(cols*rows,120);i++){const div=document.createElement('div');div.className='pcell';el.appendChild(div)}
-  $('palletInfo').textContent=`1단 ${c.pallet.count}박스 · ${c.pallet.rot?'회전':'정방향'}`;
+  $('palletInfo').textContent=`${fmt(d.palletOuter)} 파레트 / ${fmt(d.palletUsable)} 적재영역 · 1단 ${c.pallet.count}박스 · ${c.pallet.rot?'회전':'정방향'}`;
 }
 function calc(){
   const d=data(), maxQ=maxAllowed(d), cands=makeCandidates(d), c=chosen(d,cands);
