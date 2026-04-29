@@ -174,55 +174,117 @@ function palletFit(boxW,boxL,use){
   const key = `${Math.round(boxW)}_${Math.round(boxL)}_${Math.round(use)}`;
   if(palletCache.has(key)) return palletCache.get(key);
 
+  const dirs=[
+    {w:boxW,l:boxL,rot:false,label:'정방향'},
+    {w:boxL,l:boxW,rot:true,label:'90도 회전'}
+  ];
+
   const candidates=[];
   const add=(name,placements)=>{
     if(!placements.length) return;
-    candidates.push({name,placements,count:placements.length});
+    const usedArea=placements.reduce((sum,p)=>sum+(p.w*p.l),0);
+    candidates.push({
+      name,
+      placements,
+      count:placements.length,
+      usedArea,
+      efficiency:usedArea/(use*use)
+    });
   };
 
-  const dirs=[
-    {w:boxW,l:boxL,rot:false},
-    {w:boxL,l:boxW,rot:true}
-  ];
-
-  // 1) 빠른 링 적재: 상/하/좌/우 1~3줄만 검사해서 렉 방지
-  dirs.forEach(top=>{
-    dirs.forEach(side=>{
-      const maxTopRows=Math.min(3, Math.floor(use/top.l));
-      const maxSideCols=Math.min(3, Math.floor(use/side.w));
-      for(let band=1; band<=maxTopRows; band++){
-        const topH=band*top.l;
-        const bottomH=band*top.l;
-        const middleH=use-topH-bottomH;
-        if(middleH < side.l) continue;
-        for(let sideCols=1; sideCols<=maxSideCols; sideCols++){
-          const sideW=sideCols*side.w;
-          if(sideW*2 >= use) continue;
-          const placements=[];
-          const topCols=Math.floor(use/top.w);
-          const sideRows=Math.floor(middleH/side.l);
-
-          for(let r=0;r<band;r++) for(let c=0;c<topCols;c++) placements.push({x:c*top.w,y:r*top.l,w:top.w,l:top.l,rot:top.rot});
-          for(let r=0;r<band;r++) for(let c=0;c<topCols;c++) placements.push({x:c*top.w,y:use-bottomH+r*top.l,w:top.w,l:top.l,rot:top.rot});
-          for(let c=0;c<sideCols;c++) for(let r=0;r<sideRows;r++) placements.push({x:c*side.w,y:topH+r*side.l,w:side.w,l:side.l,rot:side.rot});
-          for(let c=0;c<sideCols;c++) for(let r=0;r<sideRows;r++) placements.push({x:use-sideW+c*side.w,y:topH+r*side.l,w:side.w,l:side.l,rot:side.rot});
-          add('중앙 비움 링 적재',placements);
-        }
-      }
-    });
-  });
-
-  // 2) 일반 적재 fallback
+  // 1) 일반 적재: 전체를 정방향 또는 90도 중 하나로만 적재
   dirs.forEach(o=>{
     const cols=Math.floor(use/o.w), rows=Math.floor(use/o.l);
     const placements=[];
-    for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) placements.push({x:x*o.w,y:y*o.l,w:o.w,l:o.l,rot:o.rot});
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        placements.push({x:x*o.w,y:y*o.l,w:o.w,l:o.l,rot:o.rot});
+      }
+    }
     add(o.rot?'90도 회전 일반 적재':'정방향 일반 적재',placements);
   });
 
+  // 2) 중앙 비움 링 적재
+  // 각 구역은 정방향/90도 중 하나로만 쌓습니다.
+  // 예: 상단은 정방향, 우측은 90도, 하단은 정방향처럼 구역별 방향 선택 가능.
+  dirs.forEach(top=>{
+    dirs.forEach(bottom=>{
+      dirs.forEach(left=>{
+        dirs.forEach(right=>{
+          const maxTopRows=Math.floor(use/top.l);
+          const maxBottomRows=Math.floor(use/bottom.l);
+          const maxLeftCols=Math.floor(use/left.w);
+          const maxRightCols=Math.floor(use/right.w);
+
+          for(let topRows=1; topRows<=maxTopRows; topRows++){
+            const topH=topRows*top.l;
+            for(let bottomRows=1; bottomRows<=maxBottomRows; bottomRows++){
+              const bottomH=bottomRows*bottom.l;
+              const middleH=use-topH-bottomH;
+              if(middleH<=0) continue;
+
+              for(let leftCols=1; leftCols<=maxLeftCols; leftCols++){
+                const leftW=leftCols*left.w;
+                const leftRows=Math.floor(middleH/left.l);
+                if(leftRows<1) continue;
+
+                for(let rightCols=1; rightCols<=maxRightCols; rightCols++){
+                  const rightW=rightCols*right.w;
+                  const rightRows=Math.floor(middleH/right.l);
+                  if(rightRows<1) continue;
+                  if(leftW+rightW>=use) continue; // 중앙 여백 유지
+
+                  const placements=[];
+                  const topCols=Math.floor(use/top.w);
+                  const bottomCols=Math.floor(use/bottom.w);
+
+                  // 상단 가로 영역
+                  for(let r=0;r<topRows;r++){
+                    for(let c=0;c<topCols;c++){
+                      placements.push({x:c*top.w,y:r*top.l,w:top.w,l:top.l,rot:top.rot});
+                    }
+                  }
+
+                  // 하단 가로 영역
+                  for(let r=0;r<bottomRows;r++){
+                    for(let c=0;c<bottomCols;c++){
+                      placements.push({x:c*bottom.w,y:use-bottomH+r*bottom.l,w:bottom.w,l:bottom.l,rot:bottom.rot});
+                    }
+                  }
+
+                  // 좌측 세로 영역
+                  for(let c=0;c<leftCols;c++){
+                    for(let r=0;r<leftRows;r++){
+                      placements.push({x:c*left.w,y:topH+r*left.l,w:left.w,l:left.l,rot:left.rot});
+                    }
+                  }
+
+                  // 우측 세로 영역
+                  for(let c=0;c<rightCols;c++){
+                    for(let r=0;r<rightRows;r++){
+                      placements.push({x:use-rightW+c*right.w,y:topH+r*right.l,w:right.w,l:right.l,rot:right.rot});
+                    }
+                  }
+
+                  add('중앙 비움 링 적재',placements);
+                }
+              }
+            }
+          }
+        });
+      });
+    });
+  });
+
+  // 링 적재가 가능하면 링 적재만 후보로 보고,
+  // 그 안에서 박스 수 + 면적 효율이 높은 것을 선택합니다.
   const rings=candidates.filter(c=>c.name.includes('링'));
   const pool=rings.length?rings:candidates;
-  const best=pool.sort((a,b)=>b.count-a.count)[0] || {name:'적재 불가',placements:[],count:0};
+  const best=pool.sort((a,b)=>{
+    if(b.count!==a.count) return b.count-a.count;
+    return b.efficiency-a.efficiency;
+  })[0] || {name:'적재 불가',placements:[],count:0,efficiency:0};
+
   palletCache.set(key,best);
   return best;
 }
