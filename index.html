@@ -38,7 +38,7 @@
 <body>
   <div class="container" id="input-page">
     <h1>LogiCalc</h1>
-    <p class="sub">완제품 기준 카톤박스 입수, 1000×1000 파레트 1단 적재, 높이 제한별 필요 파레트를 계산합니다.</p>
+    <p class="sub">완제품 기준 카톤박스 입수, 1.1m 파레트 / 1000×1000 적재영역 기준 1단 적재, 높이 제한별 필요 파레트를 계산합니다.</p>
 
     <div class="grid">
       <div>
@@ -80,7 +80,7 @@
         <div class="card">
           <div class="section-title">3. 파레트 / 높이 제한</div>
           <div class="input-group">
-            <div class="input-item"><label>파레트 전체 mm</label><input type="number" id="palletOuter" value="1100" min="1"></div>
+            <div class="input-item"><label>파레트 전체 1.1m = 1100mm</label><input type="number" id="palletOuter" value="1100" min="1"></div>
             <div class="input-item"><label>실제 적재 영역 mm</label><input type="number" id="palletUse" value="1000" min="1"></div>
           </div>
           <div class="input-group">
@@ -249,7 +249,7 @@ function calculate(){
   $('resTotalBoxes').textContent=fmt(totalBoxes)+'박스';
   $('resTotalPallets').textContent=fmt(totalPallets)+'PLT';
   $('cartonText').textContent=`입수 구조: ${c.x}×${c.y}×${c.z}단 / ${fmt(c.qty)}개 · 예상 중량 ${fmt(c.kg,2)}kg`;
-  $('palletText').textContent=`1000×1000 기준: ${fit.cols}×${fit.rows} / ${fit.count}박스·1단 · ${fit.rot?'90도 회전':'정방향'} · 높이 ${layers}단`;
+  $('palletText').textContent=`1.1m 파레트 / 1000×1000 적재영역 기준: ${fit.cols}×${fit.rows} / ${fit.count}박스·1단 · ${fit.rot?'90도 회전':'정방향'} · 높이 ${layers}단`;
   drawCarton(c);
   drawPallet(c,d,fit);
   $('input-page').style.display='none';
