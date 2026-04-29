@@ -30,7 +30,8 @@
     .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.summary-item{background:#fbfaf8;border:1px solid var(--line);border-radius:16px;padding:15px}.summary-item b{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}.summary-item span{font-size:22px;font-weight:900}
     .visual-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.visual-title{font-size:16px;font-weight:900;margin:0 0 12px;color:var(--brown)}
     .carton-viz{width:100%;max-width:520px;min-height:260px;margin:0 auto;border:9px solid var(--brown);background:var(--cream);display:grid;gap:2px;padding:6px;overflow:hidden}.carton-cell{border:1px solid #bd8b55;background:rgba(255,255,255,.35)}
-    .pallet-stage{width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto;border:8px solid #222;background:#e9e4dc;display:flex;align-items:center;justify-content:center}.pallet-inner{position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);border:3px dashed #c8b9aa;overflow:hidden}.pallet-box{position:absolute;background:var(--cream);border:2px solid var(--brown);border-radius:4px}.pallet-box.rotated{background:#efe2cf}
+    .editor-toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px 0}.mini-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;font-weight:800;cursor:pointer}.mini-btn.active{background:var(--brown);color:#fff;border-color:var(--brown)}.carton-editor{width:100%;max-width:520px;min-height:260px;margin:0 auto;border:9px solid var(--brown);background:var(--cream);position:relative;overflow:hidden;touch-action:none}.carton-editor.hidden{display:none}.edit-box{position:absolute;background:rgba(255,255,255,.48);border:2px solid #bd8b55;border-radius:3px;cursor:grab;user-select:none}.edit-box.selected{outline:3px solid var(--blue);z-index:5}.edit-box.bad{background:rgba(199,67,67,.22);border-color:var(--red)}
+    .pallet-stage{width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto;border:8px solid #222;background:#e9e4dc;display:flex;align-items:center;justify-content:center}.pallet-inner{position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);border:3px dashed #c8b9aa;overflow:hidden}.pallet-box{position:absolute;background:var(--cream);border:3px solid var(--brown);border-radius:4px;overflow:hidden}.pallet-box::before{content:"";position:absolute;inset:4px;border:1px solid rgba(189,139,85,.65);background:repeating-linear-gradient(90deg, transparent 0, transparent 23%, rgba(189,139,85,.45) 23.5%, transparent 24%),repeating-linear-gradient(0deg, transparent 0, transparent 23%, rgba(189,139,85,.35) 23.5%, transparent 24%);opacity:.75}.pallet-box.rotated{background:#efe2cf}
     .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:860px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:12px;color:var(--muted);background:#fbfaf8}.best td{background:rgba(22,130,74,.06);font-weight:800}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:rgba(22,130,74,.12);color:var(--green);font-size:12px;font-weight:900}.clickable-row{cursor:pointer}.clickable-row:hover td{background:#fbfaf8}.selected-row td{background:rgba(22,130,74,.08)!important;font-weight:900}
     @media(max-width:900px){body{padding:14px}.grid,.visual-grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.input-group,.input-group.three{grid-template-columns:1fr}h1{font-size:34px}}
   </style>
@@ -134,7 +135,14 @@
         <div class="card">
           <div class="visual-title">카톤 내부 입수 예시</div>
           <div id="cartonViz" class="carton-viz"></div>
+          <div class="editor-toolbar">
+            <button class="mini-btn" type="button" id="editModeBtn" onclick="toggleEditMode()">직접 배치 모드</button>
+            <button class="mini-btn" type="button" onclick="rotateSelectedBox()">선택 박스 90도 회전</button>
+            <button class="mini-btn" type="button" onclick="resetEditorBoxes()">자동 배치로 초기화</button>
+          </div>
+          <div id="cartonEditor" class="carton-editor hidden"></div>
           <p class="note" id="cartonText" style="text-align:center"></p>
+          <p class="note" id="editText" style="text-align:center">직접 배치 모드에서 단상자를 드래그하고, 클릭 후 90도 회전할 수 있습니다.</p>
         </div>
         <div class="card">
           <div class="visual-title">파레트 1단 적재 예시</div>
@@ -153,6 +161,9 @@
 let lastResult=null;
 let lastCandidates=[];
 let selectedCandidateIndex=0;
+let editMode=false;
+let selectedEditBox=null;
+let editorSource=null;
 const $=id=>document.getElementById(id);
 const n=id=>parseFloat($(id).value)||0;
 const i=id=>parseInt($(id).value,10)||0;
@@ -393,6 +404,141 @@ function drawCarton(c){
   }
 }
 
+function toggleEditMode(){
+  editMode=!editMode;
+  $('editModeBtn').classList.toggle('active',editMode);
+  $('cartonViz').style.display=editMode?'none':'grid';
+  $('cartonEditor').classList.toggle('hidden',!editMode);
+  if(editMode && lastResult){ initCartonEditor(lastResult.c,lastResult.d); }
+}
+
+function initCartonEditor(c,d){
+  editorSource={c,d};
+  const editor=$('cartonEditor');
+  editor.innerHTML='';
+  editor.style.aspectRatio=`${c.size.w}/${c.size.l}`;
+  selectedEditBox=null;
+
+  const rotated=c.orientation && c.orientation.includes('90');
+  const itemW=rotated?d.l:d.w;
+  const itemL=rotated?d.w:d.l;
+
+  const margin=d.margin;
+  const gap=d.gap;
+  const cartonW=c.size.w;
+  const cartonL=c.size.l;
+  const count=c.x*c.y;
+
+  for(let row=0; row<c.y; row++){
+    for(let col=0; col<c.x; col++){
+      const idx=row*c.x+col;
+      if(idx>=count) break;
+      const left=((margin+col*(itemW+gap))/cartonW)*100;
+      const top=((margin+row*(itemL+gap))/cartonL)*100;
+      const width=(itemW/cartonW)*100;
+      const height=(itemL/cartonL)*100;
+      const box=document.createElement('div');
+      box.className='edit-box';
+      box.style.left=left+'%';
+      box.style.top=top+'%';
+      box.style.width=width+'%';
+      box.style.height=height+'%';
+      box.dataset.rot='0';
+      box.addEventListener('mousedown',startDragBox);
+      box.addEventListener('touchstart',startDragBox,{passive:false});
+      box.addEventListener('click',e=>{e.stopPropagation();selectEditBox(box)});
+      editor.appendChild(box);
+    }
+  }
+  editor.onclick=()=>selectEditBox(null);
+  checkEditorCollisions();
+}
+
+function selectEditBox(box){
+  document.querySelectorAll('.edit-box').forEach(b=>b.classList.remove('selected'));
+  selectedEditBox=box;
+  if(box) box.classList.add('selected');
+}
+
+function startDragBox(e){
+  e.preventDefault();
+  const box=e.currentTarget;
+  selectEditBox(box);
+  const editor=$('cartonEditor');
+  const rect=editor.getBoundingClientRect();
+  const boxRect=box.getBoundingClientRect();
+  const startX=(e.touches?e.touches[0].clientX:e.clientX);
+  const startY=(e.touches?e.touches[0].clientY:e.clientY);
+  const startLeft=boxRect.left-rect.left;
+  const startTop=boxRect.top-rect.top;
+
+  function move(ev){
+    ev.preventDefault();
+    const x=(ev.touches?ev.touches[0].clientX:ev.clientX);
+    const y=(ev.touches?ev.touches[0].clientY:ev.clientY);
+    const snap=4;
+    let nx=Math.round((startLeft+x-startX)/snap)*snap;
+    let ny=Math.round((startTop+y-startY)/snap)*snap;
+    nx=Math.max(0,Math.min(nx,rect.width-box.offsetWidth));
+    ny=Math.max(0,Math.min(ny,rect.height-box.offsetHeight));
+    box.style.left=(nx/rect.width*100)+'%';
+    box.style.top=(ny/rect.height*100)+'%';
+    checkEditorCollisions();
+  }
+  function up(){
+    document.removeEventListener('mousemove',move);
+    document.removeEventListener('mouseup',up);
+    document.removeEventListener('touchmove',move);
+    document.removeEventListener('touchend',up);
+  }
+  document.addEventListener('mousemove',move);
+  document.addEventListener('mouseup',up);
+  document.addEventListener('touchmove',move,{passive:false});
+  document.addEventListener('touchend',up);
+}
+
+function rotateSelectedBox(){
+  if(!selectedEditBox){ alert('회전할 단상자를 먼저 클릭해주세요.'); return; }
+  const left=parseFloat(selectedEditBox.style.left);
+  const top=parseFloat(selectedEditBox.style.top);
+  const w=parseFloat(selectedEditBox.style.width);
+  const h=parseFloat(selectedEditBox.style.height);
+  selectedEditBox.style.width=h+'%';
+  selectedEditBox.style.height=w+'%';
+  selectedEditBox.style.left=Math.min(left,100-h)+'%';
+  selectedEditBox.style.top=Math.min(top,100-w)+'%';
+  selectedEditBox.dataset.rot=selectedEditBox.dataset.rot==='1'?'0':'1';
+  checkEditorCollisions();
+}
+
+function resetEditorBoxes(){
+  if(!lastResult){return;}
+  initCartonEditor(lastResult.c,lastResult.d);
+}
+
+function checkEditorCollisions(){
+  const boxes=[...document.querySelectorAll('.edit-box')];
+  boxes.forEach(b=>b.classList.remove('bad'));
+  const editor=$('cartonEditor');
+  const er=editor.getBoundingClientRect();
+  const rects=boxes.map(b=>{
+    const r=b.getBoundingClientRect();
+    return {el:b,x:r.left-er.left,y:r.top-er.top,w:r.width,l:r.height};
+  });
+  for(let i=0;i<rects.length;i++){
+    for(let j=i+1;j<rects.length;j++){
+      if(rectsOverlap(rects[i],rects[j])){
+        rects[i].el.classList.add('bad');
+        rects[j].el.classList.add('bad');
+      }
+    }
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if((e.key==='r'||e.key==='R') && editMode){ rotateSelectedBox(); }
+});
+
 function drawPallet(d,fit){
   const el=$('palletViz');
   el.innerHTML='';
@@ -435,6 +581,7 @@ function applyCandidate(idx){
   $('cartonText').textContent=`입수 구조: ${c.x}×${c.y}×${c.z}단 / ${fmt(c.qty)}개 · 예상 중량 ${fmt(c.kg,2)}kg`;
   $('palletText').textContent=`1.1m 파레트 / ${fmt(d.palletUse)}×${fmt(d.palletUse)} 적재영역 기준: ${fit.count}박스·1단 · ${fit.name} · 높이 ${layers}단`;
   drawCarton(c);
+  if(editMode){ setTimeout(()=>initCartonEditor(c,d),0); }
   drawPallet(d,fit);
   renderResultCandidateRows();
 }
