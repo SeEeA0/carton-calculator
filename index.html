@@ -217,8 +217,12 @@ function makeCandidates(d){
           const kg=(qty*d.g+d.boxWeight)/1000;
           if(kg>=d.maxKg) continue;
           const fit=palletFit(size.w,size.l,d.palletUse);
-          const score=fit.count*1000000 + qty*1000 - Math.abs(size.w-size.l) - size.h;
-          list.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,score});
+          // 완제품 > 카톤 > 파레트 순서로 계산
+          // 1순위: 카톤에 들어가는 수량이 충분히 큰지
+          // 2순위: 그 카톤이 파레트에 효율적으로 올라가는지
+          const productPerPalletLayer = qty * fit.count;
+          const score = qty * 10000000 + productPerPalletLayer * 1000 + fit.count * 100 - Math.abs(size.w-size.l) - size.h;
+          list.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,score,productPerPalletLayer});
         }
       }
     }
