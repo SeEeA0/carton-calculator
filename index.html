@@ -1,242 +1,274 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LogiCalc - 스마트 적재 계산기</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --apple-bg: #f5f5f7;
-            --apple-card: #ffffff;
-            --apple-blue: #0071e3;
-            --apple-text: #1d1d1f;
-            --apple-gray: #86868b;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--apple-bg);
-            color: var(--apple-text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 { font-size: 40px; font-weight: 600; text-align: center; margin-bottom: 40px; letter-spacing: -0.5px; }
-
-        .card {
-            background: var(--apple-card);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
-            margin-bottom: 24px;
-        }
-
-        .section-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--apple-blue); }
-
-        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-
-        .input-item { display: flex; flex-direction: column; }
-
-        label { font-size: 13px; color: var(--apple-gray); margin-bottom: 6px; margin-left: 4px; }
-
-        input {
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: 1px solid #d2d2d7;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        input:focus { border-color: var(--apple-blue); box-shadow: 0 0 0 4px rgba(0,113,227,0.1); }
-
-        .btn-calc {
-            width: 100%;
-            padding: 16px;
-            background-color: var(--apple-blue);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn-calc:hover { opacity: 0.9; }
-
-        /* 결과 페이지 스타일 */
-        #result-page { display: none; }
-        
-        .pallet-viz {
-            width: 220px; /* 1100mm -> 220px (1/5 scale) */
-            height: 220px;
-            background: #e0e0e0;
-            border: 2px solid #86868b;
-            position: relative;
-            margin: 20px auto;
-        }
-
-        .box-unit {
-            position: absolute;
-            background: rgba(0, 113, 227, 0.6);
-            border: 1px solid #fff;
-            box-sizing: border-box;
-        }
-
-        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .summary-item { background: #f9f9f9; padding: 15px; border-radius: 10px; }
-        
-        .download-btn { background: #333; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; margin-top: 20px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LogiCalc - 카톤 & 파레트 적재 계산기</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root{
+      --bg:#f6f2ea; --card:#fff; --ink:#141414; --muted:#746c62; --line:#ddd2c2;
+      --brown:#5b3218; --cream:#f7eedf; --blue:#0071e3; --green:#16824a; --red:#c74343;
+      --shadow:0 14px 40px rgba(40,26,15,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Pretendard,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(135deg,#fffaf1,var(--bg));color:var(--ink);letter-spacing:-.03em}
+    .container{max-width:1180px;margin:0 auto}
+    h1{font-size:42px;line-height:1;margin:18px 0 10px;text-align:center;letter-spacing:-.06em}
+    .sub{text-align:center;color:var(--muted);margin:0 0 28px;line-height:1.6}
+    .grid{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+    .section-title{font-size:18px;font-weight:800;margin-bottom:18px;color:var(--brown)}
+    .input-group{display:grid;grid-template-columns:1fr 1fr;gap:12px}.input-group.three{grid-template-columns:repeat(3,1fr)}
+    .input-item{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+    label{font-size:12px;color:var(--muted);font-weight:800}
+    input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);font-size:15px;outline:none;background:#fff}
+    input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,113,227,.1)}
+    .btn{width:100%;padding:15px;border:0;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:800;cursor:pointer}.btn.dark{background:#222}.btn.gray{background:#8b8b91}.btn:hover{opacity:.9}
+    .note{font-size:12px;line-height:1.6;color:var(--muted);margin:10px 0 0}.warn{color:var(--red);font-weight:700}
+    #result-page{display:none}.result-actions{display:flex;gap:10px;margin-top:14px}.result-actions .btn{width:auto;flex:1}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.summary-item{background:#fbfaf8;border:1px solid var(--line);border-radius:16px;padding:15px}.summary-item b{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}.summary-item span{font-size:22px;font-weight:900}
+    .visual-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.visual-title{font-size:16px;font-weight:900;margin:0 0 12px;color:var(--brown)}
+    .carton-viz{width:100%;max-width:520px;min-height:260px;margin:0 auto;border:9px solid var(--brown);background:var(--cream);display:grid;gap:2px;padding:6px;overflow:hidden}.carton-cell{border:1px solid #bd8b55;background:rgba(255,255,255,.35)}
+    .pallet-stage{width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto;border:8px solid #222;background:#e9e4dc;display:flex;align-items:center;justify-content:center}.pallet-inner{position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);border:3px dashed #c8b9aa;overflow:hidden}.pallet-box{position:absolute;background:var(--cream);border:2px solid var(--brown);border-radius:4px}
+    .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:12px;color:var(--muted);background:#fbfaf8}.best td{background:rgba(22,130,74,.06);font-weight:800}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:rgba(22,130,74,.12);color:var(--green);font-size:12px;font-weight:900}
+    @media(max-width:900px){body{padding:14px}.grid,.visual-grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.input-group,.input-group.three{grid-template-columns:1fr}h1{font-size:34px}}
+  </style>
 </head>
 <body>
-
-<div class="container" id="input-page">
+  <div class="container" id="input-page">
     <h1>LogiCalc</h1>
-    
-    <div class="card">
-        <div class="section-title">기본 정보</div>
-        <div class="input-group">
-            <div class="input-item"><label>업체명</label><input type="text" id="companyName" placeholder="Apple KR"></div>
-            <div class="input-item"><label>제품명</label><input type="text" id="productName" placeholder="iPhone 15"></div>
-        </div>
-    </div>
+    <p class="sub">완제품 기준 카톤박스 입수, 1000×1000 파레트 1단 적재, 높이 제한별 필요 파레트를 계산합니다.</p>
 
-    <div class="card">
-        <div class="section-title">1. 카톤박스 제원</div>
-        <div class="input-group">
-            <div class="input-item"><label>제품 가로 (mm)</label><input type="number" id="pW" value="150"></div>
-            <div class="input-item"><label>제품 세로 (mm)</label><input type="number" id="pL" value="80"></div>
-            <div class="input-item"><label>제품 높이 (mm)</label><input type="number" id="pH" value="50"></div>
-            <div class="input-item"><label>제품 무게 (g)</label><input type="number" id="pG" value="300"></div>
-            <div class="input-item"><label>총 주문 수량</label><input type="number" id="totalQty" value="1000"></div>
-        </div>
-        <p style="font-size: 12px; color: #ff3b30;">* 카톤 규격 제한: 가로/세로 50cm 미만, 무게 15kg 미만</p>
-    </div>
-
-    <div class="card">
-        <div class="section-title">2. 적재 높이 제한</div>
-        <div class="input-item"><label>최대 적재 높이 (mm, 파레트 포함)</label><input type="number" id="maxH" value="1600"></div>
-    </div>
-
-    <button class="btn-calc" onclick="calculate()">적재 시뮬레이션 시작</button>
-</div>
-
-<!-- 결과 페이지 -->
-<div class="container" id="result-page">
-    <div id="capture-area">
+    <div class="grid">
+      <div>
         <div class="card">
-            <h2 style="text-align:center;" id="resTitle">계산 결과 리포트</h2>
-            <div class="summary-grid">
-                <div class="summary-item"><strong>카톤당 수량:</strong> <span id="resBoxQty">0</span> 개</div>
-                <div class="summary-item"><strong>카톤 규격:</strong> <span id="resBoxSize">0</span> mm</div>
-                <div class="summary-item"><strong>총 카톤 수:</strong> <span id="resTotalBoxes">0</span> 박스</div>
-                <div class="summary-item"><strong>총 파레트 수:</strong> <span id="resTotalPallets">0</span> PLT</div>
-            </div>
-            
-            <h3 style="margin-top:30px;">파레트 1단 적재 (1100x1100)</h3>
-            <div class="pallet-viz" id="palletViz"></div>
-            <p style="text-align:center; font-size:12px; color:var(--apple-gray);">1단당 박스 수: <span id="boxesPerLayer">0</span>개</p>
+          <div class="section-title">기본 정보</div>
+          <div class="input-item"><label>업체명</label><input type="text" id="companyName" placeholder="예: 뷰티고객"></div>
+          <div class="input-item"><label>제품명</label><input type="text" id="productName" placeholder="예: 그린 베일 메이크업 베이스"></div>
         </div>
+
+        <div class="card">
+          <div class="section-title">1. 완제품 정보</div>
+          <div class="input-item"><label>제품 총 수량 ea</label><input type="number" id="totalQty" value="5000" min="1"></div>
+          <div class="input-item"><label>완제품 1개 무게 g</label><input type="number" id="pG" value="76.8" min="1" step="0.1"></div>
+          <div class="input-group three">
+            <div class="input-item"><label>가로 mm</label><input type="number" id="pW" value="58" min="1" step="0.1"></div>
+            <div class="input-item"><label>세로 mm</label><input type="number" id="pL" value="23.5" min="1" step="0.1"></div>
+            <div class="input-item"><label>높이 mm</label><input type="number" id="pH" value="143" min="1" step="0.1"></div>
+          </div>
+          <p class="note warn">카톤 가로/세로 각각 500mm 이하, 1박스 15kg 미만 기준</p>
+        </div>
+
+        <div class="card">
+          <div class="section-title">2. 계산 조건</div>
+          <div class="input-group">
+            <div class="input-item"><label>박스 제한 kg</label><input type="number" id="maxKg" value="15" min="1" step="0.1"></div>
+            <div class="input-item"><label>빈 카톤 무게 g / 모르면 0</label><input type="number" id="boxWeight" value="0" min="0"></div>
+          </div>
+          <div class="input-group">
+            <div class="input-item"><label>제품 간 여유 mm</label><input type="number" id="gap" value="2" min="0" step="0.5"></div>
+            <div class="input-item"><label>카톤 외곽 여유 mm</label><input type="number" id="margin" value="12" min="0" step="0.5"></div>
+          </div>
+          <div class="input-group">
+            <div class="input-item"><label>최대 카톤 가로 mm</label><input type="number" id="maxBoxW" value="500" min="1" max="500"></div>
+            <div class="input-item"><label>최대 카톤 세로 mm</label><input type="number" id="maxBoxL" value="500" min="1" max="500"></div>
+          </div>
+          <div class="input-item"><label>최대 카톤 높이 mm</label><input type="number" id="maxBoxH" value="300" min="1"></div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">3. 파레트 / 높이 제한</div>
+          <div class="input-group">
+            <div class="input-item"><label>파레트 전체 mm</label><input type="number" id="palletOuter" value="1100" min="1"></div>
+            <div class="input-item"><label>실제 적재 영역 mm</label><input type="number" id="palletUse" value="1000" min="1"></div>
+          </div>
+          <div class="input-group">
+            <div class="input-item"><label>최대 적재 높이 mm</label><input type="number" id="maxH" value="1600" min="1"></div>
+            <div class="input-item"><label>파레트 자체 높이 mm</label><input type="number" id="palletBaseH" value="150" min="0"></div>
+          </div>
+        </div>
+        <button class="btn" onclick="calculate()">적재 시뮬레이션 시작</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title">추천 후보 미리보기</div>
+        <div class="table-wrap"><table><thead><tr><th>추천</th><th>입수 구조</th><th>입수</th><th>카톤 사이즈</th><th>중량</th></tr></thead><tbody id="previewRows"></tbody></table></div>
+      </div>
     </div>
-    
-    <div style="display:flex; gap:10px;">
-        <button class="btn-calc" style="background:#86868b;" onclick="location.reload()">다시 계산</button>
-        <button class="btn-calc" onclick="downloadImg()">이미지로 저장</button>
+  </div>
+
+  <div class="container" id="result-page">
+    <div id="capture-area">
+      <div class="card">
+        <h1 style="margin-bottom:8px">계산 결과 리포트</h1>
+        <p class="sub" id="resMeta"></p>
+        <div class="summary">
+          <div class="summary-item"><b>카톤당 수량</b><span id="resBoxQty">0</span></div>
+          <div class="summary-item"><b>카톤 규격</b><span id="resBoxSize">0</span></div>
+          <div class="summary-item"><b>총 카톤 수</b><span id="resTotalBoxes">0</span></div>
+          <div class="summary-item"><b>총 파레트 수</b><span id="resTotalPallets">0</span></div>
+        </div>
+      </div>
+
+      <div class="visual-grid">
+        <div class="card">
+          <div class="visual-title">카톤 내부 입수 예시</div>
+          <div id="cartonViz" class="carton-viz"></div>
+          <p class="note" id="cartonText" style="text-align:center"></p>
+        </div>
+        <div class="card">
+          <div class="visual-title">파레트 1단 적재 예시</div>
+          <div class="pallet-stage"><div id="palletViz" class="pallet-inner"></div></div>
+          <p class="note" id="palletText" style="text-align:center"></p>
+        </div>
+      </div>
     </div>
-</div>
+    <div class="result-actions">
+      <button class="btn gray" onclick="backToInput()">다시 수정</button>
+      <button class="btn dark" onclick="downloadImg()">이미지로 저장</button>
+    </div>
+  </div>
 
 <script>
-function calculate() {
-    // 1. 카톤 박스 계산 (단순 최적화 로직)
-    const pW = parseInt(document.getElementById('pW').value);
-    const pL = parseInt(document.getElementById('pL').value);
-    const pH = parseInt(document.getElementById('pH').value);
-    const pG = parseInt(document.getElementById('pG').value);
-    const totalQty = parseInt(document.getElementById('totalQty').value);
+let lastResult=null;
+const $=id=>document.getElementById(id);
+const n=id=>parseFloat($(id).value)||0;
+const i=id=>parseInt($(id).value,10)||0;
+const fmt=(v,d=0)=>Number.isFinite(v)?Number(v).toLocaleString('ko-KR',{maximumFractionDigits:d}):'0';
 
-    // 카톤 제한 (500mm x 500mm, 15kg)
-    // 여기서는 간단하게 가로/세로 배수 계산
-    let boxW = 0, boxL = 0, boxH = 0, boxQty = 0;
-    
-    // 로직 예시: 가로로 몇개, 세로로 몇개 넣을지 (500mm 안넘게)
-    let nW = Math.floor(500 / pW);
-    let nL = Math.floor(500 / pL);
-    let nH = Math.floor((15000 / pG)); // 무게 기준 최대 수량
-
-    // 적정 박스 당 수량 (여기서는 간단히 24개 등으로 고정하거나 로직 설계)
-    boxQty = Math.min(nW * nL * 5, nH, 50); // 안전을 위해 최대 50개 제한
-    boxW = nW * pW;
-    boxL = nL * pL;
-    boxH = Math.ceil(boxQty / (nW * nL)) * pH;
-
-    // 2. 파레트 계산 (1100 x 1100 기준)
-    const pltSize = 1100;
-    let bPerLayer = Math.floor(pltSize / boxW) * Math.floor(pltSize / boxL);
-    
-    // 3. 높이 제한
-    const maxH = parseInt(document.getElementById('maxH').value);
-    const pltBaseH = 150; // 파레트 자체 높이
-    let layers = Math.floor((maxH - pltBaseH) / boxH);
-    let boxesPerPallet = bPerLayer * layers;
-    
-    let totalBoxes = Math.ceil(totalQty / boxQty);
-    let totalPallets = Math.ceil(totalBoxes / boxesPerPallet);
-
-    // UI 반영
-    document.getElementById('resBoxQty').innerText = boxQty;
-    document.getElementById('resBoxSize').innerText = `${boxW}x${boxL}x${boxH}`;
-    document.getElementById('resTotalBoxes').innerText = totalBoxes;
-    document.getElementById('resTotalPallets').innerText = totalPallets;
-    document.getElementById('boxesPerLayer').innerText = bPerLayer;
-
-    // 시각화 (1100 기준)
-    const viz = document.getElementById('palletViz');
-    viz.innerHTML = '';
-    let scale = 220 / 1100;
-    let bW = boxW * scale;
-    let bL = boxL * scale;
-
-    for(let i=0; i<Math.floor(pltSize/boxW); i++) {
-        for(let j=0; j<Math.floor(pltSize/boxL); j++) {
-            const unit = document.createElement('div');
-            unit.className = 'box-unit';
-            unit.style.width = bW + 'px';
-            unit.style.height = bL + 'px';
-            unit.style.left = (i * bW) + 'px';
-            unit.style.top = (j * bL) + 'px';
-            viz.appendChild(unit);
-        }
-    }
-
-    document.getElementById('input-page').style.display = 'none';
-    document.getElementById('result-page').style.display = 'block';
+function getData(){
+  return {
+    company:$('companyName').value.trim(), product:$('productName').value.trim(), total:i('totalQty'),
+    w:n('pW'), l:n('pL'), h:n('pH'), g:n('pG'), maxKg:n('maxKg'), boxWeight:n('boxWeight'),
+    gap:n('gap'), margin:n('margin'), maxBoxW:Math.min(500,n('maxBoxW')||500), maxBoxL:Math.min(500,n('maxBoxL')||500), maxBoxH:n('maxBoxH'),
+    palletOuter:n('palletOuter'), palletUse:n('palletUse'), maxH:n('maxH'), palletBaseH:n('palletBaseH')
+  }
 }
 
-function downloadImg() {
-    html2canvas(document.querySelector("#capture-area")).then(canvas => {
-        const link = document.createElement('a');
-        link.download = '적재계산리포트.png';
-        link.href = canvas.toDataURL();
-        link.click();
-    });
+function cartonSize(x,y,z,o,d){
+  return {
+    w: Math.ceil(x*o.w + Math.max(0,x-1)*d.gap + d.margin*2),
+    l: Math.ceil(y*o.l + Math.max(0,y-1)*d.gap + d.margin*2),
+    h: Math.ceil(z*o.h + Math.max(0,z-1)*d.gap + d.margin*2)
+  };
+}
+
+function makeCandidates(d){
+  const maxQtyByWeight=Math.max(0,Math.floor(((d.maxKg*1000)-d.boxWeight-1)/d.g));
+  const orientations=[{name:'정방향',w:d.w,l:d.l,h:d.h},{name:'90도 회전',w:d.l,l:d.w,h:d.h}];
+  const list=[];
+  orientations.forEach(o=>{
+    const maxX=Math.max(1,Math.floor((d.maxBoxW-d.margin*2+d.gap)/(o.w+d.gap)));
+    const maxY=Math.max(1,Math.floor((d.maxBoxL-d.margin*2+d.gap)/(o.l+d.gap)));
+    const maxZ=Math.max(1,Math.floor((d.maxBoxH-d.margin*2+d.gap)/(o.h+d.gap)));
+    for(let x=1;x<=maxX;x++){
+      for(let y=1;y<=maxY;y++){
+        for(let z=1;z<=maxZ;z++){
+          const qty=x*y*z;
+          if(qty<1 || qty>maxQtyByWeight) continue;
+          const size=cartonSize(x,y,z,o,d);
+          if(size.w>d.maxBoxW || size.l>d.maxBoxL || size.h>d.maxBoxH) continue;
+          const kg=(qty*d.g+d.boxWeight)/1000;
+          if(kg>=d.maxKg) continue;
+          const score=qty*100000 - Math.abs(size.w-size.l) - size.h;
+          list.push({x,y,z,qty,size,kg,orientation:o.name,score});
+        }
+      }
+    }
+  });
+  return list.sort((a,b)=>b.score-a.score).slice(0,8);
+}
+
+function palletFit(boxW,boxL,use){
+  const a={cols:Math.floor(use/boxW),rows:Math.floor(use/boxL),rot:false}; a.count=a.cols*a.rows;
+  const b={cols:Math.floor(use/boxL),rows:Math.floor(use/boxW),rot:true}; b.count=b.cols*b.rows;
+  return b.count>a.count?b:a;
+}
+
+function renderPreview(){
+  const d=getData();
+  const rows=makeCandidates(d);
+  $('previewRows').innerHTML=rows.map((r,idx)=>`<tr class="${idx===0?'best':''}"><td>${idx===0?'<span class="badge">BEST</span>':idx+1}</td><td>${r.x}×${r.y}×${r.z}단</td><td>${fmt(r.qty)}개</td><td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td><td>${fmt(r.kg,2)}kg</td></tr>`).join('');
+}
+
+document.addEventListener('input',renderPreview);
+renderPreview();
+
+function drawCarton(c){
+  const el=$('cartonViz');
+  el.innerHTML='';
+  el.style.aspectRatio=`${c.size.w}/${c.size.l}`;
+  el.style.gridTemplateColumns=`repeat(${c.x},1fr)`;
+  el.style.gridTemplateRows=`repeat(${c.y},1fr)`;
+  for(let k=0;k<c.x*c.y;k++){
+    const cell=document.createElement('div');
+    cell.className='carton-cell';
+    el.appendChild(cell);
+  }
+}
+
+function drawPallet(c,d,fit){
+  const el=$('palletViz');
+  el.innerHTML='';
+  const useRatio=Math.min(100,Math.max(10,d.palletUse/d.palletOuter*100));
+  el.style.width=useRatio+'%';
+  el.style.height=useRatio+'%';
+  const boxW=fit.rot?c.size.l:c.size.w;
+  const boxL=fit.rot?c.size.w:c.size.l;
+  const wPct=(boxW/d.palletUse)*100;
+  const lPct=(boxL/d.palletUse)*100;
+  for(let y=0;y<fit.rows;y++){
+    for(let x=0;x<fit.cols;x++){
+      const unit=document.createElement('div');
+      unit.className='pallet-box';
+      unit.style.left=(x*wPct)+'%';
+      unit.style.top=(y*lPct)+'%';
+      unit.style.width=`calc(${wPct}% - 4px)`;
+      unit.style.height=`calc(${lPct}% - 4px)`;
+      el.appendChild(unit);
+    }
+  }
+}
+
+function calculate(){
+  const d=getData();
+  const candidates=makeCandidates(d);
+  if(!candidates.length){ alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 카톤 높이, 여유값을 확인해주세요.'); return; }
+  const c=candidates[0];
+  const totalBoxes=Math.ceil(d.total/c.qty);
+  const fit=palletFit(c.size.w,c.size.l,d.palletUse);
+  const layers=Math.max(1,Math.floor((d.maxH-d.palletBaseH)/c.size.h));
+  const boxesPerPallet=Math.max(1,fit.count*layers);
+  const totalPallets=Math.ceil(totalBoxes/boxesPerPallet);
+  lastResult={d,c,fit,layers,totalBoxes,boxesPerPallet,totalPallets};
+
+  $('resMeta').textContent=`업체명: ${d.company||'-'} · 제품명: ${d.product||'-'} · 총 수량: ${fmt(d.total)}ea`;
+  $('resBoxQty').textContent=fmt(c.qty)+'개';
+  $('resBoxSize').textContent=`${fmt(c.size.w)}×${fmt(c.size.l)}×${fmt(c.size.h)}mm`;
+  $('resTotalBoxes').textContent=fmt(totalBoxes)+'박스';
+  $('resTotalPallets').textContent=fmt(totalPallets)+'PLT';
+  $('cartonText').textContent=`입수 구조: ${c.x}×${c.y}×${c.z}단 / ${fmt(c.qty)}개 · 예상 중량 ${fmt(c.kg,2)}kg`;
+  $('palletText').textContent=`1000×1000 기준: ${fit.cols}×${fit.rows} / ${fit.count}박스·1단 · ${fit.rot?'90도 회전':'정방향'} · 높이 ${layers}단`;
+  drawCarton(c);
+  drawPallet(c,d,fit);
+  $('input-page').style.display='none';
+  $('result-page').style.display='block';
+}
+
+function backToInput(){
+  $('result-page').style.display='none';
+  $('input-page').style.display='block';
+}
+
+function downloadImg(){
+  html2canvas($('capture-area'),{backgroundColor:'#ffffff',scale:2}).then(canvas=>{
+    const link=document.createElement('a');
+    link.download='carton-pallet-result.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+  });
 }
 </script>
-
 </body>
 </html>
