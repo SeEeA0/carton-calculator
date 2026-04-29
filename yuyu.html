@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LogiCalc - 스마트 카톤 & 파레트 시뮬레이터</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --primary: #1a73e8;
+      --text-main: #202124;
+      --text-sub: #5f6368;
+      --border: #dadce0;
+      --accent: #e8f0fe;
+      --success: #188038;
+      --danger: #d93025;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px rgba(60,64,67,0.15);
+    }
+
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    body { 
+      margin: 0; padding: 40px 20px; 
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      background-color: var(--bg); color: var(--text-main); line-height: 1.5;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+    
+    header { text-align: center; margin-bottom: 40px; }
+    h1 { font-size: 32px; font-weight: 700; margin: 0 0 8px; color: var(--text-main); }
+    .sub { color: var(--text-sub); font-size: 16px; }
+
+    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+    
+    .card { 
+      background: var(--card); border-radius: var(--radius); 
+      border: 1px solid var(--border); padding: 24px; margin-bottom: 24px;
+      transition: box-shadow 0.2s ease;
+    }
+    .card:hover { box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15); }
+
+    .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: var(--text-sub); margin-bottom: 20px; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+
+    .input-item { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
+    input { 
+      width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);
+      font-size: 15px; transition: border-color 0.2s; outline: none; background: #fff;
+    }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--accent); }
+
+    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .three-cols { grid-template-columns: repeat(3, 1fr); }
+
+    .btn { 
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%; padding: 14px; border: none; border-radius: 8px; 
+      font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #1765cc; }
+    .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-sub); }
+    .btn-outline:hover { background: #f1f3f4; }
+    .btn-dark { background: #3c4043; color: white; }
+
+    .note { font-size: 12px; color: var(--text-sub); margin-top: 8px; line-height: 1.4; }
+    .warn { color: var(--danger); font-weight: 600; }
+
+    /* 결과 페이지 스타일 */
+    #result-page { display: none; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .summary-card { background: var(--accent); padding: 16px; border-radius: 12px; text-align: center; }
+    .summary-card b { display: block; font-size: 12px; color: var(--primary); margin-bottom: 4px; }
+    .summary-card span { font-size: 20px; font-weight: 700; color: var(--text-main); }
+
+    .visual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viz-container { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f1f3f4; border-radius: 8px; padding: 20px; }
+
+    .carton-viz { 
+      border: 4px solid #5f6368; background: #fff; display: grid; gap: 1px; padding: 4px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .carton-cell { background: #e8eaed; border: 1px solid #dadce0; }
+
+    .pallet-stage { width: 100%; max-width: 380px; aspect-ratio: 1/1; background: #dee2e6; border: 2px solid #bdc1c6; display: flex; align-items: center; justify-content: center; }
+    .pallet-inner { position: relative; width: 90%; height: 90%; background: #fff; border: 1px dashed #9aa0a6; }
+    .pallet-box { 
+      position: absolute; background: #e8f0fe; border: 1.5px solid var(--primary); border-radius: 2px;
+      font-size: 10px; display: flex; align-items: center; justify-content: center;
+    }
+    .pallet-box.rotated { background: #fef7e0; border-color: #f9ab00; }
+    .pallet-box.selected { outline: 3px solid #d93025; z-index: 10; }
+    .pallet-box.bad { background: rgba(217, 48, 37, 0.2); border-color: var(--danger); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 12px; color: var(--text-sub); border-bottom: 2px solid var(--border); }
+    td { padding: 12px; border-bottom: 1px solid var(--border); }
+    .clickable-row:hover { background: var(--bg); cursor: pointer; }
+    .selected-row { background: var(--accent) !important; font-weight: 700; }
+
+    .toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .mini-btn { padding: 6px 12px; font-size: 12px; border-radius: 20px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+    .mini-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    @media (max-width: 900px) { .grid, .visual-grid { grid-template-columns: 1fr; } .summary-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<div class="container" id="input-page">
+  <header>
+    <h1>LogiCalc</h1>
+    <p class="sub">완제품 기준 카톤 입수 및 파레트 1단 적재 효율 계산기</p>
+  </header>
+
+  <div class="grid">
+    <div class="sidebar">
+      <div class="card">
+        <div class="section-title">1. 제품 및 수량</div>
+        <div class="input-item"><label>업체/제품명</label><input type="text" id="productName" placeholder="예: 구글 코스메틱 / 세럼"></div>
+        <div class="input-group">
+          <div class="input-item"><label>총 생산량 (ea)</label><input type="number" id="totalQty" value="3000"></div>
+          <div class="input-item"><label>제품 개당 무게 (g)</label><input type="number" id="pG" value="120"></div>
+        </div>
+        <div class="input-group three-cols">
+          <div class="input-item"><label>가로 (mm)</label><input type="number" id="pW" value="45"></div>
+          <div class="input-item"><label>세로 (mm)</label><input type="number" id="pL" value="45"></div>
+          <div class="input-item"><label>높이 (mm)</label><input type="number" id="pH" value="120"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">2. 카톤 여유 및 제한</div>
+        <div class="input-group">
+          <div class="input-item"><label>제품간 여유 (mm)</label><input type="number" id="gap" value="0"></div>
+          <div class="input-item"><label>카톤외곽 여유 (mm)</label><input type="number" id="margin" value="20"></div>
+        </div>
+        <div class="input-group">
+          <div class="input-item"><label>박스 중량 제한 (kg)</label><input type="number" id="maxKg" value="15"></div>
+          <div class="input-item"><label>빈 박스 무게 (g)</label><input type="number" id="boxWeight" value="400"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">3. 파레트 설정</div>
+        <div class="input-group">
+          <div class="input-item"><label>파레트 크기 (mm)</label><input type="number" id="palletOuter" value="1100"></div>
+          <div class="input-item"><label>실 적재 영역 (mm)</label><input type="number" id="palletUse" value="1000"></div>
+        </div>
+        <p class="note warn">※ 모든 계산은 1단 적재 기준입니다.</p>
+      </div>
+
+      <button class="btn btn-primary" onclick="calculate()">시뮬레이션 시작</button>
+    </div>
+
+    <div class="card" style="min-height: 600px;">
+      <div class="section-title">실시간 추천 적재 후보</div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>순위</th>
+              <th>입수 구조</th>
+              <th>입수량</th>
+              <th>카톤 사이즈</th>
+              <th>파레트(단)</th>
+              <th>박스무게</th>
+            </tr>
+          </thead>
+          <tbody id="previewRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="result-page">
+  <div id="capture-area" style="background: #fff; padding: 20px; border-radius: 12px;">
+    <div class="card">
+      <div class="section-title">분석 리포트</div>
+      <div class="summary-grid">
+        <div class="summary-card"><b>카톤당 입수</b><span id="resBoxQty">-</span></div>
+        <div class="summary-card"><b>카톤 규격</b><span id="resBoxSize">-</span></div>
+        <div class="summary-card"><b>필요 카톤수</b><span id="resTotalBoxes">-</span></div>
+        <div class="summary-card"><b>총 적재 단수</b><span id="resTotalLayers">-</span></div>
+      </div>
+      <p id="resMeta" style="font-size: 14px; color: var(--text-sub); text-align: center;"></p>
+    </div>
+
+    <div class="visual-grid">
+      <div class="card">
+        <div class="section-title">카톤 입수 레이아웃</div>
+        <div class="viz-container">
+          <div id="cartonViz" class="carton-viz"></div>
+        </div>
+        <p class="note" id="cartonText" style="text-align: center; font-weight: 600;"></p>
+      </div>
+      <div class="card">
+        <div class="section-title">파레트 적재 시뮬레이션</div>
+        <div class="toolbar no-export">
+          <button class="mini-btn" id="palletEditBtn" onclick="togglePalletEditMode()">수동 편집 모드</button>
+          <button class="mini-btn" onclick="rotateSelectedPalletBox()">90도 회전 (R)</button>
+          <button class="mini-btn" onclick="addPalletBox()">+ 박스 추가</button>
+          <button class="mini-btn" onclick="removeSelectedPalletBox()" style="color: var(--danger);">삭제</button>
+          <button class="mini-btn" onclick="resetPalletBoxes()">초기화</button>
+        </div>
+        <div class="viz-container">
+          <div class="pallet-stage"><div id="palletViz" class="pallet-inner"></div></div>
+        </div>
+        <p class="note" id="palletText" style="text-align: center; font-weight: 600;"></p>
+        <p class="note" id="manualPalletText" style="text-align: center; color: var(--primary);"></p>
+      </div>
+    </div>
+
+    <div class="card no-export">
+        <div class="section-title">기타 후보 선택</div>
+        <table id="resultCandidateTable">
+            <thead>
+                <tr>
+                    <th>선택</th>
+                    <th>입수 구조</th>
+                    <th>입수량</th>
+                    <th>카톤 사이즈</th>
+                    <th>파레트(단)</th>
+                    <th>박스무게</th>
+                </tr>
+            </thead>
+            <tbody id="resultCandidateRows"></tbody>
+        </table>
+    </div>
+  </div>
+
+  <div class="toolbar" style="justify-content: center; margin-top: 24px;">
+    <button class="btn btn-outline" style="width: 200px;" onclick="backToInput()">데이터 수정</button>
+    <button class="btn btn-dark" style="width: 200px;" onclick="downloadImg()">이미지 저장</button>
+  </div>
+</div>
+
+<script>
+// Logic Core
+let lastResult = null;
+let lastCandidates = [];
+let selectedCandidateIndex = 0;
+let palletEditMode = false;
+let selectedPalletBox = null;
+
+const $ = id => document.getElementById(id);
+const n = id => parseFloat($(id).value) || 0;
+const i = id => parseInt($(id).value, 10) || 0;
+const fmt = (v, d = 0) => v.toLocaleString('ko-KR', { maximumFractionDigits: d });
+
+function getData() {
+  return {
+    product: $('productName').value || '미지정 제품',
+    total: i('totalQty'),
+    w: n('pW'), l: n('pL'), h: n('pH'), g: n('pG'),
+    maxKg: n('maxKg'), boxWeight: n('boxWeight'),
+    gap: n('gap'), margin: n('margin'),
+    palletOuter: n('palletOuter'), palletUse: n('palletUse'),
+    maxBoxW: 500, maxBoxL: 500 // 고정 제한
+  };
+}
+
+function getCartonSize(x, y, o, d) {
+  return {
+    w: Math.ceil(x * o.w + Math.max(0, x - 1) * d.gap + d.margin * 2),
+    l: Math.ceil(y * o.l + Math.max(0, y - 1) * d.gap + d.margin * 2),
+    h: Math.ceil(d.h + d.margin * 2) // 1단 기준 고정
+  };
+}
+
+function palletFit(boxW, boxL, use) {
+  const cols = Math.floor(use / boxW);
+  const rows = Math.floor(use / boxL);
+  const placements = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      placements.push({ x: c * boxW, y: r * boxL, w: boxW, l: boxL, rot: false });
+    }
+  }
+  return { name: '정방향 적재', placements, count: placements.length };
+}
+
+function makeCandidates(d) {
+  const maxQtyByWeight = Math.floor(((d.maxKg * 1000) - d.boxWeight) / d.g);
+  const list = [];
+  const orientations = [{ w: d.w, l: d.l }, { w: d.l, l: d.w }];
+
+  orientations.forEach(o => {
+    const maxX = Math.floor((d.maxBoxW - d.margin * 2 + d.gap) / (o.w + d.gap));
+    const maxY = Math.floor((d.maxBoxL - d.margin * 2 + d.gap) / (o.l + d.gap));
+
+    for (let x = 1; x <= maxX; x++) {
+      for (let y = 1; y <= maxY; y++) {
+        const qty = x * y;
+        if (qty <= 0 || qty > maxQtyByWeight) continue;
+        const size = getCartonSize(x, y, o, d);
+        const kg = (qty * d.g + d.boxWeight) / 1000;
+        const fit = palletFit(size.w, size.l, d.palletUse);
+        if (fit.count > 0) {
+          list.push({ x, y, qty, size, kg, fit, score: qty * fit.count });
+        }
+      }
+    }
+  });
+  return list.sort((a, b) => b.score - a.score).slice(0, 10);
+}
+
+function renderPreview() {
+  const d = getData();
+  const rows = makeCandidates(d);
+  $('previewRows').innerHTML = rows.map((r, idx) => `
+    <tr class="clickable-row">
+      <td>${idx + 1}</td>
+      <td>${r.x} x ${r.y}</td>
+      <td>${r.qty}ea</td>
+      <td>${r.size.w}x${r.size.l}</td>
+      <td>${r.fit.count}박스</td>
+      <td>${r.kg.toFixed(2)}kg</td>
+    </tr>
+  `).join('');
+}
+
+function calculate() {
+  const d = getData();
+  lastCandidates = makeCandidates(d);
+  if (lastCandidates.length === 0) return alert('가능한 조합이 없습니다. 조건을 완화해주세요.');
+  applyCandidate(0);
+  $('input-page').style.display = 'none';
+  $('result-page').style.display = 'block';
+}
+
+function applyCandidate(idx) {
+  selectedCandidateIndex = idx;
+  const d = getData();
+  const c = lastCandidates[idx];
+  const totalBoxes = Math.ceil(d.total / c.qty);
+  const totalLayers = Math.ceil(totalBoxes / c.fit.count);
+
+  lastResult = { d, c, fit: c.fit, totalBoxes };
+
+  $('resBoxQty').textContent = c.qty + 'ea';
+  $('resBoxSize').textContent = `${c.size.w}×${c.size.l}×${c.size.h}`;
+  $('resTotalBoxes').textContent = totalBoxes + '박스';
+  $('resTotalLayers').textContent = totalLayers + '단';
+  $('resMeta').textContent = `제품명: ${d.product} | 총 목표 수량: ${fmt(d.total)}ea`;
+  
+  drawCarton(c);
+  drawPallet(d, c.fit);
+  renderResultCandidates();
+}
+
+function drawCarton(c) {
+  const el = $('cartonViz');
+  el.style.gridTemplateColumns = `repeat(${c.x}, 1fr)`;
+  el.style.width = '180px';
+  el.style.aspectRatio = `${c.size.w}/${c.size.l}`;
+  el.innerHTML = Array(c.x * c.y).fill('<div class="carton-cell"></div>').join('');
+  $('cartonText').textContent = `입수구조: ${c.x}×${c.y} (1단) | 무게: ${c.kg.toFixed(2)}kg`;
+}
+
+function drawPallet(d, fit) {
+  const el = $('palletViz');
+  el.innerHTML = '';
+  fit.placements.forEach(p => {
+    const box = document.createElement('div');
+    box.className = 'pallet-box' + (palletEditMode ? ' editable' : '');
+    box.style.left = (p.x / d.palletUse * 100) + '%';
+    box.style.top = (p.y / d.palletUse * 100) + '%';
+    box.style.width = (p.w / d.palletUse * 100) + '%';
+    box.style.height = (p.l / d.palletUse * 100) + '%';
+    if(palletEditMode) addDragEvents(box);
+    el.appendChild(box);
+  });
+  updatePalletText();
+}
+
+function renderResultCandidates() {
+    $('resultCandidateRows').innerHTML = lastCandidates.map((r, idx) => `
+    <tr class="clickable-row ${idx === selectedCandidateIndex ? 'selected-row' : ''}" onclick="applyCandidate(${idx})">
+      <td>${idx + 1}</td>
+      <td>${r.x} x ${r.y}</td>
+      <td>${r.qty}ea</td>
+      <td>${r.size.w}x${r.size.l}</td>
+      <td>${r.fit.count}박스</td>
+      <td>${r.kg.toFixed(2)}kg</td>
+    </tr>
+  `).join('');
+}
+
+function updatePalletText() {
+    const count = document.querySelectorAll('#palletViz .pallet-box').length;
+    const totalLayers = Math.ceil(lastResult.totalBoxes / count);
+    $('palletText').textContent = `1단 적재량: ${count}박스`;
+    $('resTotalLayers').textContent = totalLayers + '단';
+}
+
+function togglePalletEditMode() {
+    palletEditMode = !palletEditMode;
+    $('palletEditBtn').classList.toggle('active');
+    drawPallet(lastResult.d, lastResult.fit);
+}
+
+function addDragEvents(el) {
+    el.onmousedown = function(e) {
+        if(!palletEditMode) return;
+        selectedPalletBox = el;
+        document.querySelectorAll('.pallet-box').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        
+        let shiftX = e.clientX - el.getBoundingClientRect().left;
+        let shiftY = e.clientY - el.getBoundingClientRect().top;
+        
+        function moveAt(pageX, pageY) {
+            let container = $('palletViz').getBoundingClientRect();
+            let x = pageX - container.left - shiftX;
+            let y = pageY - container.top - shiftY;
+            el.style.left = (x / container.width * 100) + '%';
+            el.style.top = (y / container.height * 100) + '%';
+        }
+        
+        function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
+        document.addEventListener('mousemove', onMouseMove);
+        document.onmouseup = function() {
+            document.removeEventListener('mousemove', onMouseMove);
+            updatePalletText();
+        };
+    };
+}
+
+function rotateSelectedPalletBox() {
+    if(!selectedPalletBox) return;
+    let w = selectedPalletBox.style.width;
+    let h = selectedPalletBox.style.height;
+    selectedPalletBox.style.width = h;
+    selectedPalletBox.style.height = w;
+    selectedPalletBox.classList.toggle('rotated');
+}
+
+function addPalletBox() {
+    const d = lastResult.d;
+    const c = lastResult.c;
+    const box = document.createElement('div');
+    box.className = 'pallet-box editable';
+    box.style.width = (c.size.w / d.palletUse * 100) + '%';
+    box.style.height = (c.size.l / d.palletUse * 100) + '%';
+    box.style.left = '0%'; box.style.top = '0%';
+    addDragEvents(box);
+    $('palletViz').appendChild(box);
+    updatePalletText();
+}
+
+function removeSelectedPalletBox() {
+    if(selectedPalletBox) {
+        selectedPalletBox.remove();
+        selectedPalletBox = null;
+        updatePalletText();
+    }
+}
+
+function backToInput() {
+    $('result-page').style.display = 'none';
+    $('input-page').style.display = 'block';
+}
+
+function downloadImg() {
+    html2canvas($('capture-area')).then(canvas => {
+        const link = document.createElement('a');
+        link.download = '적재시뮬레이션_결과.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+
+// 실시간 프리뷰 바인딩
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('input', renderPreview);
+});
+renderPreview();
+</script>
+</body>
+</html>
