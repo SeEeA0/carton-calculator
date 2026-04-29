@@ -303,36 +303,62 @@ function makeCandidates(d){
   const maxQtyByWeight=Math.max(0,Math.floor(((d.maxKg*1000)-d.boxWeight-1)/d.g));
   const orientations=[{name:'정방향',w:d.w,l:d.l,h:d.h},{name:'90도 회전',w:d.l,l:d.w,h:d.h}];
   const list=[];
+
   orientations.forEach(o=>{
     const maxX=Math.max(1,Math.floor((d.maxBoxW-d.margin*2+d.gap)/(o.w+d.gap)));
     const maxY=Math.max(1,Math.floor((d.maxBoxL-d.margin*2+d.gap)/(o.l+d.gap)));
     const maxZ=Math.max(1,Math.floor((d.maxBoxH-d.margin*2+d.gap)/(o.h+d.gap)));
+
     for(let x=1;x<=maxX;x++){
       for(let y=1;y<=maxY;y++){
         for(let z=1;z<=maxZ;z++){
           const qty=x*y*z;
           if(qty<1 || qty>maxQtyByWeight) continue;
+
           const size=cartonSize(x,y,z,o,d);
           if(size.w>d.maxBoxW || size.l>d.maxBoxL || size.h>d.maxBoxH) continue;
+
           const kg=(qty*d.g+d.boxWeight)/1000;
           if(kg>=d.maxKg) continue;
+
           const fit=palletFit(size.w,size.l,d.palletUse);
-          // 완제품 > 카톤 > 파레트 순서로 계산
-          // 1순위: 카톤에 들어가는 수량이 충분히 큰지
-          // 2순위: 그 카톤이 파레트에 효율적으로 올라가는지
-          // 파레트 기준으로 카톤 사이즈까지 역설계
-          // 1순위: 회오리/중앙 비움 적재 점수
-          // 2순위: 파레트 1단에 올라가는 완제품 수
-          // 3순위: 카톤 1박스 입수
-          const productPerPalletLayer = qty * fit.count;
-          const palletLayoutScore = fit.score || 0;
-          const score = palletLayoutScore * 1000 + productPerPalletLayer * 100 + qty * 10 - Math.abs(size.w-size.l) - size.h;
-          list.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,score,productPerPalletLayer});
+          const productPerPalletLayer=qty*fit.count;
+
+          list.push({
+            x,y,z,qty,size,kg,
+            orientation:o.name,
+            palletFit:fit,
+            productPerPalletLayer
+          });
         }
       }
     }
   });
-  return list.sort((a,b)=>b.score-a.score).slice(0,8);
+
+  if(!list.length) return [];
+
+  // 핵심 수정:
+  // 단상자 1개짜리 작은 카톤이 파레트에는 많이 올라가도 추천되지 않도록,
+  // 먼저 '실무적으로 충분히 담기는 카톤'만 남긴 뒤 그 안에서 파레트 효율을 봅니다.
+  const maxCartonQty=Math.max(...list.map(v=>v.qty));
+  const minPracticalQty=Math.max(1,Math.floor(maxCartonQty*0.65));
+  const practical=list.filter(v=>v.qty>=minPracticalQty);
+  const target=practical.length?practical:list;
+
+  target.forEach(v=>{
+    const cartonQtyScore=(v.qty/maxCartonQty)*1000000;
+    const palletProductScore=v.productPerPalletLayer*1000;
+    const palletLayoutScore=(v.palletFit.score||0)*0.02;
+    const sizeBalancePenalty=Math.abs(v.size.w-v.size.l)*2;
+
+    // 완제품 > 카톤 > 파레트 순서
+    // 1) 카톤 입수가 충분히 커야 함
+    // 2) 그 카톤이 파레트에서 회오리/중앙비움 적재가 잘 되어야 함
+    // 3) 파레트 1단 완제품 수가 많아야 함
+    v.score=cartonQtyScore+palletProductScore+palletLayoutScore-sizeBalancePenalty-v.size.h;
+  });
+
+  return target.sort((a,b)=>b.score-a.score).slice(0,8);
 }
 
 function renderPreview(){
