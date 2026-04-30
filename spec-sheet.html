@@ -161,6 +161,25 @@
 
     .empty{color:#aaa;font-weight:400}
 
+
+    .logi-page{break-before:page;page-break-before:always;margin-top:10mm}
+    .logi-visual-wrap{display:grid;grid-template-columns:1fr 1fr;gap:5mm;padding:4mm}
+    .logi-visual-card{border:1px solid #555;background:#fff;padding:4mm;min-height:92mm}
+    .logi-visual-title{text-align:center;font-size:14px;font-weight:900;margin-bottom:4mm}
+    .spec-carton-viz{width:100%;max-width:72mm;margin:0 auto;border:1.5px solid #555;background:#fff;display:grid;gap:1px;padding:1.5mm;aspect-ratio:1/1}
+    .spec-carton-cell{background:#e8eaed;border:1px solid #d0d3d7;border-radius:1px;min-height:2mm}
+    .spec-pallet-stage{width:100%;max-width:74mm;aspect-ratio:1/1;margin:0 auto;background:#f1f3f4;border:1px solid #d0d3d7;display:flex;align-items:center;justify-content:center;padding:4mm}
+    .spec-pallet-inner{position:relative;width:100%;height:100%;background:#fff;border:1.5px dashed #999}
+    .spec-pallet-box{position:absolute;background:#e8f0fe;border:1.2px solid #1a73e8;border-radius:2px;box-sizing:border-box}
+    .spec-pallet-box.rotated{background:#fef7e0;border-color:#f9ab00}
+    .logi-desc{font-size:11px;line-height:1.6;text-align:center;margin-top:4mm;font-weight:700;color:#333}
+    .logi-desc.sub{font-weight:500;color:#555;margin-top:1mm}
+    .logi-summary-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px;margin-top:4mm}
+    .logi-summary-table th,.logi-summary-table td{border:1px solid #111;padding:5px 6px;height:24px;vertical-align:middle;text-align:center}
+    .logi-summary-table th{background:#f3f3f3;font-weight:900}
+    .logi-empty{text-align:center;color:#999;font-size:12px;padding:18mm 0}
+
+
     @media(max-width:1100px){
       .layout{grid-template-columns:1fr}
       .paper{transform-origin:top center}
@@ -384,6 +403,37 @@
           <div class="print-section">
             <div class="print-section-title">비고 / 공장 지시사항</div>
             <div class="memo-box" id="p_memo">-</div>
+          </div>
+
+          <div class="print-section logi-page" id="p_logiSection">
+            <div class="print-section-title">적재 시뮬레이션 결과</div>
+            <div class="logi-visual-wrap">
+              <div class="logi-visual-card">
+                <div class="logi-visual-title">카톤 내부 레이아웃</div>
+                <div id="p_cartonLayoutViz" class="spec-carton-viz"><div class="logi-empty">계산기 데이터 없음</div></div>
+                <div class="logi-desc" id="p_cartonLayoutText">-</div>
+              </div>
+              <div class="logi-visual-card">
+                <div class="logi-visual-title">파레트 적재 레이아웃</div>
+                <div class="spec-pallet-stage"><div id="p_palletLayoutViz" class="spec-pallet-inner"></div></div>
+                <div class="logi-desc" id="p_palletLayoutText">-</div>
+                <div class="logi-desc sub" id="p_palletLayoutSubText">-</div>
+              </div>
+            </div>
+            <table class="logi-summary-table">
+              <tr>
+                <th>제품 규격</th><th>제품 중량</th><th>카톤 구조</th><th>카톤 규격</th>
+              </tr>
+              <tr>
+                <td id="p_logiProductSize">-</td><td id="p_logiProductWeight">-</td><td id="p_logiCartonLayout">-</td><td id="p_logiBoxSize">-</td>
+              </tr>
+              <tr>
+                <th>카톤입수</th><th>총카톤</th><th>파레트 1단</th><th>적재방식</th>
+              </tr>
+              <tr>
+                <td id="p_logiBoxQty">-</td><td id="p_logiTotalBoxes">-</td><td id="p_logiPalletLayer">-</td><td id="p_logiPalletMethod">-</td>
+              </tr>
+            </table>
           </div>
         </div>
       </div>
@@ -715,6 +765,8 @@
 
       if(data.totalBoxes) $('totalCartons').value = data.totalBoxes;
       if(data.totalLayers) $('totalLayers').value = data.totalLayers;
+
+      renderLogiCalcVisuals(data);
     }
 
     function loadLogiCalcData(silent){
@@ -755,6 +807,75 @@
       localStorage.setItem('logiCalcSpecData', JSON.stringify(data));
       const encoded = encodeSpecData(data);
       window.location.href = `/yuyu?data=${encoded}`;
+    }
+
+
+    function renderLogiCalcVisuals(data){
+      data = data || {};
+      const visuals = data.layoutVisuals || {};
+      const carton = visuals.carton || {};
+      const pallet = visuals.pallet || {};
+
+      text('p_logiProductSize', data.productSize || '-');
+      text('p_logiProductWeight', data.productWeight ? `${data.productWeight}g` : '-');
+      text('p_logiCartonLayout', data.cartonLayout || (carton.x && carton.y ? `${carton.x}×${carton.y}×${carton.z || 1}단` : '-'));
+      text('p_logiBoxSize', data.boxSize || '-');
+      text('p_logiBoxQty', data.boxQty || '-');
+      text('p_logiTotalBoxes', data.totalBoxes || '-');
+      text('p_logiPalletLayer', pallet.boxCount ? `${pallet.boxCount}박스/단` : (data.palletLayerBoxCount ? `${data.palletLayerBoxCount}박스/단` : '-'));
+      text('p_logiPalletMethod', pallet.method || data.palletMethod || '-');
+
+      renderSpecCarton(carton, data);
+      renderSpecPallet(pallet, data);
+    }
+
+    function renderSpecCarton(carton,data){
+      const el = $('p_cartonLayoutViz');
+      if(!el) return;
+      el.innerHTML = '';
+      const x = parseInt(carton.x || 0,10);
+      const y = parseInt(carton.y || 0,10);
+      if(!x || !y){
+        el.innerHTML = '<div class="logi-empty">카톤 레이아웃 데이터 없음</div>';
+        text('p_cartonLayoutText','-');
+        return;
+      }
+      if(carton.size && carton.size.w && carton.size.l){
+        el.style.aspectRatio = `${carton.size.w}/${carton.size.l}`;
+      }
+      el.style.gridTemplateColumns = `repeat(${x},1fr)`;
+      el.style.gridTemplateRows = `repeat(${y},1fr)`;
+      for(let k=0;k<x*y;k++){
+        const cell=document.createElement('div');
+        cell.className='spec-carton-cell';
+        el.appendChild(cell);
+      }
+      text('p_cartonLayoutText', carton.text || `입수: ${x}×${y} (${carton.qty || data.boxQty || '-'}개) / 예상 중량 ${data.cartonWeight || '-'}`);
+    }
+
+    function renderSpecPallet(pallet,data){
+      const el = $('p_palletLayoutViz');
+      if(!el) return;
+      el.innerHTML = '';
+      const use = Number(pallet.use || 1000);
+      const placements = Array.isArray(pallet.placements) ? pallet.placements : [];
+      if(!placements.length){
+        el.innerHTML = '<div class="logi-empty">파레트 배치 데이터 없음</div>';
+        text('p_palletLayoutText','-');
+        text('p_palletLayoutSubText','-');
+        return;
+      }
+      placements.forEach(p=>{
+        const box=document.createElement('div');
+        box.className='spec-pallet-box' + (p.rot ? ' rotated' : '');
+        box.style.left = (p.x/use*100) + '%';
+        box.style.top = (p.y/use*100) + '%';
+        box.style.width = (p.w/use*100) + '%';
+        box.style.height = (p.l/use*100) + '%';
+        el.appendChild(box);
+      });
+      text('p_palletLayoutText', pallet.text || `1단 기준: ${pallet.boxCount || placements.length}박스 (${pallet.method || data.palletMethod || '-'})`);
+      text('p_palletLayoutSubText', pallet.subText || `현재 배치 기준: 1단 ${pallet.boxCount || placements.length}박스 · 총 ${data.totalLayers || '-'} 분량`);
     }
 
     function saveAsImage(){
