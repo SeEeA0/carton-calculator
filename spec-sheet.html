@@ -184,7 +184,8 @@
         <p>화장품 OEM·ODM 공장 지시용 사양서를 입력하고 A4 PDF로 저장합니다.</p>
       </div>
       <div class="actions">
-        <button class="btn ghost" onclick="loadLogiCalcData()">적재 시뮬레이션 불러오기</button>
+        <button class="btn ghost" onclick="goBackToCalculator()">계산기로 돌아가기</button>
+        <button class="btn ghost" onclick="loadLogiCalcData(false)">적재 시뮬레이션 불러오기</button>
         <button class="btn secondary" onclick="window.print()">PDF 저장 / 인쇄</button>
         <button class="btn" onclick="saveAsImage()">이미지 저장</button>
       </div>
@@ -441,6 +442,7 @@
       renderPackagingFields();
       addMaterialRow();
       bindInputs();
+      loadLogiCalcData(true);
       updatePreview();
     }
 
@@ -667,26 +669,92 @@
       `).join('');
     }
 
-    function loadLogiCalcData(){
-      const raw = localStorage.getItem('logiCalcSpecData');
+    function encodeSpecData(data){
+      return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(data)))));
+    }
+
+    function decodeSpecData(encoded){
+      return decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
+    }
+
+    function collectCurrentSpecData(){
+      const existingRaw = localStorage.getItem('logiCalcSpecData');
+      let existing = {};
+      try{ existing = existingRaw ? JSON.parse(existingRaw) : {}; }catch(e){ existing = {}; }
+
+      return {
+        ...existing,
+        companyName: v('clientName') || existing.companyName || '',
+        productName: v('productName') || existing.productName || '',
+        totalQty: existing.totalQty || '',
+        boxQty: v('cartonQty') || existing.boxQty || '',
+        boxSize: v('cartonSize') || existing.boxSize || '',
+        totalBoxes: v('totalCartons') || existing.totalBoxes || '',
+        totalLayers: v('totalLayers') || existing.totalLayers || '',
+        capacity: v('capacity') || existing.capacity || '',
+        agreement: v('agreement') || existing.agreement || '',
+        productCode: v('productCode') || existing.productCode || '',
+        savedFrom: 'spec-sheet',
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function applyLogiCalcData(data){
+      if(data.companyName) $('clientName').value = data.companyName;
+      if(data.productName) $('productName').value = data.productName;
+      if(data.capacity) $('capacity').value = data.capacity;
+      if(data.productCode) $('productCode').value = data.productCode;
+      if(data.agreement) $('agreement').value = data.agreement;
+      else if(data.totalQty) $('agreement').value = `총 생산수량: ${data.totalQty}`;
+
+      if(data.boxQty) $('cartonQty').value = data.boxQty;
+      if(data.cartonQty) $('cartonQty').value = data.cartonQty;
+
+      if(data.boxSize) $('cartonSize').value = data.boxSize;
+      if(data.cartonSize) $('cartonSize').value = data.cartonSize;
+
+      if(data.totalBoxes) $('totalCartons').value = data.totalBoxes;
+      if(data.totalLayers) $('totalLayers').value = data.totalLayers;
+    }
+
+    function loadLogiCalcData(silent){
+      let raw = null;
+      const params = new URLSearchParams(window.location.search);
+      const urlData = params.get('data');
+
+      if(urlData){
+        try{
+          raw = decodeSpecData(urlData);
+          localStorage.setItem('logiCalcSpecData', raw);
+        }catch(e){
+          console.log('URL 데이터 변환 실패', e);
+        }
+      }
+
       if(!raw){
-        alert('불러올 적재 시뮬레이션 데이터가 없습니다. 계산 페이지에서 먼저 사양서 작성하기를 눌러주세요.');
+        raw = localStorage.getItem('logiCalcSpecData');
+      }
+
+      if(!raw){
+        if(!silent) alert('불러올 적재 시뮬레이션 데이터가 없습니다. 계산 페이지에서 먼저 사양서 작성하기를 눌러주세요.');
         return;
       }
+
       try{
         const data = JSON.parse(raw);
-        if(data.companyName) $('clientName').value = data.companyName;
-        if(data.productName) $('productName').value = data.productName;
-        if(data.totalQty) $('agreement').value = `총 생산수량: ${data.totalQty}`;
-        if(data.boxQty) $('cartonQty').value = data.boxQty;
-        if(data.boxSize) $('cartonSize').value = data.boxSize;
-        if(data.totalBoxes) $('totalCartons').value = data.totalBoxes;
-        if(data.totalLayers) $('totalLayers').value = data.totalLayers;
+        applyLogiCalcData(data);
         updatePreview();
-        alert('적재 시뮬레이션 데이터를 불러왔습니다.');
+        if(!silent) alert('적재 시뮬레이션 데이터를 불러왔습니다.');
       }catch(e){
-        alert('데이터를 불러오지 못했습니다.');
+        if(!silent) alert('데이터를 불러오지 못했습니다.');
       }
+    }
+
+    function goBackToCalculator(){
+      const data = collectCurrentSpecData();
+      localStorage.setItem('logiCalcSpecData', JSON.stringify(data));
+      const encoded = encodeSpecData(data);
+      window.location.href = `/yuyu?data=${encoded}`;
     }
 
     function saveAsImage(){
