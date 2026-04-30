@@ -276,7 +276,6 @@
     <div class="result-actions">
       <button class="btn gray" onclick="backToInput()">수정하기</button>
       <button class="btn dark" onclick="downloadImg()">이미지로 저장</button>
-      <button class="btn" onclick="goToSpecSheet()">사양서 작성하기</button>
     </div>
   </div>
 
@@ -581,38 +580,6 @@ function downloadImg(){
     link.href=canvas.toDataURL('image/png');
     link.click();
   }).catch(()=>{ hiddenEls.forEach(el=>el.style.display=''); });
-}
-
-
-function goToSpecSheet(){
-  if(!lastResult){
-    alert('먼저 적재 시뮬레이션을 완료해주세요.');
-    return;
-  }
-
-  const { d, c, fit, totalBoxes, totalLayers } = lastResult;
-  const currentLayerCount = currentLayerBoxes();
-  const actualTotalLayers = currentLayerCount ? Math.ceil(totalBoxes / currentLayerCount) : totalLayers;
-
-  const specData = {
-    companyName: d.company || '',
-    productName: d.product || '',
-    totalQty: d.total || '',
-    productWeight: d.g || '',
-    productSize: `${d.w}×${d.l}×${d.h}mm`,
-    boxQty: c.qty ? `${c.qty} EA` : '',
-    boxSize: c.size ? `${c.size.w}×${c.size.l}×${c.size.h}mm` : '',
-    totalBoxes: totalBoxes ? `${totalBoxes} BOX` : '',
-    totalLayers: actualTotalLayers ? `${actualTotalLayers}단` : '',
-    palletLayerBoxCount: currentLayerCount || fit.count || '',
-    palletMethod: palletEditMode ? '수동 편집 적재' : (fit.name || ''),
-    cartonLayout: `${c.x}×${c.y}×${c.z || 1}단`,
-    cartonWeight: c.kg ? `${Number(c.kg).toLocaleString('ko-KR', { maximumFractionDigits: 2 })}kg` : '',
-    createdAt: new Date().toISOString()
-  };
-
-  localStorage.setItem('logiCalcSpecData', JSON.stringify(specData));
-  window.location.href = '/spec-sheet.html';
 }
 </script>
 </body>
