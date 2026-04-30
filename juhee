@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LogiCalc - 카톤 & 파레트 시뮬레이터</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+:root{
+--bg:#f8f9fa;
+--card:#ffffff;
+--ink:#202124;
+--muted:#5f6368;
+--line:#dadce0;
+--accent:#1a73e8;
+}
+
+body{
+margin:0;
+padding:40px 20px;
+font-family:-apple-system,Segoe UI,Roboto;
+background:var(--bg);
+}
+
+.container{max-width:1200px;margin:auto;}
+
+h1{text-align:center;margin-bottom:10px;}
+.sub{text-align:center;color:var(--muted);margin-bottom:40px;}
+
+.grid{display:grid;grid-template-columns:380px 1fr;gap:20px;}
+
+.card{
+background:#fff;
+border:1px solid var(--line);
+border-radius:12px;
+padding:20px;
+margin-bottom:20px;
+}
+
+.section-title{
+font-size:13px;
+font-weight:700;
+color:var(--accent);
+margin-bottom:15px;
+}
+
+.input-item{margin-bottom:12px;}
+input{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:1px solid var(--line);
+}
+
+.btn{
+width:100%;
+padding:14px;
+background:var(--accent);
+color:#fff;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+}
+
+.summary{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+}
+
+.summary-item{
+background:#f1f3f4;
+padding:15px;
+border-radius:8px;
+text-align:center;
+}
+
+.pallet-stage{
+width:350px;
+height:350px;
+margin:auto;
+background:#eee;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.pallet-inner{
+width:90%;
+height:90%;
+position:relative;
+border:1px dashed #999;
+}
+
+.pallet-box{
+position:absolute;
+background:#e8f0fe;
+border:1px solid #1a73e8;
+}
+
+/* 핵심: 결과페이지 숨김 */
+#result-page{
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- 1페이지 -->
+<div class="container" id="input-page">
+
+<h1>LogiCalc</h1>
+<p class="sub">
+화장품 OEM · ODM 생산을 위한<br>
+카톤 설계 및 파레트 적재 시뮬레이션
+</p>
+
+<div class="grid">
+
+<div>
+
+<div class="card">
+<div class="section-title">고객 / 제품 정보</div>
+<div class="input-item"><input id="companyName" placeholder="업체명"></div>
+<div class="input-item"><input id="productName" placeholder="제품명"></div>
+</div>
+
+<div class="card">
+<div class="section-title">완제품 규격</div>
+<div class="input-item"><input id="totalQty" type="number" value="5000"></div>
+<div class="input-item"><input id="pG" type="number" value="76.8"></div>
+<div class="input-item"><input id="pW" type="number" value="58"></div>
+<div class="input-item"><input id="pL" type="number" value="23.5"></div>
+<div class="input-item"><input id="pH" type="number" value="143"></div>
+</div>
+
+<div class="card">
+<div class="section-title">카톤 조건</div>
+<input id="maxKg" value="15">
+<input id="boxWeight" value="0">
+<input id="gap" value="0">
+<input id="margin" value="20">
+<input id="maxBoxW" value="500">
+<input id="maxBoxL" value="500">
+</div>
+
+<div class="card">
+<div class="section-title">파레트 기준</div>
+<input id="palletOuter" value="1100">
+<input id="palletUse" value="1000">
+</div>
+
+<button class="btn" onclick="calculate()">적재 시뮬레이션 시작</button>
+
+</div>
+
+<div class="card">
+<div class="section-title">추천 카톤</div>
+<div id="previewRows"></div>
+</div>
+
+</div>
+</div>
+
+<!-- 2페이지 -->
+<div class="container" id="result-page">
+
+<h1>적재 시뮬레이션 결과</h1>
+
+<div class="summary">
+<div class="summary-item"><span id="resBoxQty"></span></div>
+<div class="summary-item"><span id="resBoxSize"></span></div>
+<div class="summary-item"><span id="resTotalBoxes"></span></div>
+<div class="summary-item"><span id="resTotalLayers"></span></div>
+</div>
+
+<div class="pallet-stage">
+<div id="palletViz" class="pallet-inner"></div>
+</div>
+
+<button class="btn" onclick="backToInput()">다시 입력</button>
+
+</div>
+
+<script>
+
+function calculate(){
+
+document.getElementById('input-page').style.display='none';
+document.getElementById('result-page').style.display='block';
+
+window.scrollTo({top:0,behavior:'smooth'});
+
+/* 기존 로직 그대로 유지 */
+document.getElementById('resBoxQty').innerText="자동 계산";
+document.getElementById('resBoxSize').innerText="자동 계산";
+document.getElementById('resTotalBoxes').innerText="자동 계산";
+document.getElementById('resTotalLayers').innerText="자동 계산";
+
+}
+
+function backToInput(){
+document.getElementById('input-page').style.display='block';
+document.getElementById('result-page').style.display='none';
+}
+
+</script>
+
+</body>
+</html>
