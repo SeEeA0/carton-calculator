@@ -3,211 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LogiCalc - 스마트 카톤 & 파레트 계산기</title>
+  <title>LogiCalc - 카톤 & 파레트 적재 계산기</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* Gemini Inspired Modern Theme */
-    :root {
-      --bg: #f8f9fa;
-      --card: #ffffff;
-      --ink: #202124;
-      --muted: #5f6368;
-      --line: #dadce0;
-      --accent: #1a73e8; /* Google Blue */
-      --success: #1e8e3e;
-      --danger: #d93025;
-      --hover: #f1f3f4;
-      --shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-      --radius: 12px;
+    :root{
+      --bg:#f6f2ea; --card:#fff; --ink:#141414; --muted:#746c62; --line:#ddd2c2;
+      --brown:#5b3218; --cream:#f7eedf; --blue:#0071e3; --green:#16824a; --red:#c74343;
+      --shadow:0 14px 40px rgba(40,26,15,.08);
     }
-
-    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-    body {
-      margin: 0; padding: 40px 20px;
-      font-family: 'Google Sans', Roboto, Arial, sans-serif;
-      background-color: var(--bg); color: var(--ink);
-      line-height: 1.5;
-    }
-    .container { max-width: 1200px; margin: 0 auto; }
-
-    /* Header */
-    h1 { font-size: 32px; font-weight: 500; margin: 0 0 8px; text-align: center; color: var(--ink); }
-    .sub { text-align: center; color: var(--muted); margin: 0 0 40px; font-size: 16px; }
-
-    /* Layout */
-    .grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
-    .card {
-      background: var(--card); border: 1px solid var(--line);
-      border-radius: var(--radius); padding: 24px;
-      margin-bottom: 24px; transition: box-shadow 0.2s;
-    }
-    .card:hover { box-shadow: var(--shadow); }
-
-    .section-title {
-      font-size: 14px; font-weight: 700; text-transform: uppercase;
-      margin-bottom: 20px; color: var(--accent); letter-spacing: 0.5px;
-    }
-
-    /* Inputs */
-    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .input-group.three { grid-template-columns: repeat(3, 1fr); }
-    .input-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-    label { font-size: 13px; color: var(--muted); font-weight: 500; }
-    input {
-      width: 100%; padding: 12px 14px; border-radius: 8px;
-      border: 1px solid var(--line); font-size: 15px; outline: none;
-      background: #fff; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
-
-    /* Buttons */
-    .btn {
-      width: 100%; padding: 14px; border: 0; border-radius: 8px;
-      font-size: 15px; font-weight: 600; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; transition: background 0.2s;
-    }
-    .btn:not(.gray):not(.dark) { background: var(--accent); color: #fff; }
-    .btn:not(.gray):not(.dark):hover { background: #1765cc; }
-    .btn.dark { background: #3c4043; color: #fff; }
-    .btn.dark:hover { background: #202124; }
-    .btn.gray { background: transparent; border: 1px solid var(--line); color: var(--muted); }
-    .btn.gray:hover { background: var(--hover); }
-
-    /* Tables */
-    .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--line); }
-    table { width: 100%; border-collapse: collapse; min-width: 800px; background: white; }
-    th { background: #f8f9fa; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; padding: 12px; text-align: left; }
-    td { padding: 14px 12px; border-bottom: 1px solid var(--line); font-size: 14px; }
-    .clickable-row:hover { background: var(--hover); cursor: pointer; }
-    .selected-row td { background: #e8f0fe !important; color: var(--accent); font-weight: 600; }
-    .best td { background: #f1f8e9; }
-    .badge { padding: 4px 8px; border-radius: 4px; background: var(--success); color: #fff; font-size: 11px; font-weight: 700; }
-
-    /* Visualization */
-    .visual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .visual-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--ink); text-align: center;}
-    
-    .carton-viz {
-      width: 100%; max-width: 400px; margin: 0 auto; border: 2px solid #5f6368;
-      background: #fff; display: grid; gap: 2px; padding: 4px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-    }
-    .carton-cell { background: #e8eaed; border: 1px solid #dadce0; border-radius: 2px; }
-
-    .pallet-stage {
-      width: 100%; max-width: 400px; aspect-ratio: 1/1; margin: 0 auto;
-      background: #f1f3f4; border: 1px solid var(--line); border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .pallet-inner {
-      position: relative; aspect-ratio: 1/1; background: #fff;
-      border: 2px dashed #bdc1c6;
-    }
-    .pallet-box {
-      position: absolute; background: #e8f0fe; border: 1.5px solid var(--accent);
-      border-radius: 4px; box-sizing: border-box;
-    }
-    .pallet-box.rotated { background: #fef7e0; border-color: #f9ab00; }
-    .pallet-box.selected { outline: 3px solid var(--accent); z-index: 10; box-shadow: 0 0 10px rgba(26,115,232,0.4); }
-    .pallet-box.bad { background: #fce8e6; border-color: var(--danger); }
-
-    /* Result Summary */
-    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-    .summary-item {
-      background: #f8f9fa; border: 1px solid var(--line); border-radius: 12px; padding: 20px; text-align: center;
-    }
-    .summary-item b { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-    .summary-item span { font-size: 20px; font-weight: 500; color: var(--ink); }
-
-    /* Toolbars */
-    .editor-toolbar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
-    .mini-btn {
-      border: 1px solid var(--line); background: #fff; border-radius: 20px;
-      padding: 8px 16px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-    }
-    .mini-btn:hover { background: var(--hover); }
-    .mini-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-    .note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
-    .warn { color: var(--danger); font-weight: 500; }
-    .result-actions { display: flex; gap: 12px; margin-top: 32px; justify-content: center; }
-    .result-actions .btn { width: 180px; }
-
-    @media(max-width:900px){
-      .grid, .visual-grid { grid-template-columns: 1fr; }
-      .summary { grid-template-columns: 1fr 1fr; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Pretendard,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(135deg,#fffaf1,var(--bg));color:var(--ink);letter-spacing:-.03em}
+    .container{max-width:1180px;margin:0 auto}
+    h1{font-size:42px;line-height:1;margin:18px 0 10px;text-align:center;letter-spacing:-.06em}
+    .sub{text-align:center;color:var(--muted);margin:0 0 28px;line-height:1.6}
+    .grid{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+    .section-title{font-size:18px;font-weight:800;margin-bottom:18px;color:var(--brown)}
+    .input-group{display:grid;grid-template-columns:1fr 1fr;gap:12px}.input-group.three{grid-template-columns:repeat(3,1fr)}
+    .input-item{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+    label{font-size:12px;color:var(--muted);font-weight:800}
+    input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);font-size:15px;outline:none;background:#fff}
+    input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,113,227,.1)}
+    .btn{width:100%;padding:15px;border:0;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:800;cursor:pointer}.btn.dark{background:#222}.btn.gray{background:#8b8b91}.btn:hover{opacity:.9}
+    .note{font-size:12px;line-height:1.6;color:var(--muted);margin:10px 0 0}.warn{color:var(--red);font-weight:700}
+    #result-page{display:none}.result-actions{display:flex;gap:10px;margin-top:14px}.result-actions .btn{width:auto;flex:1}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.summary-item{background:#fbfaf8;border:1px solid var(--line);border-radius:16px;padding:15px}.summary-item b{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}.summary-item span{font-size:22px;font-weight:900}
+    .visual-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.visual-title{font-size:16px;font-weight:900;margin:0 0 12px;color:var(--brown)}
+    .carton-viz{width:100%;max-width:520px;min-height:260px;margin:0 auto;border:9px solid var(--brown);background:var(--cream);display:grid;gap:2px;padding:6px;overflow:hidden}.carton-cell{border:1px solid #bd8b55;background:rgba(255,255,255,.35)}
+    .editor-toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px 0}.mini-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;font-weight:800;cursor:pointer}.mini-btn.active{background:var(--brown);color:#fff;border-color:var(--brown)}
+    .pallet-stage{width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto;border:8px solid #222;background:#e9e4dc;display:flex;align-items:center;justify-content:center}.pallet-inner{position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#f0ebe3 0,#f0ebe3 8px,#faf8f4 8px,#faf8f4 16px);border:3px dashed #c8b9aa;overflow:hidden}
+    .pallet-box{position:absolute;background:var(--cream);border:3px solid var(--brown);border-radius:4px;overflow:hidden}.pallet-box::before{content:"";position:absolute;inset:4px;border:1px solid rgba(189,139,85,.65);background:repeating-linear-gradient(90deg, transparent 0, transparent 23%, rgba(189,139,85,.45) 23.5%, transparent 24%),repeating-linear-gradient(0deg, transparent 0, transparent 23%, rgba(189,139,85,.35) 23.5%, transparent 24%);opacity:.75}.pallet-box.rotated{background:#efe2cf}.pallet-box.editable{cursor:grab}.pallet-box.selected{outline:3px solid var(--blue);z-index:5}.pallet-box.bad{background:rgba(199,67,67,.22);border-color:var(--red)}
+    .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:860px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:12px;color:var(--muted);background:#fbfaf8}.best td{background:rgba(22,130,74,.06);font-weight:800}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:rgba(22,130,74,.12);color:var(--green);font-size:12px;font-weight:900}.clickable-row{cursor:pointer}.clickable-row:hover td{background:#fbfaf8}.selected-row td{background:rgba(22,130,74,.08)!important;font-weight:900}
+    @media(max-width:900px){body{padding:14px}.grid,.visual-grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.input-group,.input-group.three{grid-template-columns:1fr}h1{font-size:34px}}
   </style>
 </head>
 <body>
   <div class="container" id="input-page">
-    <h1>LogiCalc</h1>
-    <p class="sub">완제품 기준 카톤박스 입수 및 파레트 1단 적재 최적화 솔루션</p>
+    <h1>YUYU LogiCalc</h1>
+    <p class="sub">완제품 기준 카톤박스 입수, 1.1m 파레트 / 1000×1000 적재영역 기준 1단 적재를 계산합니다.</p>
 
     <div class="grid">
       <div>
         <div class="card">
           <div class="section-title">기본 정보</div>
-          <div class="input-item"><label>업체명</label><input type="text" id="companyName" placeholder="업체명을 입력하세요"></div>
-          <div class="input-item"><label>제품명</label><input type="text" id="productName" placeholder="제품명을 입력하세요"></div>
+          <div class="input-item"><label>업체명</label><input type="text" id="companyName" placeholder="예: 뷰티고객"></div>
+          <div class="input-item"><label>제품명</label><input type="text" id="productName" placeholder="예: 그린 베일 메이크업 베이스"></div>
         </div>
 
         <div class="card">
-          <div class="section-title">1. 완제품 규격</div>
-          <div class="input-item"><label>제품 총 수량 (ea)</label><input type="number" id="totalQty" value="5000"></div>
-          <div class="input-item"><label>완제품 1개 무게 (g)</label><input type="number" id="pG" value="76.8" step="0.1"></div>
+          <div class="section-title">1. 완제품 정보</div>
+          <div class="input-item"><label>제품 총 수량 ea</label><input type="number" id="totalQty" value="5000" min="1"></div>
+          <div class="input-item"><label>완제품 1개 무게 g</label><input type="number" id="pG" value="76.8" min="1" step="0.1"></div>
           <div class="input-group three">
-            <div class="input-item"><label>가로 (mm)</label><input type="number" id="pW" value="58" step="0.1"></div>
-            <div class="input-item"><label>세로 (mm)</label><input type="number" id="pL" value="23.5" step="0.1"></div>
-            <div class="input-item"><label>높이 (mm)</label><input type="number" id="pH" value="143" step="0.1"></div>
+            <div class="input-item"><label>가로 mm</label><input type="number" id="pW" value="58" min="1" step="0.1"></div>
+            <div class="input-item"><label>세로 mm</label><input type="number" id="pL" value="23.5" min="1" step="0.1"></div>
+            <div class="input-item"><label>높이 mm</label><input type="number" id="pH" value="143" min="1" step="0.1"></div>
           </div>
-          <p class="note warn">제한: 카톤 가로/세로 500mm 이하, 박스 중량 15kg 미만</p>
+          <p class="note warn">카톤 가로/세로 각각 500mm 이하, 1박스 15kg 미만, 카톤은 1단 기준</p>
         </div>
 
         <div class="card">
-          <div class="section-title">2. 계산 및 카톤 설정</div>
+          <div class="section-title">2. 계산 조건</div>
           <div class="input-group">
-            <div class="input-item"><label>박스 무게 제한 (kg)</label><input type="number" id="maxKg" value="15" step="0.1"></div>
-            <div class="input-item"><label>빈 카톤 무게 (g)</label><input type="number" id="boxWeight" value="0"></div>
+            <div class="input-item"><label>박스 제한 kg</label><input type="number" id="maxKg" value="15" min="1" step="0.1"></div>
+            <div class="input-item"><label>빈 카톤 무게 g / 모르면 0</label><input type="number" id="boxWeight" value="0" min="0"></div>
           </div>
           <div class="input-group">
-            <div class="input-item"><label>제품 간 여유 (mm)</label><input type="number" id="gap" value="0" step="0.5"></div>
-            <div class="input-item"><label>카톤 외곽 여유 (mm)</label><input type="number" id="margin" value="20" step="0.5"></div>
+            <div class="input-item"><label>제품 간 여유 mm</label><input type="number" id="gap" value="2" min="0" step="0.5"></div>
+            <div class="input-item"><label>카톤 외곽 여유 mm</label><input type="number" id="margin" value="12" min="0" step="0.5"></div>
           </div>
           <div class="input-group">
-            <div class="input-item"><label>최대 가로 제한 (mm)</label><input type="number" id="maxBoxW" value="500" max="500"></div>
-            <div class="input-item"><label>최대 세로 제한 (mm)</label><input type="number" id="maxBoxL" value="500" max="500"></div>
+            <div class="input-item"><label>최대 카톤 가로 mm</label><input type="number" id="maxBoxW" value="500" min="1" max="500"></div>
+            <div class="input-item"><label>최대 카톤 세로 mm</label><input type="number" id="maxBoxL" value="500" min="1" max="500"></div>
           </div>
+          <div class="input-item"><label>최대 카톤 높이 mm</label><input type="number" id="maxBoxH" value="300" min="1"></div>
         </div>
 
         <div class="card">
           <div class="section-title">3. 파레트 기준</div>
           <div class="input-group">
-            <div class="input-item"><label>파레트 전체 (mm)</label><input type="number" id="palletOuter" value="1100"></div>
-            <div class="input-item"><label>실제 사용 영역 (mm)</label><input type="number" id="palletUse" value="1000"></div>
+            <div class="input-item"><label>파레트 전체 1.1m = 1100mm</label><input type="number" id="palletOuter" value="1100" min="1"></div>
+            <div class="input-item"><label>실제 적재 영역 mm</label><input type="number" id="palletUse" value="1000" min="1"></div>
           </div>
-          <p class="note">※ 본 시뮬레이션은 <b>1단 적재</b> 효율을 기준으로 합니다.</p>
+          <p class="note">※ 파레트는 무조건 <b>1단 기준</b>입니다. 결과는 총 파레트 수가 아니라 <b>총 적재 단수</b>로 표시됩니다.</p>
         </div>
         <button class="btn" onclick="calculate()">적재 시뮬레이션 시작</button>
       </div>
 
       <div class="card">
-        <div class="section-title">실시간 추천 적재 리스트</div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>추천</th>
-                <th>입수 구조</th>
-                <th>입수</th>
-                <th>카톤 사이즈</th>
-                <th>파레트 1단</th>
-                <th>중량</th>
-                <th>적재 방식</th>
-              </tr>
-            </thead>
-            <tbody id="previewRows"></tbody>
-          </table>
-        </div>
+        <div class="section-title">추천 후보 미리보기</div>
+        <div class="table-wrap"><table><thead><tr><th>추천</th><th>입수 구조</th><th>입수</th><th>카톤 사이즈</th><th>파레트 1단</th><th>중량</th><th>방식</th></tr></thead><tbody id="previewRows"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -215,8 +100,8 @@
   <div class="container" id="result-page">
     <div id="capture-area">
       <div class="card">
-        <h1 style="margin-bottom:16px">계산 결과 리포트</h1>
-        <p class="sub" id="resMeta" style="margin-bottom:24px"></p>
+        <h1 style="margin-bottom:8px">계산 결과 리포트</h1>
+        <p class="sub" id="resMeta"></p>
         <div class="summary">
           <div class="summary-item"><b>카톤당 수량</b><span id="resBoxQty">0</span></div>
           <div class="summary-item"><b>카톤 규격</b><span id="resBoxSize">0</span></div>
@@ -226,62 +111,53 @@
       </div>
 
       <div class="card no-export">
-        <div class="section-title">다른 후보지 선택 및 수동 입력</div>
-        <div class="input-group" style="margin-bottom:20px; max-width: 500px;">
-          <div class="input-item"><label>수동 가로 입수</label><input type="number" id="manualX" placeholder="7"></div>
-          <div class="input-item"><label>수동 세로 입수</label><input type="number" id="manualY" placeholder="18"></div>
-          <button class="btn" type="button" onclick="applyManualCarton()" style="grid-column: span 2;">수동 설정 적용</button>
+        <div class="section-title">추천 후보 선택</div>
+        <div class="input-group" style="margin-bottom:12px">
+          <div class="input-item"><label>수동 가로 입수</label><input type="number" id="manualX" min="1" placeholder="예: 7"></div>
+          <div class="input-item"><label>수동 세로 입수</label><input type="number" id="manualY" min="1" placeholder="예: 18"></div>
         </div>
+        <p class="note">※ 카톤은 무조건 1단 기준으로 계산됩니다.</p>
+        <button class="btn" type="button" onclick="applyManualCarton()" style="margin-bottom:14px">수동 카톤 입수로 미리보기</button>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>선택</th>
-                <th>입수 구조</th>
-                <th>입수</th>
-                <th>카톤 사이즈</th>
-                <th>파레트 1단</th>
-                <th>중량</th>
-                <th>방식</th>
-              </tr>
+              <tr><th>선택</th><th>입수 구조</th><th>입수</th><th>카톤 사이즈</th><th>파레트 1단</th><th>중량</th><th>방식</th></tr>
             </thead>
             <tbody id="resultCandidateRows"></tbody>
           </table>
         </div>
+        <p class="note">※ 후보를 클릭하면 아래 카톤/파레트 시각화와 리포트 숫자가 즉시 변경됩니다.</p>
       </div>
 
       <div class="visual-grid">
         <div class="card">
-          <div class="visual-title">카톤 내부 레이아웃</div>
+          <div class="visual-title">카톤 내부 입수 예시</div>
           <div id="cartonViz" class="carton-viz"></div>
-          <p class="note" id="cartonText" style="text-align:center; margin-top:20px; font-weight: 500;"></p>
+          <p class="note" id="cartonText" style="text-align:center"></p>
         </div>
         <div class="card">
-          <div class="visual-title">파레트 적재 레이아웃</div>
+          <div class="visual-title">파레트 1단 적재 예시</div>
           <div class="editor-toolbar">
-            <button class="mini-btn" type="button" id="palletEditBtn" onclick="togglePalletEditMode()">수동 편집 모드</button>
-            <button class="mini-btn" type="button" onclick="rotateSelectedPalletBox()">회전 (R)</button>
+            <button class="mini-btn" type="button" id="palletEditBtn" onclick="togglePalletEditMode()">파레트 직접 배치 모드</button>
+            <button class="mini-btn" type="button" onclick="rotateSelectedPalletBox()">선택 카톤 90도 회전</button>
             <button class="mini-btn" type="button" onclick="addPalletBox()">추가 (+)</button>
-            <button class="mini-btn" type="button" onclick="removeSelectedPalletBox()" style="color:var(--danger)">삭제 (×)</button>
-            <button class="mini-btn" type="button" onclick="resetPalletBoxes()">초기화</button>
+            <button class="mini-btn" type="button" onclick="removeSelectedPalletBox()">삭제 (-)</button>
+            <button class="mini-btn" type="button" onclick="resetPalletBoxes()">자동 배치로 초기화</button>
           </div>
           <div class="pallet-stage"><div id="palletViz" class="pallet-inner"></div></div>
-          <p class="note" id="palletText" style="text-align:center; margin-top:20px; font-weight: 500; color: var(--accent);"></p>
-          <p class="note" id="manualPalletText" style="text-align:center;"></p>
+          <p class="note" id="palletText" style="text-align:center"></p>
+          <p class="note" id="manualPalletText" style="text-align:center"></p>
+          <p class="note" style="text-align:center">직접 배치 모드에서 카톤박스를 드래그/회전/추가/삭제할 수 있습니다. 단축키: R 회전 / + 추가 / - 삭제. 수정 후 1단 카톤 수와 총 적재 단수가 자동 반영됩니다.</p>
         </div>
       </div>
     </div>
-
     <div class="result-actions">
-      <button class="btn gray" onclick="backToInput()">수정하기</button>
+      <button class="btn gray" onclick="backToInput()">다시 수정</button>
       <button class="btn dark" onclick="downloadImg()">이미지로 저장</button>
     </div>
   </div>
 
 <script>
-/* -----------------------------------------------------------
-   LOGIC (기존 소스 원본 유지)
-   ----------------------------------------------------------- */
 let lastResult=null;
 let lastCandidates=[];
 let selectedCandidateIndex=0;
@@ -296,7 +172,7 @@ function getData(){
   return {
     company:$('companyName').value.trim(), product:$('productName').value.trim(), total:i('totalQty'),
     w:n('pW'), l:n('pL'), h:n('pH'), g:n('pG'), maxKg:n('maxKg'), boxWeight:n('boxWeight'),
-    gap:n('gap'), margin:n('margin'), maxBoxW:Math.min(500,n('maxBoxW')||500), maxBoxL:Math.min(500,n('maxBoxL')||500), maxBoxH:Infinity,
+    gap:n('gap'), margin:n('margin'), maxBoxW:Math.min(500,n('maxBoxW')||500), maxBoxL:Math.min(500,n('maxBoxL')||500), maxBoxH:n('maxBoxH'),
     palletOuter:n('palletOuter'), palletUse:n('palletUse')
   }
 }
@@ -384,7 +260,7 @@ function makeCandidates(d){
       const qty=x*y*z;
       if(qty<1 || qty>maxQtyByWeight) continue;
       const size=cartonSize(x,y,z,o,d);
-      if(size.w>d.maxBoxW || size.l>d.maxBoxL) continue;
+      if(size.w>d.maxBoxW || size.l>d.maxBoxL || size.h>d.maxBoxH) continue;
       const kg=(qty*d.g+d.boxWeight)/1000;
       if(kg>=d.maxKg) continue;
       const fit=palletFit(size.w,size.l,d.palletUse);
@@ -469,7 +345,7 @@ function updateManualPalletCount(){
   const totalLayers=count?Math.ceil(lastResult.totalBoxes/count):0;
   $('resTotalLayers').textContent=fmt(totalLayers)+'단';
   $('manualPalletText').textContent=`현재 배치 기준: 1단 ${fmt(count)}박스 · 총 ${fmt(totalLayers)}단 분량${bad?` · 겹침 ${bad}개 확인 필요`:''}`;
-  $('palletText').textContent=`1단 기준: ${fmt(count)}박스 (${palletEditMode?'편집중':lastResult.fit.name})`;
+  $('palletText').textContent=`1.1m 파레트 / ${fmt(lastResult.d.palletUse)}×${fmt(lastResult.d.palletUse)} 적재영역 기준: ${fmt(count)}박스·1단 · ${palletEditMode?'직접 배치':lastResult.fit.name}`;
 }
 function resetPalletBoxes(){if(lastResult){drawPallet(lastResult.d,lastResult.fit);}}
 function checkPalletCollisions(){
@@ -478,7 +354,12 @@ function checkPalletCollisions(){
   const rects=boxes.map(b=>{const r=b.getBoundingClientRect();return {el:b,x:r.left-ar.left,y:r.top-ar.top,w:r.width,l:r.height};});
   for(let i=0;i<rects.length;i++) for(let j=i+1;j<rects.length;j++) if(rectsOverlap(rects[i],rects[j])){rects[i].el.classList.add('bad');rects[j].el.classList.add('bad');}
 }
-document.addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&palletEditMode) rotateSelectedPalletBox();});
+document.addEventListener('keydown',e=>{
+  if(!palletEditMode) return;
+  if(e.key==='r'||e.key==='R') rotateSelectedPalletBox();
+  if(e.key==='='||e.key==='+') addPalletBox();
+  if(e.key==='-'||e.key==='_') removeSelectedPalletBox();
+});
 function drawPallet(d,fit){
   const el=$('palletViz'); el.innerHTML=''; selectedPalletBox=null;
   const useRatio=Math.min(100,Math.max(10,d.palletUse/d.palletOuter*100)); el.style.width=useRatio+'%'; el.style.height=useRatio+'%';
@@ -498,27 +379,27 @@ function applyCandidate(idx){
   lastResult={d,c,fit,totalBoxes,totalLayers};
   $('resMeta').textContent=`업체명: ${d.company||'-'} · 제품명: ${d.product||'-'} · 총 수량: ${fmt(d.total)}ea`;
   $('resBoxQty').textContent=fmt(c.qty)+'개'; $('resBoxSize').textContent=`${fmt(c.size.w)}×${fmt(c.size.l)}×${fmt(c.size.h)}mm`; $('resTotalBoxes').textContent=fmt(totalBoxes)+'박스'; $('resTotalLayers').textContent=fmt(totalLayers)+'단';
-  $('cartonText').textContent=`입수: ${c.x}×${c.y} (${fmt(c.qty)}개) / 예상 중량 ${fmt(c.kg,2)}kg`;
+  $('cartonText').textContent=`입수 구조: ${c.x}×${c.y}×1단 / ${fmt(c.qty)}개 · 예상 중량 ${fmt(c.kg,2)}kg`;
   drawCarton(c); drawPallet(d,fit); renderResultCandidateRows();
 }
 function selectCandidate(idx){applyCandidate(idx);}
 function applyManualCarton(){
   const d=getData(); const x=parseInt($('manualX').value,10)||0; const y=parseInt($('manualY').value,10)||0; const z=1;
-  if(!x||!y){alert('가로/세로 입수를 입력해주세요.');return;}
+  if(!x||!y){alert('가로/세로 입수를 입력해주세요. 카톤은 1단 기준으로 계산됩니다.');return;}
   const orientations=[{name:'수동 정방향',w:d.w,l:d.l,h:d.h},{name:'수동 90도 회전',w:d.l,l:d.w,h:d.h}];
   const manualCandidates=[];
   orientations.forEach(o=>{
     const qty=x*y*z; const size=cartonSize(x,y,z,o,d); const kg=(qty*d.g+d.boxWeight)/1000;
-    if(size.w<=d.maxBoxW&&size.l<=d.maxBoxL&&kg<d.maxKg){const fit=palletFit(size.w,size.l,d.palletUse); manualCandidates.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,productPerPalletLayer:qty*fit.count,score:999999999});}
+    if(size.w<=d.maxBoxW&&size.l<=d.maxBoxL&&size.h<=d.maxBoxH&&kg<d.maxKg){const fit=palletFit(size.w,size.l,d.palletUse); manualCandidates.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,productPerPalletLayer:qty*fit.count,score:999999999});}
   });
-  if(!manualCandidates.length){alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 조건을 초과합니다.');return;}
+  if(!manualCandidates.length){alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 / 높이 제한 조건을 초과합니다.');return;}
   const manual=manualCandidates.sort((a,b)=>b.productPerPalletLayer-a.productPerPalletLayer)[0];
   lastCandidates=[manual,...lastCandidates.filter(c=>!(c.x===manual.x&&c.y===manual.y&&c.z===manual.z&&c.size.w===manual.size.w&&c.size.l===manual.size.l))].slice(0,8);
   applyCandidate(0);
 }
 function calculate(){
   const d=getData(); const candidates=makeCandidates(d);
-  if(!candidates.length){alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 여유값을 확인해주세요.');return;}
+  if(!candidates.length){alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 카톤 높이, 여유값을 확인해주세요.');return;}
   lastCandidates=candidates; selectedCandidateIndex=0; applyCandidate(0); $('input-page').style.display='none'; $('result-page').style.display='block';
 }
 function backToInput(){ $('result-page').style.display='none'; $('input-page').style.display='block'; }
@@ -528,10 +409,12 @@ function downloadImg(){
   html2canvas($('capture-area'),{backgroundColor:'#ffffff',scale:2}).then(canvas=>{
     hiddenEls.forEach(el=>el.style.display='');
     const link=document.createElement('a');
-    link.download='적재분석리포트.png';
+    link.download='carton-pallet-result.png';
     link.href=canvas.toDataURL('image/png');
     link.click();
-  }).catch(()=>{ hiddenEls.forEach(el=>el.style.display=''); });
+  }).catch(()=>{
+    hiddenEls.forEach(el=>el.style.display='');
+  });
 }
 </script>
 </body>
