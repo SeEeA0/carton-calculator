@@ -1,538 +1,841 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LogiCalc - 스마트 카톤 & 파레트 계산기</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <style>
-    /* Gemini Inspired Modern Theme */
-    :root {
-      --bg: #f8f9fa;
-      --card: #ffffff;
-      --ink: #202124;
-      --muted: #5f6368;
-      --line: #dadce0;
-      --accent: #1a73e8; /* Google Blue */
-      --success: #1e8e3e;
-      --danger: #d93025;
-      --hover: #f1f3f4;
-      --shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-      --radius: 12px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>샐러리아 전체 메뉴판</title>
+    <style>
+        @page { size: A4; margin: 15mm; background-color: #f7f9f7; }
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; background-color: #f7f9f7; color: #2c3e50; line-height: 1.6; }
+        .container { width: 100%; max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 40px 0; border-bottom: 2px solid #2d5a27; margin-bottom: 40px; }
+        header h1 { color: #2d5a27; font-size: 28pt; margin: 0; letter-spacing: -1px; }
+        header p { color: #666; font-size: 12pt; margin-top: 10px; }
+        
+        .category-section { margin-bottom: 50px; page-break-before: auto; }
+        .category-title { 
+            background-color: #2d5a27; color: white; padding: 12px 25px; 
+            border-radius: 50px; display: inline-block; font-size: 16pt; 
+            font-weight: bold; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        
+        .menu-card {
+            background: white; border-radius: 15px; padding: 15px;
+            display: flex; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s; border: 1px solid #eee;
+            page-break-inside: avoid;
+        }
+        .menu-img-wrapper { width: 130px; height: 130px; flex-shrink: 0; margin-right: 20px; }
+        .menu-img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; background: #f0f0f0; }
+        
+        .menu-info { flex-grow: 1; }
+        .menu-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+        .menu-name { font-size: 14pt; font-weight: bold; color: #333; }
+        .menu-price { font-size: 13pt; font-weight: bold; color: #e67e22; }
+        
+        .menu-meta { margin-bottom: 8px; }
+        .cal-tag { 
+            background: #e8f5e9; color: #2e7d32; padding: 2px 10px; 
+            border-radius: 5px; font-size: 9pt; font-weight: bold; 
+        }
+        
+        .menu-desc { font-size: 10pt; color: #7f8c8d; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-    body {
-      margin: 0; padding: 40px 20px;
-      font-family: 'Google Sans', Roboto, Arial, sans-serif;
-      background-color: var(--bg); color: var(--ink);
-      line-height: 1.5;
-    }
-    .container { max-width: 1200px; margin: 0 auto; }
-
-    /* Header */
-    h1 { font-size: 32px; font-weight: 500; margin: 0 0 8px; text-align: center; color: var(--ink); }
-    .sub { text-align: center; color: var(--muted); margin: 0 0 40px; font-size: 16px; }
-
-    /* Layout */
-    .grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
-    .card {
-      background: var(--card); border: 1px solid var(--line);
-      border-radius: var(--radius); padding: 24px;
-      margin-bottom: 24px; transition: box-shadow 0.2s;
-    }
-    .card:hover { box-shadow: var(--shadow); }
-
-    .section-title {
-      font-size: 14px; font-weight: 700; text-transform: uppercase;
-      margin-bottom: 20px; color: var(--accent); letter-spacing: 0.5px;
-    }
-
-    /* Inputs */
-    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .input-group.three { grid-template-columns: repeat(3, 1fr); }
-    .input-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-    label { font-size: 13px; color: var(--muted); font-weight: 500; }
-    input {
-      width: 100%; padding: 12px 14px; border-radius: 8px;
-      border: 1px solid var(--line); font-size: 15px; outline: none;
-      background: #fff; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
-
-    /* Buttons */
-    .btn {
-      width: 100%; padding: 14px; border: 0; border-radius: 8px;
-      font-size: 15px; font-weight: 600; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; transition: background 0.2s;
-    }
-    .btn:not(.gray):not(.dark) { background: var(--accent); color: #fff; }
-    .btn:not(.gray):not(.dark):hover { background: #1765cc; }
-    .btn.dark { background: #3c4043; color: #fff; }
-    .btn.dark:hover { background: #202124; }
-    .btn.gray { background: transparent; border: 1px solid var(--line); color: var(--muted); }
-    .btn.gray:hover { background: var(--hover); }
-
-    /* Tables */
-    .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--line); }
-    table { width: 100%; border-collapse: collapse; min-width: 800px; background: white; }
-    th { background: #f8f9fa; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; padding: 12px; text-align: left; }
-    td { padding: 14px 12px; border-bottom: 1px solid var(--line); font-size: 14px; }
-    .clickable-row:hover { background: var(--hover); cursor: pointer; }
-    .selected-row td { background: #e8f0fe !important; color: var(--accent); font-weight: 600; }
-    .best td { background: #f1f8e9; }
-    .badge { padding: 4px 8px; border-radius: 4px; background: var(--success); color: #fff; font-size: 11px; font-weight: 700; }
-
-    /* Visualization */
-    .visual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .visual-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--ink); text-align: center;}
-    
-    .carton-viz {
-      width: 100%; max-width: 400px; margin: 0 auto; border: 2px solid #5f6368;
-      background: #fff; display: grid; gap: 2px; padding: 4px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-    }
-    .carton-cell { background: #e8eaed; border: 1px solid #dadce0; border-radius: 2px; }
-
-    .pallet-stage {
-      width: 100%; max-width: 400px; aspect-ratio: 1/1; margin: 0 auto;
-      background: #f1f3f4; border: 1px solid var(--line); border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .pallet-inner {
-      position: relative; aspect-ratio: 1/1; background: #fff;
-      border: 2px dashed #bdc1c6;
-    }
-    .pallet-box {
-      position: absolute; background: #e8f0fe; border: 1.5px solid var(--accent);
-      border-radius: 4px; box-sizing: border-box;
-    }
-    .pallet-box.rotated { background: #fef7e0; border-color: #f9ab00; }
-    .pallet-box.selected { outline: 3px solid var(--accent); z-index: 10; box-shadow: 0 0 10px rgba(26,115,232,0.4); }
-    .pallet-box.bad { background: #fce8e6; border-color: var(--danger); }
-
-    /* Result Summary */
-    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-    .summary-item {
-      background: #f8f9fa; border: 1px solid var(--line); border-radius: 12px; padding: 20px; text-align: center;
-    }
-    .summary-item b { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-    .summary-item span { font-size: 20px; font-weight: 500; color: var(--ink); }
-
-    /* Toolbars */
-    .editor-toolbar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
-    .mini-btn {
-      border: 1px solid var(--line); background: #fff; border-radius: 20px;
-      padding: 8px 16px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-    }
-    .mini-btn:hover { background: var(--hover); }
-    .mini-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-    .note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
-    .warn { color: var(--danger); font-weight: 500; }
-    .result-actions { display: flex; gap: 12px; margin-top: 32px; justify-content: center; }
-    .result-actions .btn { width: 180px; }
-
-    @media(max-width:900px){
-      .grid, .visual-grid { grid-template-columns: 1fr; }
-      .summary { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
+        /* Responsive grid for screen viewing */
+        @media screen and (min-width: 768px) {
+            .menu-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
 </head>
 <body>
-  <div class="container" id="input-page">
-    <h1>LogiCalc</h1>
-    <p class="sub">완제품 기준 카톤박스 입수 및 파레트 1단 적재 최적화 솔루션</p>
+    <div class="container">
+        <header>
+            <h1>SALADIA MENU</h1>
+            <p>신선함이 가득한 샐러리아의 건강한 메뉴를 만나보세요</p>
+        </header>
 
-    <div class="grid">
-      <div>
-        <div class="card">
-          <div class="section-title">기본 정보</div>
-          <div class="input-item"><label>업체명</label><input type="text" id="companyName" placeholder="업체명을 입력하세요"></div>
-          <div class="input-item"><label>제품명</label><input type="text" id="productName" placeholder="제품명을 입력하세요"></div>
-        </div>
-
-        <div class="card">
-          <div class="section-title">1. 완제품 규격</div>
-          <div class="input-item"><label>제품 총 수량 (ea)</label><input type="number" id="totalQty" value="5000"></div>
-          <div class="input-item"><label>완제품 1개 무게 (g)</label><input type="number" id="pG" value="76.8" step="0.1"></div>
-          <div class="input-group three">
-            <div class="input-item"><label>가로 (mm)</label><input type="number" id="pW" value="58" step="0.1"></div>
-            <div class="input-item"><label>세로 (mm)</label><input type="number" id="pL" value="23.5" step="0.1"></div>
-            <div class="input-item"><label>높이 (mm)</label><input type="number" id="pH" value="143" step="0.1"></div>
-          </div>
-          <p class="note warn">제한: 카톤 가로/세로 500mm 이하, 박스 중량 15kg 미만</p>
-        </div>
-
-        <div class="card">
-          <div class="section-title">2. 계산 및 카톤 설정</div>
-          <div class="input-group">
-            <div class="input-item"><label>박스 무게 제한 (kg)</label><input type="number" id="maxKg" value="15" step="0.1"></div>
-            <div class="input-item"><label>빈 카톤 무게 (g)</label><input type="number" id="boxWeight" value="0"></div>
-          </div>
-          <div class="input-group">
-            <div class="input-item"><label>제품 간 여유 (mm)</label><input type="number" id="gap" value="0" step="0.5"></div>
-            <div class="input-item"><label>카톤 외곽 여유 (mm)</label><input type="number" id="margin" value="20" step="0.5"></div>
-          </div>
-          <div class="input-group">
-            <div class="input-item"><label>최대 가로 제한 (mm)</label><input type="number" id="maxBoxW" value="500" max="500"></div>
-            <div class="input-item"><label>최대 세로 제한 (mm)</label><input type="number" id="maxBoxL" value="500" max="500"></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="section-title">3. 파레트 기준</div>
-          <div class="input-group">
-            <div class="input-item"><label>파레트 전체 (mm)</label><input type="number" id="palletOuter" value="1100"></div>
-            <div class="input-item"><label>실제 사용 영역 (mm)</label><input type="number" id="palletUse" value="1000"></div>
-          </div>
-          <p class="note">※ 본 시뮬레이션은 <b>1단 적재</b> 효율을 기준으로 합니다.</p>
-        </div>
-        <button class="btn" onclick="calculate()">적재 시뮬레이션 시작</button>
-      </div>
-
-      <div class="card">
-        <div class="section-title">실시간 추천 적재 리스트</div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>추천</th>
-                <th>입수 구조</th>
-                <th>입수</th>
-                <th>카톤 사이즈</th>
-                <th>파레트 1단</th>
-                <th>중량</th>
-                <th>적재 방식</th>
-              </tr>
-            </thead>
-            <tbody id="previewRows"></tbody>
-          </table>
-        </div>
-      </div>
+        <section class="category-section">
+            <div class="category-title">샐러드</div>
+            <div class="menu-grid">
+    
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_01.jpg" class="menu-img" alt="100% 들기름 메밀면 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">100% 들기름 메밀면 샐러드</span>
+                            <span class="menu-price">9,000원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">385kcal</span>
+                        </div>
+                        <div class="menu-desc">100% 통들깨로 짜낸 향긋하고 고소한 들기름, 단백질이 풍부하면서도 칼로리...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_02.jpg" class="menu-img" alt="생연어 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">생연어 샐러드</span>
+                            <span class="menu-price">13,000원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">312kcal</span>
+                        </div>
+                        <div class="menu-desc">싱싱 그 자체, 통통한 생연어 가득, 특제 양파소스와 싱싱한 양파, 매장에서 직...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_20.jpg" class="menu-img" alt="훈제 연어 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">훈제 연어 샐러드</span>
+                            <span class="menu-price">10,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">290kcal</span>
+                        </div>
+                        <div class="menu-desc">엄선한 싱싱한 훈제연어에 샐러리아 특제 양파소스와 싱싱한 양파. 매장에서...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_03.jpg" class="menu-img" alt="스팀 닭가슴살 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">스팀 닭가슴살 샐러드</span>
+                            <span class="menu-price">9,000원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">245kcal</span>
+                        </div>
+                        <div class="menu-desc">단백질 빵빵 다이어트의 정석 닭가슴살 한가득~ 매장에서 직접만드는 수제에...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_21.jpg" class="menu-img" alt="스팀 매콤닭가슴살 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">스팀 매콤닭가슴살 샐러드</span>
+                            <span class="menu-price">9,000원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">250kcal</span>
+                        </div>
+                        <div class="menu-desc">식단하다 자극적인 맛이 그리울 땐 입맛을 돋우는 매콤한 닭가슴살 샐러드 추...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_22.jpg" class="menu-img" alt="할라피뇨 스팀 닭가슴살 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">할라피뇨 스팀 닭가슴살 샐러드</span>
+                            <span class="menu-price">9,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">260kcal</span>
+                        </div>
+                        <div class="menu-desc">단백질 대장 닭가슴살, 매콤한 할라피뇨. 매장에서 직접만드는 수제에그마요, ...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_04.jpg" class="menu-img" alt="통통쉬림프 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">통통쉬림프 샐러드</span>
+                            <span class="menu-price">10,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">210kcal</span>
+                        </div>
+                        <div class="menu-desc">샐러리아의 특제 칠리소스를 버무린 통통한 새우살. 매장에서 직접만든 수제...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_23.jpg" class="menu-img" alt="갈릭버터 쉬림프 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">갈릭버터 쉬림프 샐러드</span>
+                            <span class="menu-price">10,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">285kcal</span>
+                        </div>
+                        <div class="menu-desc">달콤한 갈릭 버터 소스와 통통한 새우가 어우러진 샐러리아의 대표메뉴 갈릭버...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_24.jpg" class="menu-img" alt="베이컨에그 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">베이컨에그 샐러드</span>
+                            <span class="menu-price">9,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">395kcal</span>
+                        </div>
+                        <div class="menu-desc">짭쪼름한 베이컨, 포실포실 삶은계란 슬라이스. 콜레스테롤을 억제해줄 각종...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_25.jpg" class="menu-img" alt="게살와사비 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">게살와사비 샐러드</span>
+                            <span class="menu-price">8,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">270kcal</span>
+                        </div>
+                        <div class="menu-desc">톡쏘는 와사비와 꼬들꼬들 싱싱한 게살의 조화. 직접만든 수제 에그마요, 각종...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_26.jpg" class="menu-img" alt="아보카도 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">아보카도 샐러드</span>
+                            <span class="menu-price">9,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">320kcal</span>
+                        </div>
+                        <div class="menu-desc">싱싱한 아보카도 한가득. 혈압, 세포재생에 효과적인 아보카도와 매장에서 직...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_27.jpg" class="menu-img" alt="단호박 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">단호박 샐러드</span>
+                            <span class="menu-price">8,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">295kcal</span>
+                        </div>
+                        <div class="menu-desc">달콤한 단호박 한가득. 기분 좋아지는 달콤달콤 단호박, 매장에서 직접만든 수...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_05.jpg" class="menu-img" alt="리코타 치즈 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">리코타 치즈 샐러드</span>
+                            <span class="menu-price">9,000원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">340kcal</span>
+                        </div>
+                        <div class="menu-desc">샐러리아의 특제 리코타치즈. 깔끔하고 고소한 리코타치즈와 든든함을 책임지...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_28.jpg" class="menu-img" alt="소불고기 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">소불고기 샐러드</span>
+                            <span class="menu-price">10,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">420kcal</span>
+                        </div>
+                        <div class="menu-desc">단짠단짠 소불고기 한가득. 한국인이라면 남녀노소 불호제로 소불고기와 콜레스...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_29.jpg" class="menu-img" alt="케이준 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">케이준 샐러드</span>
+                            <span class="menu-price">9,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">450kcal</span>
+                        </div>
+                        <div class="menu-desc">100% 닭가슴살, 열풍으로 구워 만든 바삭바삭 케이준치킨텐더~ 매장에서 직...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_30.jpg" class="menu-img" alt="부채살 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">부채살 샐러드</span>
+                            <span class="menu-price">12,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">380kcal</span>
+                        </div>
+                        <div class="menu-desc">특제 양념을 가미한 부채살 스테이크. 필수 아미노산 8종과 근육생성에 탁월한...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_06.jpg" class="menu-img" alt="수비드 통삼겹 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">수비드 통삼겹 샐러드</span>
+                            <span class="menu-price">11,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">490kcal</span>
+                        </div>
+                        <div class="menu-desc">한국인의 소울푸드 고소한 통삼겹~ 샐러리아만의 특제 소스로 수비드 과정을...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_31.jpg" class="menu-img" alt="훈제오리 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">훈제오리 샐러드</span>
+                            <span class="menu-price">9,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">410kcal</span>
+                        </div>
+                        <div class="menu-desc">쫄깃쫄깃 고소한 훈제오리를 수북히~ 남성활력과 근육에너지, 체온조절에 탁...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_32.jpg" class="menu-img" alt="목살스테이크 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">목살스테이크 샐러드</span>
+                            <span class="menu-price">9,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">390kcal</span>
+                        </div>
+                        <div class="menu-desc">고소하고 담백한 목살을 수북히~ 철분 체내 흡수율이 가장 높은 돼지 목살과, ...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_33.jpg" class="menu-img" alt="우삼겹 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">우삼겹 샐러드</span>
+                            <span class="menu-price">11,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">430kcal</span>
+                        </div>
+                        <div class="menu-desc">꼬들꼬들 보들보들 우삼겹 한가득. 샐러리아만의 기술과 엄선된 재료로 조리...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_34.jpg" class="menu-img" alt="수비드 풀드포크 샐러드">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">수비드 풀드포크 샐러드</span>
+                            <span class="menu-price">11,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">370kcal</span>
+                        </div>
+                        <div class="menu-desc">미국의 소울푸드 구미당기는 풀드포크~ 장시간 저온훈연한 기름기 쫙뺀 풀드...</div>
+                    </div>
+                </div>
+        
+            </div>
+        </section>
+    
+        <section class="category-section">
+            <div class="category-title">포케</div>
+            <div class="menu-grid">
+    
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_02.jpg" class="menu-img" alt="스팀 닭가슴살 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">스팀 닭가슴살 포케</span>
+                            <span class="menu-price">11,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">480kcal</span>
+                        </div>
+                        <div class="menu-desc">단백질대장 닭가슴살이 한가득. 싱싱한 야채와 풍미가득 양파후레이크, 톡톡...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_07.jpg" class="menu-img" alt="스팀 매콤닭가슴살 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">스팀 매콤닭가슴살 포케</span>
+                            <span class="menu-price">11,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">485kcal</span>
+                        </div>
+                        <div class="menu-desc">입맛 돋우는 매콤한 닭가슴살과 싱싱한 야채, 바삭바삭 풍미가득 양파후레이...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_08.jpg" class="menu-img" alt="생연어포케 (한정수량)">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">생연어포케 (한정수량)</span>
+                            <span class="menu-price">16,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">520kcal</span>
+                        </div>
+                        <div class="menu-desc">싱싱 그 자체 통통한 생연어 가득. 혈관질환에 효과적인 오메가3가 풍부한 생연...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_09.jpg" class="menu-img" alt="훈제연어 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">훈제연어 포케</span>
+                            <span class="menu-price">13,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">510kcal</span>
+                        </div>
+                        <div class="menu-desc">샐러리아에서 엄선한 싱싱한 훈제연어 가득. 심혈관 질환에 효과적인 오메가3...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_03.jpg" class="menu-img" alt="아보카도 훈제연어 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">아보카도 훈제연어 포케</span>
+                            <span class="menu-price">15,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">540kcal</span>
+                        </div>
+                        <div class="menu-desc">싱싱한 연어와 아보카도 한가득. 부드럽고 고소한 아보카도와 훈제연어, 야채...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_10.jpg" class="menu-img" alt="아보카도 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">아보카도 포케</span>
+                            <span class="menu-price">12,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">490kcal</span>
+                        </div>
+                        <div class="menu-desc">고소하고 담백한 아보카도 가득. 혈압, 세포재생에 효과적인 아보카도와 찰현미...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_11.jpg" class="menu-img" alt="베이컨에그 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">베이컨에그 포케</span>
+                            <span class="menu-price">12,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">580kcal</span>
+                        </div>
+                        <div class="menu-desc">짭쪼름한 베이컨, 보들보들 삶은계란 슬라이스. 콜레스테롤을 억제해줄 치커리...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_04.jpg" class="menu-img" alt="소불고기 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">소불고기 포케</span>
+                            <span class="menu-price">13,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">590kcal</span>
+                        </div>
+                        <div class="menu-desc">고단백, 단짠단짠 소불고기 한가득. 한국인이라면 남녀노소 불호제로 소불고기...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_12.jpg" class="menu-img" alt="통통쉬림프 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">통통쉬림프 포케</span>
+                            <span class="menu-price">13,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">460kcal</span>
+                        </div>
+                        <div class="menu-desc">통통하고 싱싱한 새우살 가득. 간건강에 탁월한 타우린이 풍부한 새우살, 바삭...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_13.jpg" class="menu-img" alt="갈릭버터 쉬림프 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">갈릭버터 쉬림프 포케</span>
+                            <span class="menu-price">13,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">530kcal</span>
+                        </div>
+                        <div class="menu-desc">달콤한 갈릭 버터 소스와 통통한 새우가 어우러진 샐러리아의 대표메뉴 갈릭버...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_14.jpg" class="menu-img" alt="우삼겹 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">우삼겹 포케</span>
+                            <span class="menu-price">14,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">610kcal</span>
+                        </div>
+                        <div class="menu-desc">꼬들꼬들 보들보들 우삼겹 수북히. 샐러리아만의 기술과 엄선된 우삼겹으로...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_05.jpg" class="menu-img" alt="부채살스테이크 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">부채살스테이크 포케</span>
+                            <span class="menu-price">15,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">540kcal</span>
+                        </div>
+                        <div class="menu-desc">특제 양념을 가미한 부채살 스테이크. 필수 아미노산 8종과 근육생성에 탁월한...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_01.jpg" class="menu-img" alt="훈제오리 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">훈제오리 포케</span>
+                            <span class="menu-price">12,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">560kcal</span>
+                        </div>
+                        <div class="menu-desc">쫄깃쫄깃 훈제오리가 수북히. 남성활력과 근육에너지, 체온조절에 탁월한 오리...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_15.jpg" class="menu-img" alt="수비드 통삼겹 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">수비드 통삼겹 포케</span>
+                            <span class="menu-price">14,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">650kcal</span>
+                        </div>
+                        <div class="menu-desc">한국인의 소울푸드 고소한 통삼겹. 샐러리아만의 특제 소스로 수비드 과정을...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_06.jpg" class="menu-img" alt="목살스테이크 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">목살스테이크 포케</span>
+                            <span class="menu-price">12,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">570kcal</span>
+                        </div>
+                        <div class="menu-desc">고소하고 담백한 목살이 한가득~ 철분 체내 흡수율이 가장 높은 돼지 목살과, ...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_16.jpg" class="menu-img" alt="케이준 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">케이준 포케</span>
+                            <span class="menu-price">12,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">620kcal</span>
+                        </div>
+                        <div class="menu-desc">100% 열풍으로 바로구워낸 바삭바삭 케이준치킨텐더 한가득. 각종 야채, 혈...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_poke_17.jpg" class="menu-img" alt="수비드 풀드포크 포케">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">수비드 풀드포크 포케</span>
+                            <span class="menu-price">14,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">550kcal</span>
+                        </div>
+                        <div class="menu-desc">미국의 소울푸드 구미당기는 풀드포크. 장시간 저온훈연한 기름기 쫙뺀 풀드...</div>
+                    </div>
+                </div>
+        
+            </div>
+        </section>
+    
+        <section class="category-section">
+            <div class="category-title">샌드위치 & 랩</div>
+            <div class="menu-grid">
+    
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_sand_01.jpg" class="menu-img" alt="햄치즈 샌드위치">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">햄치즈 샌드위치</span>
+                            <span class="menu-price">6,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">450kcal</span>
+                        </div>
+                        <div class="menu-desc">짭쪼름한 햄, 깊은 풍미의 체다치즈, 신선한 토마토와 양상추를 곁들인 샌드위...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_sand_02.jpg" class="menu-img" alt="햄치즈에그 샌드위치">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">햄치즈에그 샌드위치</span>
+                            <span class="menu-price">7,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">495kcal</span>
+                        </div>
+                        <div class="menu-desc">고소한 에그마요, 짭쪼름한 햄, 풍미깊은 체다치즈의 완벽밸런스 / 과일소스가...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_sand_04.jpg" class="menu-img" alt="수비드 풀드포크 샌드위치">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">수비드 풀드포크 샌드위치</span>
+                            <span class="menu-price">9,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">510kcal</span>
+                        </div>
+                        <div class="menu-desc">샐러리아 특제소스로 버무린 풀드포크와 따끈따끈 계란후라이, 풍미가득 체...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_sand_05.jpg" class="menu-img" alt="온리 리코타치즈 샌드위치">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">온리 리코타치즈 샌드위치</span>
+                            <span class="menu-price">6,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">410kcal</span>
+                        </div>
+                        <div class="menu-desc">샐러리아만의 특제 소스로 만든 리코타치즈 듬뿍 샌드위치 / 과일소스가 들어...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_sand_06.jpg" class="menu-img" alt="온리에그마요 샌드위치">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">온리에그마요 샌드위치</span>
+                            <span class="menu-price">5,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">480kcal</span>
+                        </div>
+                        <div class="menu-desc">단백질폭탄 샐러리아만의 특제 소스로 만든 에그마요 듬뿍 샌드위치 / 과일소...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_sand_03.jpg" class="menu-img" alt="생연어리코타 샌드위치">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">생연어리코타 샌드위치</span>
+                            <span class="menu-price">12,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">510kcal</span>
+                        </div>
+                        <div class="menu-desc">통통하고 신선한 생연어, 샐러리아 특제 소스와 양파, 특제 리코타소스, 신선한...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_sand_07.jpg" class="menu-img" alt="리코타 크랜베리 샌드위치">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">리코타 크랜베리 샌드위치</span>
+                            <span class="menu-price">8,900원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">440kcal</span>
+                        </div>
+                        <div class="menu-desc">고소하고 깔끔한 특제 리코타치즈, 새콤달콤 크랜베리와 샐러리아 특제 과일...</div>
+                    </div>
+                </div>
+        
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_wrap_01.jpg" class="menu-img" alt="훈제연어리코타랩">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">훈제연어리코타랩</span>
+                            <span class="menu-price">9,500원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">430kcal</span>
+                        </div>
+                        <div class="menu-desc">쫄깃쫄깃 또띠아에 특제소스에 버무린 엄선된 훈제연어, 싱싱한 양상추 가득. ...</div>
+                    </div>
+                </div>
+        
+            </div>
+        </section>
+    
+        <section class="category-section">
+            <div class="category-title">푸드</div>
+            <div class="menu-grid">
+    
+                <div class="menu-card">
+                    <div class="menu-img-wrapper">
+                        <img src="https://salad-ia.com/theme/basic/img/menu/m_soup_01.jpg" class="menu-img" alt="토마토비프 마녀스프">
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header">
+                            <span class="menu-name">토마토비프 마녀스프</span>
+                            <span class="menu-price">7,000원</span>
+                        </div>
+                        <div class="menu-meta">
+                            <span class="cal-tag">180kcal</span>
+                        </div>
+                        <div class="menu-desc">소고기, 블랙페퍼, 각종 신선한 야채로 우려낸 매콤~한 고단백, 저지방 샐러리...</div>
+                    </div>
+                </div>
+        
+            </div>
+        </section>
+    
     </div>
-  </div>
-
-  <div class="container" id="result-page">
-    <div id="capture-area">
-      <div class="card">
-        <h1 style="margin-bottom:16px">계산 결과 리포트</h1>
-        <p class="sub" id="resMeta" style="margin-bottom:24px"></p>
-        <div class="summary">
-          <div class="summary-item"><b>카톤당 수량</b><span id="resBoxQty">0</span></div>
-          <div class="summary-item"><b>카톤 규격</b><span id="resBoxSize">0</span></div>
-          <div class="summary-item"><b>총 카톤 수</b><span id="resTotalBoxes">0</span></div>
-          <div class="summary-item"><b>총 적재 단수</b><span id="resTotalLayers">0</span></div>
-        </div>
-      </div>
-
-      <div class="card no-export">
-        <div class="section-title">다른 후보지 선택 및 수동 입력</div>
-        <div class="input-group" style="margin-bottom:20px; max-width: 500px;">
-          <div class="input-item"><label>수동 가로 입수</label><input type="number" id="manualX" placeholder="7"></div>
-          <div class="input-item"><label>수동 세로 입수</label><input type="number" id="manualY" placeholder="18"></div>
-          <button class="btn" type="button" onclick="applyManualCarton()" style="grid-column: span 2;">수동 설정 적용</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>선택</th>
-                <th>입수 구조</th>
-                <th>입수</th>
-                <th>카톤 사이즈</th>
-                <th>파레트 1단</th>
-                <th>중량</th>
-                <th>방식</th>
-              </tr>
-            </thead>
-            <tbody id="resultCandidateRows"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="visual-grid">
-        <div class="card">
-          <div class="visual-title">카톤 내부 레이아웃</div>
-          <div id="cartonViz" class="carton-viz"></div>
-          <p class="note" id="cartonText" style="text-align:center; margin-top:20px; font-weight: 500;"></p>
-        </div>
-        <div class="card">
-          <div class="visual-title">파레트 적재 레이아웃</div>
-          <div class="editor-toolbar">
-            <button class="mini-btn" type="button" id="palletEditBtn" onclick="togglePalletEditMode()">수동 편집 모드</button>
-            <button class="mini-btn" type="button" onclick="rotateSelectedPalletBox()">회전 (R)</button>
-            <button class="mini-btn" type="button" onclick="addPalletBox()">추가 (+)</button>
-            <button class="mini-btn" type="button" onclick="removeSelectedPalletBox()" style="color:var(--danger)">삭제 (×)</button>
-            <button class="mini-btn" type="button" onclick="resetPalletBoxes()">초기화</button>
-          </div>
-          <div class="pallet-stage"><div id="palletViz" class="pallet-inner"></div></div>
-          <p class="note" id="palletText" style="text-align:center; margin-top:20px; font-weight: 500; color: var(--accent);"></p>
-          <p class="note" id="manualPalletText" style="text-align:center;"></p>
-        </div>
-      </div>
-    </div>
-
-    <div class="result-actions">
-      <button class="btn gray" onclick="backToInput()">수정하기</button>
-      <button class="btn dark" onclick="downloadImg()">이미지로 저장</button>
-    </div>
-  </div>
-
-<script>
-/* -----------------------------------------------------------
-   LOGIC (기존 소스 원본 유지)
-   ----------------------------------------------------------- */
-let lastResult=null;
-let lastCandidates=[];
-let selectedCandidateIndex=0;
-let palletEditMode=false;
-let selectedPalletBox=null;
-const $=id=>document.getElementById(id);
-const n=id=>parseFloat($(id).value)||0;
-const i=id=>parseInt($(id).value,10)||0;
-const fmt=(v,d=0)=>Number.isFinite(v)?Number(v).toLocaleString('ko-KR',{maximumFractionDigits:d}):'0';
-
-function getData(){
-  return {
-    company:$('companyName').value.trim(), product:$('productName').value.trim(), total:i('totalQty'),
-    w:n('pW'), l:n('pL'), h:n('pH'), g:n('pG'), maxKg:n('maxKg'), boxWeight:n('boxWeight'),
-    gap:n('gap'), margin:n('margin'), maxBoxW:Math.min(500,n('maxBoxW')||500), maxBoxL:Math.min(500,n('maxBoxL')||500), maxBoxH:Infinity,
-    palletOuter:n('palletOuter'), palletUse:n('palletUse')
-  }
-}
-
-function cartonSize(x,y,z,o,d){
-  return {
-    w: Math.ceil(x*o.w + Math.max(0,x-1)*d.gap + d.margin*2),
-    l: Math.ceil(y*o.l + Math.max(0,y-1)*d.gap + d.margin*2),
-    h: Math.ceil(z*o.h + Math.max(0,z-1)*d.gap + d.margin*2)
-  };
-}
-
-const palletCache = new Map();
-function rectsOverlap(a,b){return !(a.x+a.w<=b.x || b.x+b.w<=a.x || a.y+a.l<=b.y || b.y+b.l<=a.y)}
-function canPlaceRect(candidate, placements, use){
-  if(candidate.x<0 || candidate.y<0 || candidate.x+candidate.w>use || candidate.y+candidate.l>use) return false;
-  return !placements.some(p=>rectsOverlap(candidate,p));
-}
-function scoreSpiralCandidate(placements,use){
-  if(!placements.length) return {score:0};
-  const area=placements.reduce((sum,p)=>sum+(p.w*p.l),0);
-  const fillScore=area/(use*use);
-  const cx=use/2, cy=use/2;
-  let momentX=0, momentY=0;
-  placements.forEach(p=>{const a=p.w*p.l; momentX+=((p.x+p.w/2)-cx)*a; momentY+=((p.y+p.l/2)-cy)*a;});
-  const totalArea=Math.max(1,area);
-  const balanceScore=1-Math.min(1,(Math.abs(momentX)+Math.abs(momentY))/(totalArea*use));
-  const centerBox={x:use*.40,y:use*.40,w:use*.20,l:use*.20};
-  const centerHits=placements.filter(p=>rectsOverlap(p,centerBox)).length;
-  const centerScore=centerHits===0?1:Math.max(0,1-centerHits/4);
-  return {score:placements.length*100000 + balanceScore*10000 + centerScore*5000 + fillScore*1000};
-}
-function palletFitSpiral(boxW,boxL,use){
-  const orientations=[{w:boxW,l:boxL,rot:false},{w:boxL,l:boxW,rot:true}];
-  const results=[];
-  orientations.forEach(startOri=>{
-    const placements=[];
-    let left=0, top=0, right=use, bottom=use, loop=0;
-    while(left<right && top<bottom && loop<400){
-      let added=false;
-      let x=left;
-      while(x+startOri.w<=right){const item={x,y:top,w:startOri.w,l:startOri.l,rot:startOri.rot}; if(canPlaceRect(item,placements,use)){placements.push(item); added=true;} x+=startOri.w;}
-      top+=startOri.l;
-      let y=top;
-      while(y+startOri.l<=bottom){const item={x:right-startOri.w,y,w:startOri.w,l:startOri.l,rot:startOri.rot}; if(canPlaceRect(item,placements,use)){placements.push(item); added=true;} y+=startOri.l;}
-      right-=startOri.w;
-      x=right-startOri.w;
-      while(x>=left){const item={x,y:bottom-startOri.l,w:startOri.w,l:startOri.l,rot:startOri.rot}; if(canPlaceRect(item,placements,use)){placements.push(item); added=true;} x-=startOri.w;}
-      bottom-=startOri.l;
-      y=bottom-startOri.l;
-      while(y>=top){const item={x:left,y,w:startOri.w,l:startOri.l,rot:startOri.rot}; if(canPlaceRect(item,placements,use)){placements.push(item); added=true;} y-=startOri.l;}
-      left+=startOri.w;
-      if(!added) break;
-      if((right-left)<Math.min(boxW,boxL)*1.4 || (bottom-top)<Math.min(boxW,boxL)*1.4) break;
-      loop++;
-    }
-    const s=scoreSpiralCandidate(placements,use);
-    results.push({name:'회오리 중앙 비움 적재',placements,count:placements.length,rot:startOri.rot,...s});
-  });
-  return results.sort((a,b)=>b.score-a.score)[0] || {name:'회오리 적재 불가',placements:[],count:0,score:0};
-}
-function palletFit(boxW,boxL,use){
-  const key=`${Math.round(boxW)}_${Math.round(boxL)}_${Math.round(use)}`;
-  if(palletCache.has(key)) return palletCache.get(key);
-  const spiral=palletFitSpiral(boxW,boxL,use);
-  const normals=[{name:'정방향 일반 적재',w:boxW,l:boxL,rot:false},{name:'90도 회전 일반 적재',w:boxL,l:boxW,rot:true}].map(o=>{
-    const placements=[]; const cols=Math.floor(use/o.w), rows=Math.floor(use/o.l);
-    for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) placements.push({x:x*o.w,y:y*o.l,w:o.w,l:o.l,rot:o.rot});
-    return {name:o.name,placements,count:placements.length,score:placements.length*100000};
-  });
-  const best=[spiral,...normals].sort((a,b)=>b.score-a.score)[0];
-  palletCache.set(key,best);
-  return best;
-}
-
-function makeCandidates(d){
-  const maxQtyByWeight=Math.max(0,Math.floor(((d.maxKg*1000)-d.boxWeight-1)/d.g));
-  const orientations=[{name:'정방향',w:d.w,l:d.l,h:d.h},{name:'90도 회전',w:d.l,l:d.w,h:d.h}];
-  const list=[];
-  orientations.forEach(o=>{
-    const maxX=Math.max(1,Math.floor((d.maxBoxW-d.margin*2+d.gap)/(o.w+d.gap)));
-    const maxY=Math.max(1,Math.floor((d.maxBoxL-d.margin*2+d.gap)/(o.l+d.gap)));
-    const maxZ=1;
-    for(let x=1;x<=maxX;x++) for(let y=1;y<=maxY;y++) for(let z=1;z<=maxZ;z++){
-      const qty=x*y*z;
-      if(qty<1 || qty>maxQtyByWeight) continue;
-      const size=cartonSize(x,y,z,o,d);
-      if(size.w>d.maxBoxW || size.l>d.maxBoxL) continue;
-      const kg=(qty*d.g+d.boxWeight)/1000;
-      if(kg>=d.maxKg) continue;
-      const fit=palletFit(size.w,size.l,d.palletUse);
-      list.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,productPerPalletLayer:qty*fit.count});
-    }
-  });
-  if(!list.length) return [];
-  const maxCartonQty=Math.max(...list.map(v=>v.qty));
-  const minPracticalQty=Math.max(1,Math.floor(maxCartonQty*0.65));
-  const target=list.filter(v=>v.qty>=minPracticalQty);
-  target.forEach(v=>{
-    const cartonQtyScore=(v.qty/maxCartonQty)*1000000;
-    const palletProductScore=v.productPerPalletLayer*1000;
-    const palletLayoutScore=(v.palletFit.score||0)*0.02;
-    const sizeBalancePenalty=Math.abs(v.size.w-v.size.l)*2;
-    v.score=cartonQtyScore+palletProductScore+palletLayoutScore-sizeBalancePenalty-v.size.h;
-  });
-  return target.sort((a,b)=>b.score-a.score).slice(0,8);
-}
-
-function renderPreview(){
-  const d=getData();
-  const rows=makeCandidates(d);
-  $('previewRows').innerHTML=rows.map((r,idx)=>`<tr class="${idx===0?'best':''}"><td>${idx===0?'<span class="badge">BEST</span>':idx+1}</td><td>${r.x}×${r.y}×1단</td><td>${fmt(r.qty)}개</td><td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td><td>${fmt(r.palletFit.count)}박스/단</td><td>${fmt(r.kg,2)}kg</td><td>${r.palletFit.name}</td></tr>`).join('');
-}
-let previewTimer=null;
-document.addEventListener('input',()=>{clearTimeout(previewTimer);previewTimer=setTimeout(renderPreview,180);});
-renderPreview();
-
-function drawCarton(c){
-  const el=$('cartonViz');
-  el.innerHTML='';
-  el.style.aspectRatio=`${c.size.w}/${c.size.l}`;
-  el.style.gridTemplateColumns=`repeat(${c.x},1fr)`;
-  el.style.gridTemplateRows=`repeat(${c.y},1fr)`;
-  for(let k=0;k<c.x*c.y;k++){const cell=document.createElement('div');cell.className='carton-cell';el.appendChild(cell);}
-}
-function togglePalletEditMode(){palletEditMode=!palletEditMode;$('palletEditBtn').classList.toggle('active',palletEditMode);if(lastResult){drawPallet(lastResult.d,lastResult.fit);}}
-function selectPalletBox(box){document.querySelectorAll('#palletViz .pallet-box').forEach(b=>b.classList.remove('selected'));selectedPalletBox=box;if(box) box.classList.add('selected');}
-function startDragPalletBox(e){
-  if(!palletEditMode) return;
-  e.preventDefault();
-  const box=e.currentTarget; selectPalletBox(box);
-  const area=$('palletViz'); const rect=area.getBoundingClientRect(); const boxRect=box.getBoundingClientRect();
-  const startX=(e.touches?e.touches[0].clientX:e.clientX); const startY=(e.touches?e.touches[0].clientY:e.clientY);
-  const startLeft=boxRect.left-rect.left; const startTop=boxRect.top-rect.top;
-  function move(ev){
-    ev.preventDefault();
-    const x=(ev.touches?ev.touches[0].clientX:ev.clientX); const y=(ev.touches?ev.touches[0].clientY:ev.clientY);
-    const snap=4; let nx=Math.round((startLeft+x-startX)/snap)*snap; let ny=Math.round((startTop+y-startY)/snap)*snap;
-    nx=Math.max(0,Math.min(nx,rect.width-box.offsetWidth)); ny=Math.max(0,Math.min(ny,rect.height-box.offsetHeight));
-    box.style.left=(nx/rect.width*100)+'%'; box.style.top=(ny/rect.height*100)+'%'; checkPalletCollisions(); updateManualPalletCount();
-  }
-  function up(){document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);}
-  document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
-}
-function rotateSelectedPalletBox(){
-  if(!selectedPalletBox){alert('회전할 카톤박스를 먼저 클릭해주세요.');return;}
-  const left=parseFloat(selectedPalletBox.style.left)||0; const top=parseFloat(selectedPalletBox.style.top)||0;
-  const w=parseFloat(selectedPalletBox.dataset.w||selectedPalletBox.style.width)||0; const h=parseFloat(selectedPalletBox.dataset.h||selectedPalletBox.style.height)||0;
-  if(!w||!h){alert('선택한 카톤 사이즈를 읽지 못했습니다. 자동 배치로 초기화 후 다시 시도해주세요.');return;}
-  const newW=h, newH=w;
-  selectedPalletBox.style.width=newW+'%'; selectedPalletBox.style.height=newH+'%'; selectedPalletBox.dataset.w=newW; selectedPalletBox.dataset.h=newH;
-  selectedPalletBox.style.left=Math.min(left,100-newW)+'%'; selectedPalletBox.style.top=Math.min(top,100-newH)+'%'; selectedPalletBox.classList.toggle('rotated');
-  checkPalletCollisions(); updateManualPalletCount();
-}
-function addPalletBox(){
-  if(!lastResult) return;
-  palletEditMode=true; $('palletEditBtn').classList.add('active');
-  const d=lastResult.d,c=lastResult.c,el=$('palletViz');
-  const unit=document.createElement('div'); unit.className='pallet-box editable';
-  const w=(c.size.w/d.palletUse*100), h=(c.size.l/d.palletUse*100);
-  unit.style.left='0%'; unit.style.top='0%'; unit.style.width=w+'%'; unit.style.height=h+'%'; unit.dataset.w=w; unit.dataset.h=h;
-  unit.addEventListener('click',e=>{e.stopPropagation();selectPalletBox(unit);}); unit.addEventListener('mousedown',startDragPalletBox); unit.addEventListener('touchstart',startDragPalletBox,{passive:false});
-  el.appendChild(unit); selectPalletBox(unit); checkPalletCollisions(); updateManualPalletCount();
-}
-function removeSelectedPalletBox(){if(!selectedPalletBox){alert('삭제할 카톤박스를 먼저 클릭해주세요.');return;} selectedPalletBox.remove(); selectedPalletBox=null; updateManualPalletCount(); checkPalletCollisions();}
-function currentLayerBoxes(){return document.querySelectorAll('#palletViz .pallet-box').length;}
-function updateManualPalletCount(){
-  if(!lastResult) return;
-  const count=currentLayerBoxes(); const bad=document.querySelectorAll('#palletViz .pallet-box.bad').length;
-  const totalLayers=count?Math.ceil(lastResult.totalBoxes/count):0;
-  $('resTotalLayers').textContent=fmt(totalLayers)+'단';
-  $('manualPalletText').textContent=`현재 배치 기준: 1단 ${fmt(count)}박스 · 총 ${fmt(totalLayers)}단 분량${bad?` · 겹침 ${bad}개 확인 필요`:''}`;
-  $('palletText').textContent=`1단 기준: ${fmt(count)}박스 (${palletEditMode?'편집중':lastResult.fit.name})`;
-}
-function resetPalletBoxes(){if(lastResult){drawPallet(lastResult.d,lastResult.fit);}}
-function checkPalletCollisions(){
-  const boxes=[...document.querySelectorAll('#palletViz .pallet-box')]; boxes.forEach(b=>b.classList.remove('bad'));
-  const area=$('palletViz'); const ar=area.getBoundingClientRect();
-  const rects=boxes.map(b=>{const r=b.getBoundingClientRect();return {el:b,x:r.left-ar.left,y:r.top-ar.top,w:r.width,l:r.height};});
-  for(let i=0;i<rects.length;i++) for(let j=i+1;j<rects.length;j++) if(rectsOverlap(rects[i],rects[j])){rects[i].el.classList.add('bad');rects[j].el.classList.add('bad');}
-}
-document.addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&palletEditMode) rotateSelectedPalletBox();});
-function drawPallet(d,fit){
-  const el=$('palletViz'); el.innerHTML=''; selectedPalletBox=null;
-  const useRatio=Math.min(100,Math.max(10,d.palletUse/d.palletOuter*100)); el.style.width=useRatio+'%'; el.style.height=useRatio+'%';
-  fit.placements.forEach(p=>{
-    const unit=document.createElement('div'); unit.className='pallet-box'+(p.rot?' rotated':'')+(palletEditMode?' editable':'');
-    unit.style.left=(p.x/d.palletUse*100)+'%'; unit.style.top=(p.y/d.palletUse*100)+'%'; unit.style.width=(p.w/d.palletUse*100)+'%'; unit.style.height=(p.l/d.palletUse*100)+'%'; unit.dataset.w=(p.w/d.palletUse*100); unit.dataset.h=(p.l/d.palletUse*100);
-    unit.addEventListener('click',e=>{if(palletEditMode){e.stopPropagation();selectPalletBox(unit);}}); unit.addEventListener('mousedown',startDragPalletBox); unit.addEventListener('touchstart',startDragPalletBox,{passive:false}); el.appendChild(unit);
-  });
-  el.onclick=()=>{if(palletEditMode) selectPalletBox(null);}; updateManualPalletCount();
-}
-function renderResultCandidateRows(){
-  $('resultCandidateRows').innerHTML=lastCandidates.map((r,idx)=>`<tr class="clickable-row ${idx===selectedCandidateIndex?'selected-row':''}" onclick="selectCandidate(${idx})"><td>${idx===selectedCandidateIndex?'<span class="badge">선택</span>':idx+1}</td><td>${r.x}×${r.y}×1단</td><td>${fmt(r.qty)}개</td><td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td><td>${fmt(r.palletFit.count)}박스/단</td><td>${fmt(r.kg,2)}kg</td><td>${r.palletFit.name}</td></tr>`).join('');
-}
-function applyCandidate(idx){
-  const d=getData(); const c=lastCandidates[idx]; if(!c) return;
-  selectedCandidateIndex=idx; const totalBoxes=Math.ceil(d.total/c.qty); const fit=c.palletFit; const totalLayers=fit.count?Math.ceil(totalBoxes/fit.count):0;
-  lastResult={d,c,fit,totalBoxes,totalLayers};
-  $('resMeta').textContent=`업체명: ${d.company||'-'} · 제품명: ${d.product||'-'} · 총 수량: ${fmt(d.total)}ea`;
-  $('resBoxQty').textContent=fmt(c.qty)+'개'; $('resBoxSize').textContent=`${fmt(c.size.w)}×${fmt(c.size.l)}×${fmt(c.size.h)}mm`; $('resTotalBoxes').textContent=fmt(totalBoxes)+'박스'; $('resTotalLayers').textContent=fmt(totalLayers)+'단';
-  $('cartonText').textContent=`입수: ${c.x}×${c.y} (${fmt(c.qty)}개) / 예상 중량 ${fmt(c.kg,2)}kg`;
-  drawCarton(c); drawPallet(d,fit); renderResultCandidateRows();
-}
-function selectCandidate(idx){applyCandidate(idx);}
-function applyManualCarton(){
-  const d=getData(); const x=parseInt($('manualX').value,10)||0; const y=parseInt($('manualY').value,10)||0; const z=1;
-  if(!x||!y){alert('가로/세로 입수를 입력해주세요.');return;}
-  const orientations=[{name:'수동 정방향',w:d.w,l:d.l,h:d.h},{name:'수동 90도 회전',w:d.l,l:d.w,h:d.h}];
-  const manualCandidates=[];
-  orientations.forEach(o=>{
-    const qty=x*y*z; const size=cartonSize(x,y,z,o,d); const kg=(qty*d.g+d.boxWeight)/1000;
-    if(size.w<=d.maxBoxW&&size.l<=d.maxBoxL&&kg<d.maxKg){const fit=palletFit(size.w,size.l,d.palletUse); manualCandidates.push({x,y,z,qty,size,kg,orientation:o.name,palletFit:fit,productPerPalletLayer:qty*fit.count,score:999999999});}
-  });
-  if(!manualCandidates.length){alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 조건을 초과합니다.');return;}
-  const manual=manualCandidates.sort((a,b)=>b.productPerPalletLayer-a.productPerPalletLayer)[0];
-  lastCandidates=[manual,...lastCandidates.filter(c=>!(c.x===manual.x&&c.y===manual.y&&c.z===manual.z&&c.size.w===manual.size.w&&c.size.l===manual.size.l))].slice(0,8);
-  applyCandidate(0);
-}
-function calculate(){
-  const d=getData(); const candidates=makeCandidates(d);
-  if(!candidates.length){alert('조건에 맞는 카톤 조합이 없습니다. 제품 크기, 여유값을 확인해주세요.');return;}
-  lastCandidates=candidates; selectedCandidateIndex=0; applyCandidate(0); $('input-page').style.display='none'; $('result-page').style.display='block';
-}
-function backToInput(){ $('result-page').style.display='none'; $('input-page').style.display='block'; }
-function downloadImg(){
-  const hiddenEls=[...document.querySelectorAll('.no-export')];
-  hiddenEls.forEach(el=>el.style.display='none');
-  html2canvas($('capture-area'),{backgroundColor:'#ffffff',scale:2}).then(canvas=>{
-    hiddenEls.forEach(el=>el.style.display='');
-    const link=document.createElement('a');
-    link.download='적재분석리포트.png';
-    link.href=canvas.toDataURL('image/png');
-    link.click();
-  }).catch(()=>{ hiddenEls.forEach(el=>el.style.display=''); });
-}
-</script>
 </body>
 </html>
