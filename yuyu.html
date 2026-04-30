@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LogiCalc - 카톤 & 파레트 계산기</title>
+  <title>LogiCalc - 스마트 카톤 & 파레트 계산기</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     /* Gemini Inspired Modern Theme */
@@ -667,6 +667,31 @@ function downloadImg(){
 }
 
 
+
+function getCurrentPalletPlacementsForSpec(){
+  if(!lastResult) return [];
+  const d = lastResult.d;
+  const boxes = [...document.querySelectorAll('#palletViz .pallet-box')];
+  if(!boxes.length && lastResult.fit && lastResult.fit.placements){
+    return lastResult.fit.placements.map(p=>({
+      x: p.x, y: p.y, w: p.w, l: p.l, rot: !!p.rot
+    }));
+  }
+  return boxes.map(box=>{
+    const leftPct = parseFloat(box.style.left) || 0;
+    const topPct = parseFloat(box.style.top) || 0;
+    const widthPct = parseFloat(box.style.width) || 0;
+    const heightPct = parseFloat(box.style.height) || 0;
+    return {
+      x: Math.round(d.palletUse * leftPct / 100),
+      y: Math.round(d.palletUse * topPct / 100),
+      w: Math.round(d.palletUse * widthPct / 100),
+      l: Math.round(d.palletUse * heightPct / 100),
+      rot: box.classList.contains('rotated')
+    };
+  });
+}
+
 function goToSpecSheet(){
   if(!lastResult){
     alert('먼저 적재 시뮬레이션을 완료해주세요.');
@@ -697,6 +722,28 @@ function goToSpecSheet(){
     palletMethod: palletEditMode ? '수동 편집 적재' : (fit.name || ''),
     cartonLayout: `${c.x}×${c.y}×${c.z || 1}단`,
     cartonWeight: c.kg ? `${Number(c.kg).toLocaleString('ko-KR', { maximumFractionDigits: 2 })}kg` : '',
+
+    layoutVisuals: {
+      carton: {
+        x: c.x,
+        y: c.y,
+        z: c.z || 1,
+        qty: c.qty,
+        size: c.size,
+        weight: c.kg,
+        text: `입수: ${c.x}×${c.y} (${fmt(c.qty)}개) / 예상 중량 ${fmt(c.kg,2)}kg`
+      },
+      pallet: {
+        use: d.palletUse,
+        outer: d.palletOuter,
+        boxCount: currentLayerCount || fit.count || 0,
+        totalLayers: actualTotalLayers || 0,
+        method: palletEditMode ? '수동 편집 적재' : (fit.name || ''),
+        text: `1단 기준: ${fmt(currentLayerCount || fit.count || 0)}박스 (${palletEditMode ? '수동 편집 적재' : (fit.name || '')})`,
+        subText: `현재 배치 기준: 1단 ${fmt(currentLayerCount || fit.count || 0)}박스 · 총 ${fmt(actualTotalLayers)}단 분량`,
+        placements: getCurrentPalletPlacementsForSpec()
+      }
+    },
 
     calculatorInputs: {
       companyName: d.company || '',
