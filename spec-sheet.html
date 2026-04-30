@@ -279,9 +279,9 @@
         </div>
 
         <div class="section-title" style="margin-top:22px">08. 부자재 구성 및 연락처</div>
-        <p class="hint">필수 입력은 아닙니다. 입력한 내용은 하단 표에 반영됩니다.</p>
+        <p class="hint">필수 입력은 아닙니다. 부자재별 사진과 정보를 입력하면 하단 표에 반영됩니다. 기본 1개만 생성되며, 필요 시 + 버튼으로 추가하세요.</p>
         <div id="materialsInput"></div>
-        <button class="btn ghost" type="button" onclick="addMaterialRow()">부자재 행 추가</button>
+        <button class="btn ghost" type="button" onclick="addMaterialRow()">+ 부자재 추가</button>
 
         <div class="section-title" style="margin-top:22px">09. 비고</div>
         <textarea id="memo" placeholder="공장 전달용 주의사항을 입력하세요. 예: 개봉방지라벨은 상단 중앙 기준으로 부착 / 단상자 스크래치 주의"></textarea>
@@ -365,6 +365,7 @@
               <thead>
                 <tr>
                   <th style="width:8mm">No.</th>
+                  <th style="width:18mm">사진</th>
                   <th style="width:25mm">업체명</th>
                   <th style="width:18mm">분류</th>
                   <th style="width:22mm">규격</th>
@@ -438,7 +439,7 @@
       updateDay();
       renderTypeFields();
       renderPackagingFields();
-      for(let i=0;i<10;i++) addMaterialRow();
+      addMaterialRow();
       bindInputs();
       updatePreview();
     }
@@ -549,6 +550,10 @@
       row.dataset.idx = idx;
       row.innerHTML = `
         <div class="component-head"><b>부자재 ${idx}</b><button class="btn danger" type="button" style="width:auto;padding:6px 9px;font-size:11px" onclick="removeMaterialRow(this)">삭제</button></div>
+        <div class="image-picker" style="margin-bottom:12px">
+          <div class="thumb" id="thumb_mat_img_${idx}">사진</div>
+          <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'mat_img_${idx}')">
+        </div>
         <div class="input-group">
           <div class="field"><label>업체명</label><input type="text" id="mat_company_${idx}"></div>
           <div class="field"><label>분류</label><input type="text" id="mat_type_${idx}" placeholder="예: 용기 / 캡 / 단상자"></div>
@@ -631,6 +636,7 @@
         const idx = row.dataset.idx;
         return {
           no: order+1,
+          img: imageStore[`mat_img_${idx}`] || '',
           company:v(`mat_company_${idx}`),
           type:v(`mat_type_${idx}`),
           size:v(`mat_size_${idx}`),
@@ -648,6 +654,7 @@
       tbody.innerHTML = data.map(r=>`
         <tr>
           <td>${r.no || ''}</td>
+          <td>${r.img ? `<img src="${r.img}" style="width:14mm;height:14mm;object-fit:contain;display:block;margin:auto">` : ''}</td>
           <td>${r.company || ''}</td>
           <td>${r.type || ''}</td>
           <td>${r.size || ''}</td>
