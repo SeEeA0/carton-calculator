@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>제품 사양서 작성기 - OEM·ODM</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root{
+      --bg:#f8f9fa;
+      --card:#ffffff;
+      --ink:#202124;
+      --muted:#5f6368;
+      --line:#dadce0;
+      --accent:#1a73e8;
+      --success:#1e8e3e;
+      --danger:#d93025;
+      --soft:#f1f3f4;
+      --paper:#ffffff;
+      --radius:12px;
+    }
+
+    *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+    body{
+      margin:0;
+      padding:32px 20px 80px;
+      font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      line-height:1.45;
+    }
+
+    .app{max-width:1320px;margin:0 auto}
+    .topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:24px}
+    .topbar h1{margin:0;font-size:30px;font-weight:650;letter-spacing:-.04em}
+    .topbar p{margin:6px 0 0;color:var(--muted);font-size:14px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{
+      border:0;
+      border-radius:8px;
+      background:var(--accent);
+      color:#fff;
+      padding:12px 16px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btn.secondary{background:#3c4043}
+    .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+    .btn.danger{background:var(--danger)}
+    .btn:hover{filter:brightness(.96)}
+
+    .layout{display:grid;grid-template-columns:390px 1fr;gap:24px;align-items:start}
+    .panel,.card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:20px;
+      margin-bottom:18px;
+    }
+    .section-title{
+      font-size:13px;
+      font-weight:800;
+      color:var(--accent);
+      margin:0 0 16px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .hint{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.55}
+
+    .input-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .input-group.three{grid-template-columns:repeat(3,1fr)}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    label{font-size:12px;font-weight:700;color:var(--muted)}
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:8px;
+      padding:10px 11px;
+      font-size:14px;
+      outline:none;
+      font-family:inherit;
+    }
+    textarea{resize:vertical;min-height:70px}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+
+    .check-list{display:flex;gap:8px;flex-wrap:wrap}
+    .pill-check{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:8px 11px;background:#fff;cursor:pointer;font-size:13px;font-weight:700}
+    .pill-check input{width:auto;margin:0}
+
+    .component-list{display:grid;grid-template-columns:1fr;gap:10px}
+    .component-item{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
+    .component-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+    .component-head b{font-size:14px}
+    .required{font-size:10px;background:#e8f0fe;color:var(--accent);border-radius:999px;padding:3px 7px;font-weight:800}
+
+    .image-picker{display:grid;grid-template-columns:84px 1fr;gap:10px;align-items:center}
+    .thumb{
+      width:84px;height:84px;border:1px dashed #bdc1c6;border-radius:8px;background:#f8f9fa;
+      display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:11px;text-align:center;
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .file-input{font-size:12px;padding:8px}
+
+    .paper-wrap{display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding-bottom:30px}
+    .paper{
+      width:210mm;
+      min-height:297mm;
+      background:var(--paper);
+      color:#000;
+      padding:9mm;
+      box-shadow:0 1px 8px rgba(60,64,67,.18);
+      border:1px solid #e5e5e5;
+      position:relative;
+    }
+
+    .spec-header{display:grid;grid-template-columns:1fr 72mm;gap:6mm;margin-bottom:5mm}
+    .spec-title{border:2px solid #111;display:flex;align-items:center;justify-content:center;min-height:24mm;font-size:25px;font-weight:900;letter-spacing:.2em}
+    .info-table{border-collapse:collapse;width:100%;font-size:11px;table-layout:fixed}
+    .info-table th,.info-table td{border:1px solid #111;padding:5px 6px;height:25px;vertical-align:middle}
+    .info-table th{background:#f3f3f3;width:24mm;font-weight:800;text-align:center}
+    .info-table td{font-weight:600}
+
+    .spec-body{display:grid;grid-template-columns:1fr 70mm;gap:5mm;align-items:start}
+    .print-section{border:1px solid #111;margin-bottom:4mm}
+    .print-section-title{background:#f3f3f3;border-bottom:1px solid #111;text-align:center;font-size:15px;font-weight:900;padding:5px;letter-spacing:.08em}
+
+    .photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm;padding:3mm}
+    .photo-card{border:1px solid #555;min-height:44mm;display:grid;grid-template-rows:1fr auto;background:#fff}
+    .photo-box{height:39mm;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa;color:#999;font-size:10px}
+    .photo-box img{width:100%;height:100%;object-fit:contain;display:block}
+    .photo-label{border-top:1px solid #555;background:#f5f5f5;text-align:center;font-size:11px;font-weight:800;padding:3px}
+
+    .photo-grid.single .photo-card{grid-column:1 / -1;min-height:52mm}
+    .photo-grid.single .photo-box{height:47mm}
+
+    .right-box{border:1px solid #111;margin-bottom:4mm}
+    .right-box-title{background:#f3f3f3;border-bottom:1px solid #111;text-align:center;font-size:14px;font-weight:900;padding:5px}
+    .right-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px}
+    .right-table th,.right-table td{border-bottom:1px solid #111;padding:5px 6px;height:24px;vertical-align:middle}
+    .right-table th{width:26mm;background:#fafafa;font-weight:900;text-align:center}
+    .right-table tr:last-child th,.right-table tr:last-child td{border-bottom:0}
+
+    .pack-list{padding:3mm;font-size:11px;line-height:1.65}
+    .pack-list b{display:inline-block;min-width:24mm}
+
+    .materials-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px}
+    .materials-table th,.materials-table td{border:1px solid #111;padding:4px 5px;height:20px;text-align:center;vertical-align:middle}
+    .materials-table th{background:#f3f3f3;font-weight:900}
+    .materials-table td:nth-child(6),.materials-table th:nth-child(6){text-align:left}
+    .materials-table .wide-note{text-align:left}
+
+    .mark-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px}
+    .mark-table th,.mark-table td{border:1px solid #111;padding:5px;text-align:center;height:24px}
+    .mark-table th{background:#f3f3f3;font-weight:900}
+
+    .memo-box{padding:3mm;font-size:11px;white-space:pre-line;min-height:20mm}
+
+    .page-break{break-before:page;page-break-before:always;margin-top:12mm}
+
+    .empty{color:#aaa;font-weight:400}
+
+    @media(max-width:1100px){
+      .layout{grid-template-columns:1fr}
+      .paper{transform-origin:top center}
+    }
+
+    @media print{
+      body{background:#fff;padding:0}
+      .topbar,.layout>.panel,.actions,.no-print{display:none!important}
+      .layout{display:block}
+      .paper-wrap{padding:0;overflow:visible}
+      .paper{width:210mm;min-height:297mm;box-shadow:none;border:0;margin:0;padding:8mm}
+      @page{size:A4 portrait;margin:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div>
+        <h1>제품 사양서 작성기</h1>
+        <p>화장품 OEM·ODM 공장 지시용 사양서를 입력하고 A4 PDF로 저장합니다.</p>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" onclick="loadLogiCalcData()">적재 시뮬레이션 불러오기</button>
+        <button class="btn secondary" onclick="window.print()">PDF 저장 / 인쇄</button>
+        <button class="btn" onclick="saveAsImage()">이미지 저장</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="section-title">01. 기본 정보</div>
+        <div class="input-group">
+          <div class="field"><label>작성일자</label><input type="date" id="writeDate"></div>
+          <div class="field"><label>요일</label><input type="text" id="writeDay" readonly></div>
+        </div>
+        <div class="input-group">
+          <div class="field"><label>고객사</label><input type="text" id="clientName" placeholder="예: 뷰티끄랩"></div>
+          <div class="field"><label>CODE</label><input type="text" id="productCode" placeholder="선택 입력"></div>
+        </div>
+        <div class="field"><label>제품명</label><input type="text" id="productName" placeholder="예: 그린 베일 메이크업 베이스"></div>
+        <div class="input-group">
+          <div class="field"><label>용량</label><input type="text" id="capacity" placeholder="예: 1개입 / 50ml"></div>
+          <div class="field"><label>협의사항</label><input type="text" id="agreement" placeholder="선택 입력"></div>
+        </div>
+
+        <div class="section-title">02. 제품 타입 선택</div>
+        <div class="field">
+          <label>제품 / 용기 타입</label>
+          <select id="productType" onchange="renderTypeFields()">
+            <option value="dropper">스포이드 용기</option>
+            <option value="pump">펌프 용기</option>
+            <option value="tube">튜브 용기</option>
+            <option value="toner">토너 용기</option>
+            <option value="jar">자타입 용기</option>
+            <option value="mask">마스크팩</option>
+          </select>
+        </div>
+        <p class="hint">선택한 타입에 맞춰 필요한 구성품 사진 업로드 칸이 자동 생성됩니다. 구성품 사진은 항목별 1장 기준입니다.</p>
+
+        <div class="section-title" style="margin-top:22px">03. 구성품 사진</div>
+        <div id="typeFields" class="component-list"></div>
+
+        <div class="section-title" style="margin-top:22px">04. 결합 / 완제품</div>
+        <div class="component-list">
+          <div class="component-item">
+            <div class="component-head"><b>결합 상태</b><span class="required">1장</span></div>
+            <div class="image-picker">
+              <div class="thumb" id="thumb_assembly">사진</div>
+              <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'assembly')">
+            </div>
+          </div>
+          <div class="component-item">
+            <div class="component-head"><b>완제품</b><span class="required">1장</span></div>
+            <div class="image-picker">
+              <div class="thumb" id="thumb_finished">사진</div>
+              <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'finished')">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:22px">05. 패키징 옵션</div>
+        <div class="check-list">
+          <label class="pill-check"><input type="checkbox" id="pack_box" onchange="renderPackagingFields()"> 단상자</label>
+          <label class="pill-check"><input type="checkbox" id="pack_tray" onchange="renderPackagingFields()"> 선대</label>
+          <label class="pill-check"><input type="checkbox" id="pack_label" onchange="renderPackagingFields()"> 개봉방지라벨</label>
+        </div>
+        <div id="packagingFields" class="component-list" style="margin-top:12px"></div>
+
+        <div class="section-title" style="margin-top:22px">06. 완제품 포장 사양</div>
+        <div class="input-group">
+          <div class="field"><label>단상자 입수</label><input type="text" id="innerBoxQty" placeholder="예: 1 EACH"></div>
+          <div class="field"><label>아웃박스 입수</label><input type="text" id="outBoxQty" placeholder="예: 100 EA"></div>
+        </div>
+        <div class="input-group">
+          <div class="field"><label>카톤 규격</label><input type="text" id="cartonSize" placeholder="시뮬레이션 불러오기 가능"></div>
+          <div class="field"><label>카톤당 수량</label><input type="text" id="cartonQty" placeholder="시뮬레이션 불러오기 가능"></div>
+        </div>
+        <div class="input-group">
+          <div class="field"><label>총 카톤 수</label><input type="text" id="totalCartons" placeholder="시뮬레이션 불러오기 가능"></div>
+          <div class="field"><label>총 적재 단수</label><input type="text" id="totalLayers" placeholder="시뮬레이션 불러오기 가능"></div>
+        </div>
+
+        <div class="section-title" style="margin-top:22px">07. LOT No. 관련사항</div>
+        <div class="input-group">
+          <div class="field"><label>형식</label><input type="text" id="lotFormat" value="당사 기준"></div>
+          <div class="field"><label>날인 위치</label><input type="text" id="lotPosition" value="당사 기준"></div>
+        </div>
+        <div class="input-group">
+          <div class="field"><label>포장일</label><input type="text" id="packingDate" value="당사 기준"></div>
+          <div class="field"><label>Q.R 마크</label><input type="text" id="qrMark" value="없음"></div>
+        </div>
+        <div class="input-group">
+          <div class="field"><label>LOT 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'lot')"></div>
+          <div class="field"><label>사용기한 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'expiry')"></div>
+        </div>
+
+        <div class="section-title" style="margin-top:22px">08. 부자재 구성 및 연락처</div>
+        <p class="hint">필수 입력은 아닙니다. 입력한 내용은 하단 표에 반영됩니다.</p>
+        <div id="materialsInput"></div>
+        <button class="btn ghost" type="button" onclick="addMaterialRow()">부자재 행 추가</button>
+
+        <div class="section-title" style="margin-top:22px">09. 비고</div>
+        <textarea id="memo" placeholder="공장 전달용 주의사항을 입력하세요. 예: 개봉방지라벨은 상단 중앙 기준으로 부착 / 단상자 스크래치 주의"></textarea>
+      </div>
+
+      <div class="paper-wrap">
+        <div class="paper" id="specPaper">
+          <div class="spec-header">
+            <div class="spec-title">제품 사양서</div>
+            <table class="info-table">
+              <tr><th>작성일자</th><td id="p_date">-</td></tr>
+              <tr><th>요일</th><td id="p_day">-</td></tr>
+              <tr><th>고객사</th><td id="p_client">-</td></tr>
+              <tr><th>제품명</th><td id="p_product">-</td></tr>
+              <tr><th>용량</th><td id="p_capacity">-</td></tr>
+            </table>
+          </div>
+
+          <div class="spec-body">
+            <div>
+              <div class="print-section">
+                <div class="print-section-title">구성품 사진</div>
+                <div class="photo-grid" id="p_componentPhotos"></div>
+              </div>
+
+              <div class="print-section">
+                <div class="print-section-title">결합 및 완제품</div>
+                <div class="photo-grid single" id="p_assemblyPhotos"></div>
+              </div>
+
+              <div class="print-section">
+                <div class="print-section-title">패키징 사진</div>
+                <div class="photo-grid" id="p_packagingPhotos"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="right-box">
+                <div class="right-box-title">제품 정보</div>
+                <table class="right-table">
+                  <tr><th>CODE</th><td id="p_code">-</td></tr>
+                  <tr><th>고객사</th><td id="p_client2">-</td></tr>
+                  <tr><th>품명</th><td id="p_product2">-</td></tr>
+                  <tr><th>용량</th><td id="p_capacity2">-</td></tr>
+                  <tr><th>협의</th><td id="p_agreement">-</td></tr>
+                </table>
+              </div>
+
+              <div class="right-box">
+                <div class="right-box-title">완제품 포장 사양</div>
+                <table class="right-table">
+                  <tr><th>단상자</th><td id="p_innerBoxQty">-</td></tr>
+                  <tr><th>아웃박스</th><td id="p_outBoxQty">-</td></tr>
+                  <tr><th>카톤규격</th><td id="p_cartonSize">-</td></tr>
+                  <tr><th>카톤입수</th><td id="p_cartonQty">-</td></tr>
+                  <tr><th>총카톤</th><td id="p_totalCartons">-</td></tr>
+                  <tr><th>적재단수</th><td id="p_totalLayers">-</td></tr>
+                </table>
+              </div>
+
+              <div class="right-box">
+                <div class="right-box-title">LOT No. 관련사항</div>
+                <table class="right-table">
+                  <tr><th>형식</th><td id="p_lotFormat">-</td></tr>
+                  <tr><th>날인위치</th><td id="p_lotPosition">-</td></tr>
+                  <tr><th>포장일</th><td id="p_packingDate">-</td></tr>
+                  <tr><th>Q.R마크</th><td id="p_qrMark">-</td></tr>
+                </table>
+              </div>
+
+              <div class="right-box">
+                <div class="right-box-title">마킹 위치</div>
+                <div class="photo-grid single" id="p_markPhotos"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="print-section">
+            <div class="print-section-title">부자재 구성 및 연락처</div>
+            <table class="materials-table">
+              <thead>
+                <tr>
+                  <th style="width:8mm">No.</th>
+                  <th style="width:25mm">업체명</th>
+                  <th style="width:18mm">분류</th>
+                  <th style="width:22mm">규격</th>
+                  <th style="width:18mm">재질</th>
+                  <th>세부사항 및 비고</th>
+                  <th style="width:18mm">담당</th>
+                  <th style="width:22mm">TEL</th>
+                  <th style="width:22mm">비고</th>
+                </tr>
+              </thead>
+              <tbody id="p_materialRows"></tbody>
+            </table>
+          </div>
+
+          <div class="print-section">
+            <div class="print-section-title">비고 / 공장 지시사항</div>
+            <div class="memo-box" id="p_memo">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const imageStore = {};
+    let materialCount = 0;
+
+    const TYPE_CONFIG = {
+      dropper: {
+        label:'스포이드 용기',
+        components:['용기','스포이드','패킹'],
+        extra:[]
+      },
+      pump: {
+        label:'펌프 용기',
+        components:['용기','펌프','패킹'],
+        extra:[]
+      },
+      tube: {
+        label:'튜브 용기',
+        components:['튜브','캡'],
+        extra:[{id:'capType',label:'캡 타입',placeholder:'예: 원터치 / 스크류 / 기타'}]
+      },
+      toner: {
+        label:'토너 용기',
+        components:['용기','캡','패킹'],
+        extra:[]
+      },
+      jar: {
+        label:'자타입 용기',
+        components:['용기','내캡','외캡'],
+        extra:[]
+      },
+      mask: {
+        label:'마스크팩',
+        components:['원단','파우치'],
+        extra:[
+          {id:'fabricName',label:'원단명',placeholder:'예: 셀룰로오스 / 텐셀 / 바이오셀룰로오스'},
+          {id:'fabricGram',label:'원단 g',placeholder:'예: 25g'},
+          {id:'maskBoxQty',label:'단상자 입수',placeholder:'예: 10매입'}
+        ]
+      }
+    };
+
+    const dayNames = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+
+    function init(){
+      const today = new Date();
+      $('writeDate').value = today.toISOString().slice(0,10);
+      updateDay();
+      renderTypeFields();
+      renderPackagingFields();
+      for(let i=0;i<10;i++) addMaterialRow();
+      bindInputs();
+      updatePreview();
+    }
+
+    function bindInputs(){
+      document.addEventListener('input', updatePreview);
+      document.addEventListener('change', updatePreview);
+      $('writeDate').addEventListener('change', updateDay);
+    }
+
+    function updateDay(){
+      const v = $('writeDate').value;
+      if(!v){ $('writeDay').value=''; return; }
+      const d = new Date(v + 'T00:00:00');
+      $('writeDay').value = dayNames[d.getDay()];
+      updatePreview();
+    }
+
+    function renderTypeFields(){
+      const type = $('productType').value;
+      const cfg = TYPE_CONFIG[type];
+      const wrap = $('typeFields');
+      wrap.innerHTML = '';
+
+      cfg.components.forEach((name, idx)=>{
+        const key = `component_${idx}`;
+        const item = document.createElement('div');
+        item.className = 'component-item';
+        item.innerHTML = `
+          <div class="component-head"><b>${name}</b><span class="required">사진 1장</span></div>
+          <div class="image-picker">
+            <div class="thumb" id="thumb_${key}">사진</div>
+            <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')">
+          </div>
+          <input type="hidden" id="label_${key}" value="${name}">
+        `;
+        wrap.appendChild(item);
+      });
+
+      cfg.extra.forEach(field=>{
+        const div = document.createElement('div');
+        div.className = 'field';
+        div.innerHTML = `<label>${field.label}</label><input type="text" id="${field.id}" placeholder="${field.placeholder}">`;
+        wrap.appendChild(div);
+      });
+
+      updatePreview();
+    }
+
+    function renderPackagingFields(){
+      const wrap = $('packagingFields');
+      wrap.innerHTML = '';
+
+      const packs = [
+        {id:'box', check:'pack_box', label:'단상자', extra:'단상자 입수'},
+        {id:'tray', check:'pack_tray', label:'선대', extra:''},
+        {id:'security', check:'pack_label', label:'개봉방지라벨', extra:'부착 위치 / 기준'}
+      ];
+
+      packs.forEach(p=>{
+        if(!$(p.check).checked) return;
+        const key = `pack_${p.id}`;
+        const item = document.createElement('div');
+        item.className = 'component-item';
+        item.innerHTML = `
+          <div class="component-head"><b>${p.label}</b><span class="required">사진 1장</span></div>
+          <div class="image-picker">
+            <div class="thumb" id="thumb_${key}">사진</div>
+            <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')">
+          </div>
+          ${p.extra ? `<div class="field" style="margin-top:10px"><label>${p.extra}</label><input type="text" id="memo_${key}" placeholder="선택 입력"></div>` : ''}
+          <input type="hidden" id="label_${key}" value="${p.label}">
+        `;
+        wrap.appendChild(item);
+      });
+      updatePreview();
+    }
+
+    function uploadImage(event,key){
+      const file = event.target.files && event.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        imageStore[key] = e.target.result;
+        const thumb = $(`thumb_${key}`);
+        if(thumb) thumb.innerHTML = `<img src="${imageStore[key]}" alt="">`;
+        updatePreview();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function photoCard(label,key){
+      const src = imageStore[key];
+      return `
+        <div class="photo-card">
+          <div class="photo-box">${src ? `<img src="${src}" alt="${label}">` : `<span class="empty">${label}<br>사진 없음</span>`}</div>
+          <div class="photo-label">${label}</div>
+        </div>
+      `;
+    }
+
+    function addMaterialRow(){
+      materialCount++;
+      const idx = materialCount;
+      const wrap = $('materialsInput');
+      const row = document.createElement('div');
+      row.className = 'component-item material-input-row';
+      row.dataset.idx = idx;
+      row.innerHTML = `
+        <div class="component-head"><b>부자재 ${idx}</b><button class="btn danger" type="button" style="width:auto;padding:6px 9px;font-size:11px" onclick="removeMaterialRow(this)">삭제</button></div>
+        <div class="input-group">
+          <div class="field"><label>업체명</label><input type="text" id="mat_company_${idx}"></div>
+          <div class="field"><label>분류</label><input type="text" id="mat_type_${idx}" placeholder="예: 용기 / 캡 / 단상자"></div>
+        </div>
+        <div class="input-group">
+          <div class="field"><label>규격</label><input type="text" id="mat_size_${idx}"></div>
+          <div class="field"><label>재질</label><input type="text" id="mat_material_${idx}"></div>
+        </div>
+        <div class="field"><label>세부사항 및 비고</label><input type="text" id="mat_detail_${idx}"></div>
+        <div class="input-group three">
+          <div class="field"><label>담당</label><input type="text" id="mat_manager_${idx}"></div>
+          <div class="field"><label>TEL</label><input type="text" id="mat_tel_${idx}"></div>
+          <div class="field"><label>비고</label><input type="text" id="mat_note_${idx}"></div>
+        </div>
+      `;
+      wrap.appendChild(row);
+      updatePreview();
+    }
+
+    function removeMaterialRow(btn){
+      btn.closest('.material-input-row').remove();
+      updatePreview();
+    }
+
+    function v(id){ return $(id) ? $(id).value.trim() : ''; }
+    function text(id,value){ if($(id)) $(id).textContent = value || '-'; }
+
+    function updatePreview(){
+      text('p_date', v('writeDate'));
+      text('p_day', v('writeDay'));
+      text('p_client', v('clientName'));
+      text('p_client2', v('clientName'));
+      text('p_product', v('productName'));
+      text('p_product2', v('productName'));
+      text('p_capacity', v('capacity'));
+      text('p_capacity2', v('capacity'));
+      text('p_code', v('productCode'));
+      text('p_agreement', v('agreement'));
+
+      text('p_innerBoxQty', v('innerBoxQty'));
+      text('p_outBoxQty', v('outBoxQty'));
+      text('p_cartonSize', v('cartonSize'));
+      text('p_cartonQty', v('cartonQty'));
+      text('p_totalCartons', v('totalCartons'));
+      text('p_totalLayers', v('totalLayers'));
+
+      text('p_lotFormat', v('lotFormat'));
+      text('p_lotPosition', v('lotPosition'));
+      text('p_packingDate', v('packingDate'));
+      text('p_qrMark', v('qrMark'));
+      text('p_memo', v('memo'));
+
+      renderPrintPhotos();
+      renderMaterialTable();
+    }
+
+    function renderPrintPhotos(){
+      const type = $('productType').value;
+      const cfg = TYPE_CONFIG[type];
+
+      $('p_componentPhotos').innerHTML = cfg.components.map((name,idx)=>photoCard(name,`component_${idx}`)).join('');
+
+      const assembly = photoCard('결합 상태','assembly');
+      const finished = photoCard('완제품','finished');
+      $('p_assemblyPhotos').innerHTML = assembly + finished;
+
+      const packs = [];
+      if($('pack_box').checked) packs.push(photoCard('단상자','pack_box'));
+      if($('pack_tray').checked) packs.push(photoCard('선대','pack_tray'));
+      if($('pack_label').checked) packs.push(photoCard('개봉방지라벨','pack_security'));
+      $('p_packagingPhotos').innerHTML = packs.length ? packs.join('') : `<div class="photo-card"><div class="photo-box"><span class="empty">선택된 패키징 항목 없음</span></div><div class="photo-label">패키징</div></div>`;
+
+      $('p_markPhotos').innerHTML = photoCard('LOT 위치','lot') + photoCard('사용기한 위치','expiry');
+    }
+
+    function renderMaterialTable(){
+      const rows = [...document.querySelectorAll('.material-input-row')];
+      const tbody = $('p_materialRows');
+      const data = rows.map((row, order)=>{
+        const idx = row.dataset.idx;
+        return {
+          no: order+1,
+          company:v(`mat_company_${idx}`),
+          type:v(`mat_type_${idx}`),
+          size:v(`mat_size_${idx}`),
+          material:v(`mat_material_${idx}`),
+          detail:v(`mat_detail_${idx}`),
+          manager:v(`mat_manager_${idx}`),
+          tel:v(`mat_tel_${idx}`),
+          note:v(`mat_note_${idx}`)
+        };
+      });
+
+      const minRows = 10;
+      while(data.length < minRows){ data.push({no:data.length+1}); }
+
+      tbody.innerHTML = data.map(r=>`
+        <tr>
+          <td>${r.no || ''}</td>
+          <td>${r.company || ''}</td>
+          <td>${r.type || ''}</td>
+          <td>${r.size || ''}</td>
+          <td>${r.material || ''}</td>
+          <td class="wide-note">${r.detail || ''}</td>
+          <td>${r.manager || ''}</td>
+          <td>${r.tel || ''}</td>
+          <td>${r.note || ''}</td>
+        </tr>
+      `).join('');
+    }
+
+    function loadLogiCalcData(){
+      const raw = localStorage.getItem('logiCalcSpecData');
+      if(!raw){
+        alert('불러올 적재 시뮬레이션 데이터가 없습니다. 계산 페이지에서 먼저 사양서 작성하기를 눌러주세요.');
+        return;
+      }
+      try{
+        const data = JSON.parse(raw);
+        if(data.companyName) $('clientName').value = data.companyName;
+        if(data.productName) $('productName').value = data.productName;
+        if(data.totalQty) $('agreement').value = `총 생산수량: ${data.totalQty}`;
+        if(data.boxQty) $('cartonQty').value = data.boxQty;
+        if(data.boxSize) $('cartonSize').value = data.boxSize;
+        if(data.totalBoxes) $('totalCartons').value = data.totalBoxes;
+        if(data.totalLayers) $('totalLayers').value = data.totalLayers;
+        updatePreview();
+        alert('적재 시뮬레이션 데이터를 불러왔습니다.');
+      }catch(e){
+        alert('데이터를 불러오지 못했습니다.');
+      }
+    }
+
+    function saveAsImage(){
+      updatePreview();
+      html2canvas($('specPaper'),{backgroundColor:'#ffffff',scale:2}).then(canvas=>{
+        const link = document.createElement('a');
+        link.download = '제품사양서.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
