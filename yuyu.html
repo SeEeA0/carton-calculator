@@ -291,6 +291,88 @@ const n=id=>parseFloat($(id).value)||0;
 const i=id=>parseInt($(id).value,10)||0;
 const fmt=(v,d=0)=>Number.isFinite(v)?Number(v).toLocaleString('ko-KR',{maximumFractionDigits:d}):'0';
 
+/* =========================================================
+   YUYU LINK DATA ADD-ON
+   - 계산기 → 사양서: URL data + localStorage 동시 저장
+   - 사양서 → 계산기: URL data로 입력값 복원
+   기존 계산 로직은 건드리지 않고 데이터 연결만 추가합니다.
+========================================================= */
+function encodeShareData(data){
+  try{
+    const json = JSON.stringify(data);
+    const bytes = new TextEncoder().encode(json);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }catch(e){
+    console.error('공유 데이터 인코딩 실패', e);
+    return '';
+  }
+}
+
+function decodeShareData(encoded){
+  try{
+    let base64 = String(encoded || '').replace(/-/g,'+').replace(/_/g,'/');
+    while(base64.length % 4) base64 += '=';
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }catch(e){
+    console.error('공유 데이터 디코딩 실패', e);
+    return null;
+  }
+}
+
+function setInputValue(id,value){
+  const el = $(id);
+  if(!el || value === undefined || value === null || value === '') return;
+  el.value = value;
+}
+
+function loadCalculatorDataFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const encoded = params.get('data');
+  if(!encoded) return;
+
+  const data = decodeShareData(encoded);
+  if(!data) return;
+
+  localStorage.setItem('logiCalcSpecData', JSON.stringify(data));
+
+  const input = data.calculatorInputs || data;
+  setInputValue('companyName', input.companyName || data.companyName);
+  setInputValue('productName', input.productName || data.productName);
+  setInputValue('totalQty', input.totalQty || data.totalQty);
+  setInputValue('pG', input.productWeight || data.productWeight);
+  setInputValue('pW', input.productWidth);
+  setInputValue('pL', input.productLength);
+  setInputValue('pH', input.productHeight);
+  setInputValue('maxKg', input.maxKg);
+  setInputValue('boxWeight', input.boxWeight);
+  setInputValue('gap', input.gap);
+  setInputValue('margin', input.margin);
+  setInputValue('maxBoxW', input.maxBoxW);
+  setInputValue('maxBoxL', input.maxBoxL);
+  setInputValue('palletOuter', input.palletOuter);
+  setInputValue('palletUse', input.palletUse);
+
+  if(input.productSize && (!input.productWidth || !input.productLength || !input.productHeight)){
+    const m = String(input.productSize).match(/([0-9.]+)\s*[×xX]\s*([0-9.]+)\s*[×xX]\s*([0-9.]+)/);
+    if(m){
+      setInputValue('pW', m[1]);
+      setInputValue('pL', m[2]);
+      setInputValue('pH', m[3]);
+    }
+  }
+
+  history.replaceState(null, '', window.location.pathname);
+}
+
+function getShareUrl(path,data){
+  const encoded = encodeShareData(data);
+  return encoded ? `${path}?data=${encoded}` : path;
+}
+
 function getData(){
   return {
     company:$('companyName').value.trim(), product:$('productName').value.trim(), total:i('totalQty'),
@@ -415,6 +497,7 @@ function renderPreview(){
 
 let previewTimer=null;
 document.addEventListener('input',()=>{clearTimeout(previewTimer);previewTimer=setTimeout(renderPreview,180);});
+loadCalculatorDataFromUrl();
 renderPreview();
 
 function drawCarton(c){
@@ -598,21 +681,46 @@ function goToSpecSheet(){
     companyName: d.company || '',
     productName: d.product || '',
     totalQty: d.total || '',
+
     productWeight: d.g || '',
     productSize: `${d.w}×${d.l}×${d.h}mm`,
+    productWidth: d.w || '',
+    productLength: d.l || '',
+    productHeight: d.h || '',
+
     boxQty: c.qty ? `${c.qty} EA` : '',
     boxSize: c.size ? `${c.size.w}×${c.size.l}×${c.size.h}mm` : '',
     totalBoxes: totalBoxes ? `${totalBoxes} BOX` : '',
     totalLayers: actualTotalLayers ? `${actualTotalLayers}단` : '',
+
     palletLayerBoxCount: currentLayerCount || fit.count || '',
     palletMethod: palletEditMode ? '수동 편집 적재' : (fit.name || ''),
     cartonLayout: `${c.x}×${c.y}×${c.z || 1}단`,
     cartonWeight: c.kg ? `${Number(c.kg).toLocaleString('ko-KR', { maximumFractionDigits: 2 })}kg` : '',
+
+    calculatorInputs: {
+      companyName: d.company || '',
+      productName: d.product || '',
+      totalQty: d.total || '',
+      productWeight: d.g || '',
+      productWidth: d.w || '',
+      productLength: d.l || '',
+      productHeight: d.h || '',
+      maxKg: d.maxKg || '',
+      boxWeight: d.boxWeight || '',
+      gap: d.gap || '',
+      margin: d.margin || '',
+      maxBoxW: d.maxBoxW || '',
+      maxBoxL: d.maxBoxL || '',
+      palletOuter: d.palletOuter || '',
+      palletUse: d.palletUse || ''
+    },
+
     createdAt: new Date().toISOString()
   };
 
   localStorage.setItem('logiCalcSpecData', JSON.stringify(specData));
-  window.location.href = '/spec-sheet.html';
+  window.location.href = getShareUrl('/spec-sheet.html', specData);
 }
 </script>
 </body>
