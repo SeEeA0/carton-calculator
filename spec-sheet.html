@@ -6,192 +6,608 @@
   <title>제품 사양서 - YUYU LnP</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    :root{
-      --bg:#f8f9fa;
-      --card:#ffffff;
-      --ink:#202124;
-      --muted:#5f6368;
-      --line:#dadce0;
-      --accent:#1a73e8;
-      --success:#1e8e3e;
-      --danger:#d93025;
-      --soft:#f1f3f4;
-      --paper:#ffffff;
-      --radius:12px;
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #cbd5e1;
+      --accent: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --soft: #f1f5f9;
+      --paper: #ffffff;
+      --radius: 16px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
-
-    *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
-    body{
-      margin:0;
-      padding:32px 20px 80px;
-      font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-      background:var(--bg);
-      color:var(--ink);
-      line-height:1.45;
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
     }
-
-    .app{max-width:1320px;margin:0 auto}
-    .topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:24px}
-    .topbar h1{margin:0;font-size:30px;font-weight:650;letter-spacing:-.04em}
-    .topbar p{margin:6px 0 0;color:var(--muted);font-size:14px}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{
-      border:0;
-      border-radius:8px;
-      background:var(--accent);
-      color:#fff;
-      padding:12px 16px;
-      font-size:14px;
-      font-weight:700;
-      cursor:pointer;
+    body {
+      margin: 0;
+      padding: 40px 24px 80px;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
     }
-    .btn.secondary{background:#3c4043}
-    .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
-    .btn.danger{background:var(--danger)}
-    .btn:hover{filter:brightness(.96)}
-
-    .layout{display:grid;grid-template-columns:390px 1fr;gap:24px;align-items:start}
-    .panel,.card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:20px;
-      margin-bottom:18px;
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
     }
-    .section-title{
-      font-size:13px;
-      font-weight:800;
-      color:var(--accent);
-      margin:0 0 16px;
-      text-transform:uppercase;
-      letter-spacing:.04em;
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin-bottom: 32px;
+      background: var(--card);
+      padding: 24px 32px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
     }
-    .hint{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.55}
-
-    .input-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .input-group.three{grid-template-columns:repeat(3,1fr)}
-    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-    label{font-size:12px;font-weight:700;color:var(--muted)}
-    input,select,textarea{
-      width:100%;
-      border:1px solid var(--line);
-      background:#fff;
-      border-radius:8px;
-      padding:10px 11px;
-      font-size:14px;
-      outline:none;
-      font-family:inherit;
+    .topbar h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      color: var(--ink);
     }
-    textarea{resize:vertical;min-height:70px}
-    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-
-    .check-list{display:flex;gap:8px;flex-wrap:wrap}
-    .pill-check{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:8px 11px;background:#fff;cursor:pointer;font-size:13px;font-weight:700}
-    .pill-check input{width:auto;margin:0}
-
-    .component-list{display:grid;grid-template-columns:1fr;gap:10px}
-    .component-item{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
-    .component-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-    .component-head b{font-size:14px}
-    .required{font-size:10px;background:#e8f0fe;color:var(--accent);border-radius:999px;padding:3px 7px;font-weight:800}
-
-    .image-picker{display:grid;grid-template-columns:84px 1fr;gap:10px;align-items:center}
-    .thumb{
-      width:84px;height:84px;border:1px dashed #bdc1c6;border-radius:8px;background:#f8f9fa;
-      display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:11px;text-align:center;
+    .topbar p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
     }
-    .thumb img{width:100%;height:100%;object-fit:cover;display:block}
-    .file-input{font-size:12px;padding:8px}
-
-    .paper-wrap{display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding-bottom:30px}
-    .paper{
-      width:210mm;
-      min-height:297mm;
-      background:var(--paper);
-      color:#000;
-      padding:9mm;
-      box-shadow:0 1px 8px rgba(60,64,67,.18);
-      border:1px solid #e5e5e5;
-      position:relative;
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-
-    .spec-header{display:grid;grid-template-columns:1fr 72mm;gap:6mm;margin-bottom:5mm}
-    .spec-title{border:2px solid #111;display:flex;align-items:center;justify-content:center;min-height:24mm;font-size:25px;font-weight:900;letter-spacing:.2em}
-    .info-table{border-collapse:collapse;width:100%;font-size:11px;table-layout:fixed}
-    .info-table th,.info-table td{border:1px solid #111;padding:5px 6px;height:25px;vertical-align:middle}
-    .info-table th{background:#f3f3f3;width:24mm;font-weight:800;text-align:center}
-    .info-table td{font-weight:600}
-
-    .spec-body{display:grid;grid-template-columns:1fr 70mm;gap:5mm;align-items:start}
-    .print-section{border:1px solid #111;margin-bottom:4mm}
-    .print-section-title{background:#f3f3f3;border-bottom:1px solid #111;text-align:center;font-size:15px;font-weight:900;padding:5px;letter-spacing:.08em}
-
-    .photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm;padding:3mm}
-    .photo-card{border:1px solid #555;min-height:44mm;display:grid;grid-template-rows:1fr auto;background:#fff}
-    .photo-box{height:39mm;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa;color:#999;font-size:10px}
-    .photo-box img{width:100%;height:100%;object-fit:contain;display:block}
-    .photo-label{border-top:1px solid #555;background:#f5f5f5;text-align:center;font-size:11px;font-weight:800;padding:3px}
-
-    .photo-grid.single .photo-card{grid-column:1 / -1;min-height:52mm}
-    .photo-grid.single .photo-box{height:47mm}
-
-    .right-box{border:1px solid #111;margin-bottom:4mm}
-    .right-box-title{background:#f3f3f3;border-bottom:1px solid #111;text-align:center;font-size:14px;font-weight:900;padding:5px}
-    .right-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px}
-    .right-table th,.right-table td{border-bottom:1px solid #111;padding:5px 6px;height:24px;vertical-align:middle}
-    .right-table th{width:26mm;background:#fafafa;font-weight:900;text-align:center}
-    .right-table tr:last-child th,.right-table tr:last-child td{border-bottom:0}
-
-    .pack-list{padding:3mm;font-size:11px;line-height:1.65}
-    .pack-list b{display:inline-block;min-width:24mm}
-
-    .materials-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px}
-    .materials-table th,.materials-table td{border:1px solid #111;padding:4px 5px;height:20px;text-align:center;vertical-align:middle}
-    .materials-table th{background:#f3f3f3;font-weight:900}
-    .materials-table td:nth-child(6),.materials-table th:nth-child(6){text-align:left}
-    .materials-table .wide-note{text-align:left}
-
-    .mark-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px}
-    .mark-table th,.mark-table td{border:1px solid #111;padding:5px;text-align:center;height:24px}
-    .mark-table th{background:#f3f3f3;font-weight:900}
-
-    .memo-box{padding:3mm;font-size:11px;white-space:pre-line;min-height:20mm}
-
-    .page-break{break-before:page;page-break-before:always;margin-top:12mm}
-
-    .empty{color:#aaa;font-weight:400}
-
-
-    .logi-page{break-before:page;page-break-before:always;margin-top:10mm}
-    .logi-visual-wrap{display:grid;grid-template-columns:1fr 1fr;gap:5mm;padding:4mm}
-    .logi-visual-card{border:1px solid #555;background:#fff;padding:4mm;min-height:92mm}
-    .logi-visual-title{text-align:center;font-size:14px;font-weight:900;margin-bottom:4mm}
-    .spec-carton-viz{width:100%;max-width:72mm;margin:0 auto;border:1.5px solid #555;background:#fff;display:grid;gap:1px;padding:1.5mm;aspect-ratio:1/1}
-    .spec-carton-cell{background:#e8eaed;border:1px solid #d0d3d7;border-radius:1px;min-height:2mm}
-    .spec-pallet-stage{width:100%;max-width:74mm;aspect-ratio:1/1;margin:0 auto;background:#f1f3f4;border:1px solid #d0d3d7;display:flex;align-items:center;justify-content:center;padding:4mm}
-    .spec-pallet-inner{position:relative;width:100%;height:100%;background:#fff;border:1.5px dashed #999}
-    .spec-pallet-box{position:absolute;background:#e8f0fe;border:1.2px solid #1a73e8;border-radius:2px;box-sizing:border-box}
-    .spec-pallet-box.rotated{background:#fef7e0;border-color:#f9ab00}
-    .logi-desc{font-size:11px;line-height:1.6;text-align:center;margin-top:4mm;font-weight:700;color:#333}
-    .logi-desc.sub{font-weight:500;color:#555;margin-top:1mm}
-    .logi-summary-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px;margin-top:4mm}
-    .logi-summary-table th,.logi-summary-table td{border:1px solid #111;padding:5px 6px;height:24px;vertical-align:middle;text-align:center}
-    .logi-summary-table th{background:#f3f3f3;font-weight:900}
-    .logi-empty{text-align:center;color:#999;font-size:12px;padding:18mm 0}
-
-
-    @media(max-width:1100px){
-      .layout{grid-template-columns:1fr}
-      .paper{transform-origin:top center}
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      padding: 11px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
-
-    @media print{
-      body{background:#fff;padding:0}
-      .topbar,.layout>.panel,.actions,.no-print{display:none!important}
-      .layout{display:block}
-      .paper-wrap{padding:0;overflow:visible}
-      .paper{width:210mm;min-height:297mm;box-shadow:none;border:0;margin:0;padding:8mm}
-      @page{size:A4 portrait;margin:0}
+    .btn.secondary {
+      background: #475569;
+    }
+    .btn.ghost {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .btn.danger {
+      background: var(--danger);
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(0.92);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .panel, .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0 0 18px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 10px 0 0;
+      line-height: 1.55;
+    }
+    .input-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .input-group.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13.5px;
+      outline: none;
+      font-family: inherit;
+      color: var(--ink);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .check-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pill-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 16px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      transition: all 0.2s;
+    }
+    .pill-check:hover {
+      border-color: var(--accent);
+      background: #f8fafc;
+    }
+    .pill-check input {
+      width: auto;
+      margin: 0;
+    }
+    .component-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .component-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      background: #f8fafc;
+    }
+    .component-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .component-head b {
+      font-size: 13.5px;
+      color: var(--ink);
+    }
+    .required {
+      font-size: 10px;
+      background: #dbeafe;
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-weight: 800;
+    }
+    .image-picker {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .thumb {
+      width: 84px;
+      height: 84px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .file-input {
+      font-size: 11px;
+      padding: 8px;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .paper-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow: auto;
+      padding-bottom: 30px;
+    }
+    .paper {
+      width: 210mm;
+      min-height: 297mm;
+      background: var(--paper);
+      color: #000;
+      padding: 12mm;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      position: relative;
+    }
+    .spec-header {
+      display: grid;
+      grid-template-columns: 1fr 74mm;
+      gap: 6mm;
+      margin-bottom: 6mm;
+    }
+    .spec-title {
+      border: 3px solid #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24mm;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: .25em;
+    }
+    .info-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 10.5px;
+      table-layout: fixed;
+    }
+    .info-table th, .info-table td {
+      border: 1px solid #334155;
+      padding: 4px 6px;
+      height: 25px;
+      vertical-align: middle;
+    }
+    .info-table th {
+      background: #f1f5f9;
+      width: 24mm;
+      font-weight: 800;
+      text-align: center;
+    }
+    .info-table td {
+      font-weight: 600;
+    }
+    .spec-body {
+      display: grid;
+      grid-template-columns: 1fr 70mm;
+      gap: 5mm;
+      align-items: start;
+    }
+    .print-section {
+      border: 1px solid #334155;
+      margin-bottom: 4mm;
+    }
+    .print-section-title {
+      background: #f1f5f9;
+      border-bottom: 1px solid #334155;
+      text-align: center;
+      font-size: 13.5px;
+      font-weight: 900;
+      padding: 5px;
+      letter-spacing: .06em;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3mm;
+      padding: 3mm;
+    }
+    .photo-card {
+      border: 1px solid #64748b;
+      min-height: 44mm;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      background: #fff;
+    }
+    .photo-box {
+      height: 39mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #f8fafc;
+      color: #94a3b8;
+      font-size: 9.5px;
+    }
+    .photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .photo-label {
+      border-top: 1px solid #64748b;
+      background: #f8fafc;
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 3px;
+    }
+    .photo-grid.single .photo-card {
+      grid-column: 1 / -1;
+      min-height: 52mm;
+    }
+    .photo-grid.single .photo-box {
+      height: 47mm;
+    }
+    .right-box {
+      border: 1px solid #334155;
+      margin-bottom: 4mm;
+    }
+    .right-box-title {
+      background: #f1f5f9;
+      border-bottom: 1px solid #334155;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 5px;
+    }
+    .right-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 10.5px;
+    }
+    .right-table th, .right-table td {
+      border-bottom: 1px solid #334155;
+      padding: 4px 6px;
+      height: 23px;
+      vertical-align: middle;
+    }
+    .right-table th {
+      width: 26mm;
+      background: #f8fafc;
+      font-weight: 800;
+      text-align: center;
+    }
+    .right-table tr:last-child th, .right-table tr:last-child td {
+      border-bottom: 0;
+    }
+    .materials-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 10.5px;
+    }
+    .materials-table th, .materials-table td {
+      border: 1px solid #334155;
+      padding: 4px 5px;
+      height: 21px;
+      text-align: center;
+      vertical-align: middle;
+      word-break: keep-all;
+    }
+    .materials-table th {
+      background: #f1f5f9;
+      font-weight: 800;
+    }
+    .materials-table .wide-note {
+      text-align: center;
+    }
+    .mark-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 10.5px;
+    }
+    .mark-table th, .mark-table td {
+      border: 1px solid #334155;
+      padding: 4px;
+      text-align: center;
+      height: 23px;
+    }
+    .mark-table th {
+      background: #f1f5f9;
+      font-weight: 800;
+    }
+    .memo-box {
+      padding: 3mm;
+      font-size: 10.5px;
+      white-space: pre-line;
+      min-height: 20mm;
+    }
+    .page-break {
+      break-before: page;
+      page-break-before: always;
+      margin-top: 12mm;
+    }
+    .empty {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+    .logi-page {
+      break-before: page;
+      page-break-before: always;
+      margin-top: 10mm;
+    }
+    .logi-visual-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+      padding: 4mm;
+    }
+    .logi-visual-card {
+      border: 1px solid #334155;
+      background: #fff;
+      padding: 4mm;
+      min-height: 92mm;
+    }
+    .logi-visual-title {
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 900;
+      margin-bottom: 4mm;
+      background: #f1f5f9;
+      padding: 3px;
+      border: 1px solid #334155;
+    }
+    .spec-carton-viz {
+      width: 100%;
+      max-width: 72mm;
+      margin: 0 auto;
+      border: 1.5px solid #334155;
+      background: #fff;
+      display: grid;
+      gap: 1px;
+      padding: 1.5mm;
+      aspect-ratio: 1/1;
+    }
+    .spec-carton-cell {
+      background: #cbd5e1;
+      border: 1px solid #94a3b8;
+      border-radius: 1px;
+      min-height: 2mm;
+    }
+    .spec-pallet-stage {
+      width: 100%;
+      max-width: 74mm;
+      aspect-ratio: 1/1;
+      margin: 0 auto;
+      background: #f8fafc;
+      border: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4mm;
+    }
+    .spec-pallet-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border: 1.5px dashed #64748b;
+    }
+    .spec-pallet-box {
+      position: absolute;
+      background: #dbeafe;
+      border: 1.2px solid #3b82f6;
+      border-radius: 2px;
+      box-sizing: border-box;
+    }
+    .spec-pallet-box.rotated {
+      background: #fef3c7;
+      border-color: #f59e0b;
+    }
+    .logi-desc {
+      font-size: 10.5px;
+      line-height: 1.5;
+      text-align: center;
+      margin-top: 4mm;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .logi-desc.sub {
+      font-weight: 500;
+      color: #64748b;
+      margin-top: 1mm;
+    }
+    .logi-summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 10.5px;
+      margin-top: 4mm;
+    }
+    .logi-summary-table th, .logi-summary-table td {
+      border: 1px solid #334155;
+      padding: 4px 5px;
+      height: 22px;
+      vertical-align: middle;
+      text-align: center;
+    }
+    .logi-summary-table th {
+      background: #f1f5f9;
+      font-weight: 800;
+    }
+    .logi-empty {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 11px;
+      padding: 18mm 0;
+    }
+    @media(max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .paper {
+        transform-origin: top center;
+      }
+    }
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .topbar, .layout>.panel, .actions, .no-print {
+        display: none !important;
+      }
+      .layout {
+        display: block;
+      }
+      .paper-wrap {
+        padding: 0;
+        overflow: visible;
+      }
+      .paper {
+        width: 210mm;
+        min-height: 297mm;
+        box-shadow: none;
+        border: 0;
+        margin: 0;
+        padding: 8mm;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
     }
   </style>
 </head>
@@ -209,25 +625,45 @@
         <button class="btn" onclick="saveAsImage()">이미지 저장</button>
       </div>
     </div>
-
     <div class="layout">
       <div class="panel">
         <div class="section-title">01. 기본 정보</div>
         <div class="input-group">
-          <div class="field"><label>작성일자</label><input type="date" id="writeDate"></div>
-          <div class="field"><label>요일</label><input type="text" id="writeDay" readonly></div>
+          <div class="field">
+            <label>작성일자</label>
+            <input type="date" id="writeDate">
+          </div>
+          <div class="field">
+            <label>요일</label>
+            <input type="text" id="writeDay" readonly>
+          </div>
         </div>
         <div class="input-group">
-          <div class="field"><label>고객사</label><input type="text" id="clientName" placeholder="예: 뷰티끄랩"></div>
-          <div class="field"><label>CODE</label><input type="text" id="productCode" placeholder="선택 입력"></div>
+          <div class="field">
+            <label>고객사</label>
+            <input type="text" id="clientName" placeholder="예: 뷰티끄랩">
+          </div>
+          <div class="field">
+            <label>CODE</label>
+            <input type="text" id="productCode" placeholder="선택 입력">
+          </div>
         </div>
-        <div class="field"><label>제품명</label><input type="text" id="productName" placeholder="예: 그린 베일 메이크업 베이스"></div>
+        <div class="field">
+          <label>제품명</label>
+          <input type="text" id="productName" placeholder="예: 그린 베일 메이크업 베이스">
+        </div>
         <div class="input-group">
-          <div class="field"><label>용량</label><input type="text" id="capacity" placeholder="예: 1개입 / 50ml"></div>
-          <div class="field"><label>협의사항</label><input type="text" id="agreement" placeholder="선택 입력"></div>
+          <div class="field">
+            <label>용량</label>
+            <input type="text" id="capacity" placeholder="예: 1개입 / 50ml">
+          </div>
+          <div class="field">
+            <label>협의사항</label>
+            <input type="text" id="agreement" placeholder="선택 입력">
+          </div>
         </div>
 
-        <div class="section-title">02. 제품 타입 선택</div>
+        <div class="section-title" style="margin-top:28px">02. 제품 타입 선택</div>
         <div class="field">
           <label>제품 / 용기 타입</label>
           <select id="productType" onchange="renderTypeFields()">
@@ -241,20 +677,26 @@
         </div>
         <p class="hint">선택한 타입에 맞춰 필요한 구성품 사진 업로드 칸이 자동 생성됩니다. 구성품 사진은 항목별 1장 기준입니다.</p>
 
-        <div class="section-title" style="margin-top:22px">03. 구성품 사진</div>
+        <div class="section-title" style="margin-top:28px">03. 구성품 사진</div>
         <div id="typeFields" class="component-list"></div>
 
-        <div class="section-title" style="margin-top:22px">04. 결합 / 완제품</div>
+        <div class="section-title" style="margin-top:28px">04. 결합 / 완제품</div>
         <div class="component-list">
           <div class="component-item">
-            <div class="component-head"><b>결합 상태</b><span class="required">1장</span></div>
+            <div class="component-head">
+              <b>결합 상태</b>
+              <span class="required">1장</span>
+            </div>
             <div class="image-picker">
               <div class="thumb" id="thumb_assembly">사진</div>
               <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'assembly')">
             </div>
           </div>
           <div class="component-item">
-            <div class="component-head"><b>완제품</b><span class="required">1장</span></div>
+            <div class="component-head">
+              <b>완제품</b>
+              <span class="required">1장</span>
+            </div>
             <div class="image-picker">
               <div class="thumb" id="thumb_finished">사진</div>
               <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'finished')">
@@ -262,176 +704,277 @@
           </div>
         </div>
 
-        <div class="section-title" style="margin-top:22px">05. 패키징 옵션</div>
+        <div class="section-title" style="margin-top:28px">05. 패키징 옵션</div>
         <div class="check-list">
           <label class="pill-check"><input type="checkbox" id="pack_box" onchange="renderPackagingFields()"> 단상자</label>
           <label class="pill-check"><input type="checkbox" id="pack_tray" onchange="renderPackagingFields()"> 선대</label>
           <label class="pill-check"><input type="checkbox" id="pack_label" onchange="renderPackagingFields()"> 개봉방지라벨</label>
         </div>
-        <div id="packagingFields" class="component-list" style="margin-top:12px"></div>
+        <div id="packagingFields" class="component-list" style="margin-top:14px"></div>
 
-        <div class="section-title" style="margin-top:22px">06. 완제품 포장 사양</div>
+        <div class="section-title" style="margin-top:28px">06. 완제품 포장 사양</div>
         <div class="input-group">
-          <div class="field"><label>단상자 입수</label><input type="text" id="innerBoxQty" placeholder="예: 1 EACH"></div>
-          <div class="field"><label>아웃박스 입수</label><input type="text" id="outBoxQty" placeholder="예: 100 EA"></div>
+          <div class="field">
+            <label>단상자 입수</label>
+            <input type="text" id="innerBoxQty" placeholder="예: 1 EACH">
+          </div>
+          <div class="field">
+            <label>아웃박스 입수</label>
+            <input type="text" id="outBoxQty" placeholder="예: 100 EA">
+          </div>
         </div>
         <div class="input-group">
-          <div class="field"><label>카톤 규격</label><input type="text" id="cartonSize" placeholder="시뮬레이션 불러오기 가능"></div>
-          <div class="field"><label>카톤당 수량</label><input type="text" id="cartonQty" placeholder="시뮬레이션 불러오기 가능"></div>
+          <div class="field">
+            <label>카톤 규격</label>
+            <input type="text" id="cartonSize" placeholder="시뮬레이션 불러오기 가능">
+          </div>
+          <div class="field">
+            <label>카톤당 수량</label>
+            <input type="text" id="cartonQty" placeholder="시뮬레이션 불러오기 가능">
+          </div>
         </div>
         <div class="input-group">
-          <div class="field"><label>총 카톤 수</label><input type="text" id="totalCartons" placeholder="시뮬레이션 불러오기 가능"></div>
-          <div class="field"><label>총 적재 단수</label><input type="text" id="totalLayers" placeholder="시뮬레이션 불러오기 가능"></div>
+          <div class="field">
+            <label>총 카톤 수</label>
+            <input type="text" id="totalCartons" placeholder="시뮬레이션 불러오기 가능">
+          </div>
+          <div class="field">
+            <label>총 적재 단수</label>
+            <input type="text" id="totalLayers" placeholder="시뮬레이션 불러오기 가능">
+          </div>
         </div>
 
-        <div class="section-title" style="margin-top:22px">07. LOT No. 관련사항</div>
+        <div class="section-title" style="margin-top:28px">07. LOT No. 관련사항</div>
         <div class="input-group">
-          <div class="field"><label>형식</label><input type="text" id="lotFormat" value="당사 기준"></div>
-          <div class="field"><label>날인 위치</label><input type="text" id="lotPosition" value="당사 기준"></div>
+          <div class="field">
+            <label>형식</label>
+            <input type="text" id="lotFormat" value="당사 기준">
+          </div>
+          <div class="field">
+            <label>날인 위치</label>
+            <input type="text" id="lotPosition" value="당사 기준">
+          </div>
         </div>
         <div class="input-group">
-          <div class="field"><label>포장일</label><input type="text" id="packingDate" value="당사 기준"></div>
-          <div class="field"><label>Q.R 마크</label><input type="text" id="qrMark" value="없음"></div>
+          <div class="field">
+            <label>포장일</label>
+            <input type="text" id="packingDate" value="당사 기준">
+          </div>
+          <div class="field">
+            <label>Q.R 마크</label>
+            <input type="text" id="qrMark" value="없음">
+          </div>
         </div>
         <div class="input-group">
-          <div class="field"><label>LOT 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'lot')"></div>
-          <div class="field"><label>사용기한 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'expiry')"></div>
+          <div class="field">
+            <label>LOT 위치 사진</label>
+            <input type="file" accept="image/*" onchange="uploadImage(event,'lot')">
+          </div>
+          <div class="field">
+            <label>사용기한 위치 사진</label>
+            <input type="file" accept="image/*" onchange="uploadImage(event,'expiry')">
+          </div>
         </div>
 
-        <div class="section-title" style="margin-top:22px">08. 부자재 구성 및 연락처</div>
-        <p class="hint">필수 입력은 아닙니다. 부자재별 사진과 정보를 입력하면 하단 표에 반영됩니다. 기본 1개만 생성되며, 필요 시 + 버튼으로 추가하세요.</p>
+        <div class="section-title" style="margin-top:28px">08. 부자재 구성 및 연락처</div>
+        <p class="hint">필수 입력은 아닙니다. 부자재별 정보를 입력하면 하단 표에 반영됩니다. 사진 항목은 제외했습니다.</p>
         <div id="materialsInput"></div>
-        <button class="btn ghost" type="button" onclick="addMaterialRow()">+ 부자재 추가</button>
+        <button class="btn ghost" type="button" onclick="addMaterialRow()" style="margin-top: 12px;">+ 부자재 추가</button>
 
-        <div class="section-title" style="margin-top:22px">09. 비고</div>
+        <div class="section-title" style="margin-top:28px">09. 비고</div>
         <textarea id="memo" placeholder="공장 전달용 주의사항을 입력하세요. 예: 개봉방지라벨은 상단 중앙 기준으로 부착 / 단상자 스크래치 주의"></textarea>
       </div>
-
+      
       <div class="paper-wrap">
         <div class="paper" id="specPaper">
           <div class="spec-header">
             <div class="spec-title">제품 사양서</div>
             <table class="info-table">
-              <tr><th>작성일자</th><td id="p_date">-</td></tr>
-              <tr><th>요일</th><td id="p_day">-</td></tr>
-              <tr><th>고객사</th><td id="p_client">-</td></tr>
-              <tr><th>제품명</th><td id="p_product">-</td></tr>
-              <tr><th>용량</th><td id="p_capacity">-</td></tr>
+              <tr>
+                <th>작성일자</th>
+                <td id="p_date">-</td>
+              </tr>
+              <tr>
+                <th>요일</th>
+                <td id="p_day">-</td>
+              </tr>
+              <tr>
+                <th>고객사</th>
+                <td id="p_client">-</td>
+              </tr>
+              <tr>
+                <th>제품명</th>
+                <td id="p_product">-</td>
+              </tr>
+              <tr>
+                <th>용량</th>
+                <td id="p_capacity">-</td>
+              </tr>
             </table>
           </div>
-
           <div class="spec-body">
             <div>
               <div class="print-section">
                 <div class="print-section-title">구성품 사진</div>
                 <div class="photo-grid" id="p_componentPhotos"></div>
               </div>
-
               <div class="print-section">
                 <div class="print-section-title">결합 및 완제품</div>
                 <div class="photo-grid single" id="p_assemblyPhotos"></div>
               </div>
-
               <div class="print-section">
                 <div class="print-section-title">패키징 사진</div>
                 <div class="photo-grid" id="p_packagingPhotos"></div>
               </div>
             </div>
-
             <div>
               <div class="right-box">
                 <div class="right-box-title">제품 정보</div>
                 <table class="right-table">
-                  <tr><th>CODE</th><td id="p_code">-</td></tr>
-                  <tr><th>고객사</th><td id="p_client2">-</td></tr>
-                  <tr><th>품명</th><td id="p_product2">-</td></tr>
-                  <tr><th>용량</th><td id="p_capacity2">-</td></tr>
-                  <tr><th>협의</th><td id="p_agreement">-</td></tr>
+                  <tr>
+                    <th>CODE</th>
+                    <td id="p_code">-</td>
+                  </tr>
+                  <tr>
+                    <th>고객사</th>
+                    <td id="p_client2">-</td>
+                  </tr>
+                  <tr>
+                    <th>품명</th>
+                    <td id="p_product2">-</td>
+                  </tr>
+                  <tr>
+                    <th>용량</th>
+                    <td id="p_capacity2">-</td>
+                  </tr>
+                  <tr>
+                    <th>협의</th>
+                    <td id="p_agreement">-</td>
+                  </tr>
                 </table>
               </div>
-
               <div class="right-box">
                 <div class="right-box-title">완제품 포장 사양</div>
                 <table class="right-table">
-                  <tr><th>단상자</th><td id="p_innerBoxQty">-</td></tr>
-                  <tr><th>아웃박스</th><td id="p_outBoxQty">-</td></tr>
-                  <tr><th>카톤규격</th><td id="p_cartonSize">-</td></tr>
-                  <tr><th>카톤입수</th><td id="p_cartonQty">-</td></tr>
-                  <tr><th>총카톤</th><td id="p_totalCartons">-</td></tr>
-                  <tr><th>적재단수</th><td id="p_totalLayers">-</td></tr>
+                  <tr>
+                    <th>단상자</th>
+                    <td id="p_innerBoxQty">-</td>
+                  </tr>
+                  <tr>
+                    <th>아웃박스</th>
+                    <td id="p_outBoxQty">-</td>
+                  </tr>
+                  <tr>
+                    <th>카톤규격</th>
+                    <td id="p_cartonSize">-</td>
+                  </tr>
+                  <tr>
+                    <th>카톤입수</th>
+                    <td id="p_cartonQty">-</td>
+                  </tr>
+                  <tr>
+                    <th>총카톤</th>
+                    <td id="p_totalCartons">-</td>
+                  </tr>
+                  <tr>
+                    <th>적재단수</th>
+                    <td id="p_totalLayers">-</td>
+                  </tr>
                 </table>
               </div>
-
               <div class="right-box">
                 <div class="right-box-title">LOT No. 관련사항</div>
                 <table class="right-table">
-                  <tr><th>형식</th><td id="p_lotFormat">-</td></tr>
-                  <tr><th>날인위치</th><td id="p_lotPosition">-</td></tr>
-                  <tr><th>포장일</th><td id="p_packingDate">-</td></tr>
-                  <tr><th>Q.R마크</th><td id="p_qrMark">-</td></tr>
+                  <tr>
+                    <th>형식</th>
+                    <td id="p_lotFormat">-</td>
+                  </tr>
+                  <tr>
+                    <th>날인위치</th>
+                    <td id="p_lotPosition">-</td>
+                  </tr>
+                  <tr>
+                    <th>포장일</th>
+                    <td id="p_packingDate">-</td>
+                  </tr>
+                  <tr>
+                    <th>Q.R마크</th>
+                    <td id="p_qrMark">-</td>
+                  </tr>
                 </table>
               </div>
-
               <div class="right-box">
                 <div class="right-box-title">마킹 위치</div>
                 <div class="photo-grid single" id="p_markPhotos"></div>
               </div>
             </div>
           </div>
-
           <div class="print-section">
             <div class="print-section-title">부자재 구성 및 연락처</div>
             <table class="materials-table">
               <thead>
                 <tr>
-                  <th style="width:8mm">No.</th>
-                  <th style="width:18mm">사진</th>
-                  <th style="width:25mm">업체명</th>
-                  <th style="width:18mm">분류</th>
-                  <th style="width:22mm">규격</th>
-                  <th style="width:18mm">재질</th>
-                  <th>세부사항 및 비고</th>
-                  <th style="width:18mm">담당</th>
-                  <th style="width:22mm">TEL</th>
-                  <th style="width:22mm">비고</th>
+                  <th style="width:9mm">No.</th>
+                  <th style="width:28mm">업체명</th>
+                  <th style="width:22mm">분류</th>
+                  <th style="width:25mm">규격</th>
+                  <th style="width:22mm">재질</th>
+                  <th>세부사항</th>
+                  <th style="width:22mm">담당자</th>
+                  <th style="width:25mm">연락처</th>
+                  <th style="width:25mm">비고</th>
                 </tr>
               </thead>
               <tbody id="p_materialRows"></tbody>
             </table>
           </div>
-
           <div class="print-section">
             <div class="print-section-title">비고 / 공장 지시사항</div>
             <div class="memo-box" id="p_memo">-</div>
           </div>
-
           <div class="print-section logi-page" id="p_logiSection">
             <div class="print-section-title">적재 시뮬레이션 결과</div>
             <div class="logi-visual-wrap">
               <div class="logi-visual-card">
                 <div class="logi-visual-title">카톤 내부 레이아웃</div>
-                <div id="p_cartonLayoutViz" class="spec-carton-viz"><div class="logi-empty">계산기 데이터 없음</div></div>
+                <div id="p_cartonLayoutViz" class="spec-carton-viz">
+                  <div class="logi-empty">계산기 데이터 없음</div>
+                </div>
                 <div class="logi-desc" id="p_cartonLayoutText">-</div>
               </div>
               <div class="logi-visual-card">
                 <div class="logi-visual-title">파레트 적재 레이아웃</div>
-                <div class="spec-pallet-stage"><div id="p_palletLayoutViz" class="spec-pallet-inner"></div></div>
+                <div class="spec-pallet-stage">
+                  <div id="p_palletLayoutViz" class="spec-pallet-inner"></div>
+                </div>
                 <div class="logi-desc" id="p_palletLayoutText">-</div>
                 <div class="logi-desc sub" id="p_palletLayoutSubText">-</div>
               </div>
             </div>
             <table class="logi-summary-table">
               <tr>
-                <th>제품 규격</th><th>제품 중량</th><th>카톤 구조</th><th>카톤 규격</th>
+                <th>제품 규격</th>
+                <th>제품 중량</th>
+                <th>카톤 구조</th>
+                <th>카톤 규격</th>
               </tr>
               <tr>
-                <td id="p_logiProductSize">-</td><td id="p_logiProductWeight">-</td><td id="p_logiCartonLayout">-</td><td id="p_logiBoxSize">-</td>
+                <td id="p_logiProductSize">-</td>
+                <td id="p_logiProductWeight">-</td>
+                <td id="p_logiCartonLayout">-</td>
+                <td id="p_logiBoxSize">-</td>
               </tr>
               <tr>
-                <th>카톤입수</th><th>총카톤</th><th>파레트 1단</th><th>적재방식</th>
+                <th>카톤입수</th>
+                <th>총카톤</th>
+                <th>파레트 1단</th>
+                <th>적재방식</th>
               </tr>
               <tr>
-                <td id="p_logiBoxQty">-</td><td id="p_logiTotalBoxes">-</td><td id="p_logiPalletLayer">-</td><td id="p_logiPalletMethod">-</td>
+                <td id="p_logiBoxQty">-</td>
+                <td id="p_logiTotalBoxes">-</td>
+                <td id="p_logiPalletLayer">-</td>
+                <td id="p_logiPalletMethod">-</td>
               </tr>
             </table>
           </div>
@@ -439,455 +982,24 @@
       </div>
     </div>
   </div>
-
+  
   <script>
-    const $ = id => document.getElementById(id);
-    const imageStore = {};
-    let materialCount = 0;
-
-    const TYPE_CONFIG = {
-      dropper: {
-        label:'스포이드 용기',
-        components:['용기','스포이드','패킹'],
-        extra:[]
-      },
-      pump: {
-        label:'펌프 용기',
-        components:['용기','펌프','패킹'],
-        extra:[]
-      },
-      tube: {
-        label:'튜브 용기',
-        components:['튜브','캡'],
-        extra:[{id:'capType',label:'캡 타입',placeholder:'예: 원터치 / 스크류 / 기타'}]
-      },
-      toner: {
-        label:'토너 용기',
-        components:['용기','캡','패킹'],
-        extra:[]
-      },
-      jar: {
-        label:'자타입 용기',
-        components:['용기','내캡','외캡'],
-        extra:[]
-      },
-      mask: {
-        label:'마스크팩',
-        components:['원단','파우치'],
-        extra:[
-          {id:'fabricName',label:'원단명',placeholder:'예: 셀룰로오스 / 텐셀 / 바이오셀룰로오스'},
-          {id:'fabricGram',label:'원단 g',placeholder:'예: 25g'},
-          {id:'maskBoxQty',label:'단상자 입수',placeholder:'예: 10매입'}
-        ]
-      }
-    };
-
-    const dayNames = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
-
-    function init(){
-      const today = new Date();
-      $('writeDate').value = today.toISOString().slice(0,10);
-      updateDay();
-      renderTypeFields();
-      renderPackagingFields();
-      addMaterialRow();
-      bindInputs();
-      loadLogiCalcData(true);
-      updatePreview();
-    }
-
-    function bindInputs(){
-      document.addEventListener('input', updatePreview);
-      document.addEventListener('change', updatePreview);
-      $('writeDate').addEventListener('change', updateDay);
-    }
-
-    function updateDay(){
-      const v = $('writeDate').value;
-      if(!v){ $('writeDay').value=''; return; }
-      const d = new Date(v + 'T00:00:00');
-      $('writeDay').value = dayNames[d.getDay()];
-      updatePreview();
-    }
-
-    function renderTypeFields(){
-      const type = $('productType').value;
-      const cfg = TYPE_CONFIG[type];
-      const wrap = $('typeFields');
-      wrap.innerHTML = '';
-
-      cfg.components.forEach((name, idx)=>{
-        const key = `component_${idx}`;
-        const item = document.createElement('div');
-        item.className = 'component-item';
-        item.innerHTML = `
-          <div class="component-head"><b>${name}</b><span class="required">사진 1장</span></div>
-          <div class="image-picker">
-            <div class="thumb" id="thumb_${key}">사진</div>
-            <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')">
-          </div>
-          <input type="hidden" id="label_${key}" value="${name}">
-        `;
-        wrap.appendChild(item);
-      });
-
-      cfg.extra.forEach(field=>{
-        const div = document.createElement('div');
-        div.className = 'field';
-        div.innerHTML = `<label>${field.label}</label><input type="text" id="${field.id}" placeholder="${field.placeholder}">`;
-        wrap.appendChild(div);
-      });
-
-      updatePreview();
-    }
-
-    function renderPackagingFields(){
-      const wrap = $('packagingFields');
-      wrap.innerHTML = '';
-
-      const packs = [
-        {id:'box', check:'pack_box', label:'단상자', extra:'단상자 입수'},
-        {id:'tray', check:'pack_tray', label:'선대', extra:''},
-        {id:'security', check:'pack_label', label:'개봉방지라벨', extra:'부착 위치 / 기준'}
-      ];
-
-      packs.forEach(p=>{
-        if(!$(p.check).checked) return;
-        const key = `pack_${p.id}`;
-        const item = document.createElement('div');
-        item.className = 'component-item';
-        item.innerHTML = `
-          <div class="component-head"><b>${p.label}</b><span class="required">사진 1장</span></div>
-          <div class="image-picker">
-            <div class="thumb" id="thumb_${key}">사진</div>
-            <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')">
-          </div>
-          ${p.extra ? `<div class="field" style="margin-top:10px"><label>${p.extra}</label><input type="text" id="memo_${key}" placeholder="선택 입력"></div>` : ''}
-          <input type="hidden" id="label_${key}" value="${p.label}">
-        `;
-        wrap.appendChild(item);
-      });
-      updatePreview();
-    }
-
-    function uploadImage(event,key){
-      const file = event.target.files && event.target.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        imageStore[key] = e.target.result;
-        const thumb = $(`thumb_${key}`);
-        if(thumb) thumb.innerHTML = `<img src="${imageStore[key]}" alt="">`;
-        updatePreview();
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function photoCard(label,key){
-      const src = imageStore[key];
-      return `
-        <div class="photo-card">
-          <div class="photo-box">${src ? `<img src="${src}" alt="${label}">` : `<span class="empty">${label}<br>사진 없음</span>`}</div>
-          <div class="photo-label">${label}</div>
-        </div>
-      `;
-    }
-
-    function addMaterialRow(){
-      materialCount++;
-      const idx = materialCount;
-      const wrap = $('materialsInput');
-      const row = document.createElement('div');
-      row.className = 'component-item material-input-row';
-      row.dataset.idx = idx;
-      row.innerHTML = `
-        <div class="component-head"><b>부자재 ${idx}</b><button class="btn danger" type="button" style="width:auto;padding:6px 9px;font-size:11px" onclick="removeMaterialRow(this)">삭제</button></div>
-        <div class="image-picker" style="margin-bottom:12px">
-          <div class="thumb" id="thumb_mat_img_${idx}">사진</div>
-          <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'mat_img_${idx}')">
-        </div>
-        <div class="input-group">
-          <div class="field"><label>업체명</label><input type="text" id="mat_company_${idx}"></div>
-          <div class="field"><label>분류</label><input type="text" id="mat_type_${idx}" placeholder="예: 용기 / 캡 / 단상자"></div>
-        </div>
-        <div class="input-group">
-          <div class="field"><label>규격</label><input type="text" id="mat_size_${idx}"></div>
-          <div class="field"><label>재질</label><input type="text" id="mat_material_${idx}"></div>
-        </div>
-        <div class="field"><label>세부사항 및 비고</label><input type="text" id="mat_detail_${idx}"></div>
-        <div class="input-group three">
-          <div class="field"><label>담당</label><input type="text" id="mat_manager_${idx}"></div>
-          <div class="field"><label>TEL</label><input type="text" id="mat_tel_${idx}"></div>
-          <div class="field"><label>비고</label><input type="text" id="mat_note_${idx}"></div>
-        </div>
-      `;
-      wrap.appendChild(row);
-      updatePreview();
-    }
-
-    function removeMaterialRow(btn){
-      btn.closest('.material-input-row').remove();
-      updatePreview();
-    }
-
-    function v(id){ return $(id) ? $(id).value.trim() : ''; }
-    function text(id,value){ if($(id)) $(id).textContent = value || '-'; }
-
-    function updatePreview(){
-      text('p_date', v('writeDate'));
-      text('p_day', v('writeDay'));
-      text('p_client', v('clientName'));
-      text('p_client2', v('clientName'));
-      text('p_product', v('productName'));
-      text('p_product2', v('productName'));
-      text('p_capacity', v('capacity'));
-      text('p_capacity2', v('capacity'));
-      text('p_code', v('productCode'));
-      text('p_agreement', v('agreement'));
-
-      text('p_innerBoxQty', v('innerBoxQty'));
-      text('p_outBoxQty', v('outBoxQty'));
-      text('p_cartonSize', v('cartonSize'));
-      text('p_cartonQty', v('cartonQty'));
-      text('p_totalCartons', v('totalCartons'));
-      text('p_totalLayers', v('totalLayers'));
-
-      text('p_lotFormat', v('lotFormat'));
-      text('p_lotPosition', v('lotPosition'));
-      text('p_packingDate', v('packingDate'));
-      text('p_qrMark', v('qrMark'));
-      text('p_memo', v('memo'));
-
-      renderPrintPhotos();
-      renderMaterialTable();
-    }
-
-    function renderPrintPhotos(){
-      const type = $('productType').value;
-      const cfg = TYPE_CONFIG[type];
-
-      $('p_componentPhotos').innerHTML = cfg.components.map((name,idx)=>photoCard(name,`component_${idx}`)).join('');
-
-      const assembly = photoCard('결합 상태','assembly');
-      const finished = photoCard('완제품','finished');
-      $('p_assemblyPhotos').innerHTML = assembly + finished;
-
-      const packs = [];
-      if($('pack_box').checked) packs.push(photoCard('단상자','pack_box'));
-      if($('pack_tray').checked) packs.push(photoCard('선대','pack_tray'));
-      if($('pack_label').checked) packs.push(photoCard('개봉방지라벨','pack_security'));
-      $('p_packagingPhotos').innerHTML = packs.length ? packs.join('') : `<div class="photo-card"><div class="photo-box"><span class="empty">선택된 패키징 항목 없음</span></div><div class="photo-label">패키징</div></div>`;
-
-      $('p_markPhotos').innerHTML = photoCard('LOT 위치','lot') + photoCard('사용기한 위치','expiry');
-    }
-
-    function renderMaterialTable(){
-      const rows = [...document.querySelectorAll('.material-input-row')];
-      const tbody = $('p_materialRows');
-      const data = rows.map((row, order)=>{
-        const idx = row.dataset.idx;
-        return {
-          no: order+1,
-          img: imageStore[`mat_img_${idx}`] || '',
-          company:v(`mat_company_${idx}`),
-          type:v(`mat_type_${idx}`),
-          size:v(`mat_size_${idx}`),
-          material:v(`mat_material_${idx}`),
-          detail:v(`mat_detail_${idx}`),
-          manager:v(`mat_manager_${idx}`),
-          tel:v(`mat_tel_${idx}`),
-          note:v(`mat_note_${idx}`)
-        };
-      });
-
-      const minRows = 10;
-      while(data.length < minRows){ data.push({no:data.length+1}); }
-
-      tbody.innerHTML = data.map(r=>`
-        <tr>
-          <td>${r.no || ''}</td>
-          <td>${r.img ? `<img src="${r.img}" style="width:14mm;height:14mm;object-fit:contain;display:block;margin:auto">` : ''}</td>
-          <td>${r.company || ''}</td>
-          <td>${r.type || ''}</td>
-          <td>${r.size || ''}</td>
-          <td>${r.material || ''}</td>
-          <td class="wide-note">${r.detail || ''}</td>
-          <td>${r.manager || ''}</td>
-          <td>${r.tel || ''}</td>
-          <td>${r.note || ''}</td>
-        </tr>
-      `).join('');
-    }
-
-    function encodeSpecData(data){
-      return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(data)))));
-    }
-
-    function decodeSpecData(encoded){
-      return decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
-    }
-
-    function collectCurrentSpecData(){
-      const existingRaw = localStorage.getItem('logiCalcSpecData');
-      let existing = {};
-      try{ existing = existingRaw ? JSON.parse(existingRaw) : {}; }catch(e){ existing = {}; }
-
-      return {
-        ...existing,
-        companyName: v('clientName') || existing.companyName || '',
-        productName: v('productName') || existing.productName || '',
-        totalQty: existing.totalQty || '',
-        boxQty: v('cartonQty') || existing.boxQty || '',
-        boxSize: v('cartonSize') || existing.boxSize || '',
-        totalBoxes: v('totalCartons') || existing.totalBoxes || '',
-        totalLayers: v('totalLayers') || existing.totalLayers || '',
-        capacity: v('capacity') || existing.capacity || '',
-        agreement: v('agreement') || existing.agreement || '',
-        productCode: v('productCode') || existing.productCode || '',
-        savedFrom: 'spec-sheet',
-        updatedAt: new Date().toISOString()
-      };
-    }
-
-    function applyLogiCalcData(data){
-      if(data.companyName) $('clientName').value = data.companyName;
-      if(data.productName) $('productName').value = data.productName;
-      if(data.capacity) $('capacity').value = data.capacity;
-      if(data.productCode) $('productCode').value = data.productCode;
-      if(data.agreement) $('agreement').value = data.agreement;
-      else if(data.totalQty) $('agreement').value = `총 생산수량: ${data.totalQty}`;
-
-      if(data.boxQty) $('cartonQty').value = data.boxQty;
-      if(data.cartonQty) $('cartonQty').value = data.cartonQty;
-
-      if(data.boxSize) $('cartonSize').value = data.boxSize;
-      if(data.cartonSize) $('cartonSize').value = data.cartonSize;
-
-      if(data.totalBoxes) $('totalCartons').value = data.totalBoxes;
-      if(data.totalLayers) $('totalLayers').value = data.totalLayers;
-
-      renderLogiCalcVisuals(data);
-    }
-
-    function loadLogiCalcData(silent){
-      let raw = null;
-      const params = new URLSearchParams(window.location.search);
-      const urlData = params.get('data');
-
-      if(urlData){
-        try{
-          raw = decodeSpecData(urlData);
-          localStorage.setItem('logiCalcSpecData', raw);
-        }catch(e){
-          console.log('URL 데이터 변환 실패', e);
-        }
-      }
-
-      if(!raw){
-        raw = localStorage.getItem('logiCalcSpecData');
-      }
-
-      if(!raw){
-        if(!silent) alert('불러올 적재 시뮬레이션 데이터가 없습니다. 계산 페이지에서 먼저 사양서 작성하기를 눌러주세요.');
-        return;
-      }
-
-      try{
-        const data = JSON.parse(raw);
-        applyLogiCalcData(data);
-        updatePreview();
-        if(!silent) alert('적재 시뮬레이션 데이터를 불러왔습니다.');
-      }catch(e){
-        if(!silent) alert('데이터를 불러오지 못했습니다.');
-      }
-    }
-
-    function goBackToCalculator(){
-      const data = collectCurrentSpecData();
-      localStorage.setItem('logiCalcSpecData', JSON.stringify(data));
-      const encoded = encodeSpecData(data);
-      window.location.href = `/yuyu?data=${encoded}`;
-    }
-
-
-    function renderLogiCalcVisuals(data){
-      data = data || {};
-      const visuals = data.layoutVisuals || {};
-      const carton = visuals.carton || {};
-      const pallet = visuals.pallet || {};
-
-      text('p_logiProductSize', data.productSize || '-');
-      text('p_logiProductWeight', data.productWeight ? `${data.productWeight}g` : '-');
-      text('p_logiCartonLayout', data.cartonLayout || (carton.x && carton.y ? `${carton.x}×${carton.y}×${carton.z || 1}단` : '-'));
-      text('p_logiBoxSize', data.boxSize || '-');
-      text('p_logiBoxQty', data.boxQty || '-');
-      text('p_logiTotalBoxes', data.totalBoxes || '-');
-      text('p_logiPalletLayer', pallet.boxCount ? `${pallet.boxCount}박스/단` : (data.palletLayerBoxCount ? `${data.palletLayerBoxCount}박스/단` : '-'));
-      text('p_logiPalletMethod', pallet.method || data.palletMethod || '-');
-
-      renderSpecCarton(carton, data);
-      renderSpecPallet(pallet, data);
-    }
-
-    function renderSpecCarton(carton,data){
-      const el = $('p_cartonLayoutViz');
-      if(!el) return;
-      el.innerHTML = '';
-      const x = parseInt(carton.x || 0,10);
-      const y = parseInt(carton.y || 0,10);
-      if(!x || !y){
-        el.innerHTML = '<div class="logi-empty">카톤 레이아웃 데이터 없음</div>';
-        text('p_cartonLayoutText','-');
-        return;
-      }
-      if(carton.size && carton.size.w && carton.size.l){
-        el.style.aspectRatio = `${carton.size.w}/${carton.size.l}`;
-      }
-      el.style.gridTemplateColumns = `repeat(${x},1fr)`;
-      el.style.gridTemplateRows = `repeat(${y},1fr)`;
-      for(let k=0;k<x*y;k++){
-        const cell=document.createElement('div');
-        cell.className='spec-carton-cell';
-        el.appendChild(cell);
-      }
-      text('p_cartonLayoutText', carton.text || `입수: ${x}×${y} (${carton.qty || data.boxQty || '-'}개) / 예상 중량 ${data.cartonWeight || '-'}`);
-    }
-
-    function renderSpecPallet(pallet,data){
-      const el = $('p_palletLayoutViz');
-      if(!el) return;
-      el.innerHTML = '';
-      const use = Number(pallet.use || 1000);
-      const placements = Array.isArray(pallet.placements) ? pallet.placements : [];
-      if(!placements.length){
-        el.innerHTML = '<div class="logi-empty">파레트 배치 데이터 없음</div>';
-        text('p_palletLayoutText','-');
-        text('p_palletLayoutSubText','-');
-        return;
-      }
-      placements.forEach(p=>{
-        const box=document.createElement('div');
-        box.className='spec-pallet-box' + (p.rot ? ' rotated' : '');
-        box.style.left = (p.x/use*100) + '%';
-        box.style.top = (p.y/use*100) + '%';
-        box.style.width = (p.w/use*100) + '%';
-        box.style.height = (p.l/use*100) + '%';
-        el.appendChild(box);
-      });
-      text('p_palletLayoutText', pallet.text || `1단 기준: ${pallet.boxCount || placements.length}박스 (${pallet.method || data.palletMethod || '-'})`);
-      text('p_palletLayoutSubText', pallet.subText || `현재 배치 기준: 1단 ${pallet.boxCount || placements.length}박스 · 총 ${data.totalLayers || '-'} 분량`);
-    }
-
-    function saveAsImage(){
-      updatePreview();
-      html2canvas($('specPaper'),{backgroundColor:'#ffffff',scale:2}).then(canvas=>{
-        const link = document.createElement('a');
-        link.download = '제품사양서.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
-    }
-
+    const $=id=>document.getElementById(id);const imageStore={};let materialCount=0;const TYPE_CONFIG={dropper:{label:'스포이드 용기',components:['용기','스포이드','패킹'],extra:[]},pump:{label:'펌프 용기',components:['용기','펌프','패킹'],extra:[]},tube:{label:'튜브 용기',components:['튜브','캡'],extra:[{id:'capType',label:'캡 타입',placeholder:'예: 원터치 / 스크류 / 기타'}]},toner:{label:'토너 용기',components:['용기','캡','패킹'],extra:[]},jar:{label:'자타입 용기',components:['용기','내캡','외캡'],extra:[]},mask:{label:'마스크팩',components:['원단','파우치'],extra:[{id:'fabricName',label:'원단명',placeholder:'예: 셀룰로오스 / 텐셀 / 바이오셀룰로오스'},{id:'fabricGram',label:'원단 g',placeholder:'예: 25g'},{id:'maskBoxQty',label:'단상자 입수',placeholder:'예: 10매입'}]}};const dayNames=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+    function init(){const today=new Date();$('writeDate').value=today.toISOString().slice(0,10);updateDay();renderTypeFields();renderPackagingFields();addMaterialRow();bindInputs();loadLogiCalcData(true);updatePreview();}function bindInputs(){document.addEventListener('input',updatePreview);document.addEventListener('change',updatePreview);$('writeDate').addEventListener('change',updateDay)}function updateDay(){const v=$('writeDate').value;if(!v){$('writeDay').value='';return}const d=new Date(v+'T00:00:00');$('writeDay').value=dayNames[d.getDay()];updatePreview()}
+    function renderTypeFields(){const type=$('productType').value;const cfg=TYPE_CONFIG[type];const wrap=$('typeFields');wrap.innerHTML='';cfg.components.forEach((name,idx)=>{const key=`component_${idx}`;const item=document.createElement('div');item.className='component-item';item.innerHTML=`<div class="component-head"><b>${name}</b><span class="required">사진 1장</span></div><div class="image-picker"><div class="thumb" id="thumb_${key}">사진</div><input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')"></div><input type="hidden" id="label_${key}" value="${name}">`;wrap.appendChild(item)});cfg.extra.forEach(field=>{const div=document.createElement('div');div.className='field';div.innerHTML=`<label>${field.label}</label><input type="text" id="${field.id}" placeholder="${field.placeholder}">`;wrap.appendChild(div)});updatePreview()}
+    function renderPackagingFields(){const wrap=$('packagingFields');wrap.innerHTML='';const packs=[{id:'box',check:'pack_box',label:'단상자',extra:'단상자 입수'},{id:'tray',check:'pack_tray',label:'선대',extra:''},{id:'security',check:'pack_label',label:'개봉방지라벨',extra:'부착 위치 / 기준'}];packs.forEach(p=>{if(!$(p.check).checked)return;const key=`pack_${p.id}`;const item=document.createElement('div');item.className='component-item';item.innerHTML=`<div class="component-head"><b>${p.label}</b><span class="required">사진 1장</span></div><div class="image-picker"><div class="thumb" id="thumb_${key}">사진</div><input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')"></div>${p.extra?`<div class="field" style="margin-top:10px"><label>${p.extra}</label><input type="text" id="memo_${key}" placeholder="선택 입력"></div>`:''}<input type="hidden" id="label_${key}" value="${p.label}">`;wrap.appendChild(item)});updatePreview()}
+    function uploadImage(event,key){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{imageStore[key]=e.target.result;const thumb=$(`thumb_${key}`);if(thumb)thumb.innerHTML=`<img src="${imageStore[key]}" alt="">`;updatePreview()};reader.readAsDataURL(file)}function photoCard(label,key){const src=imageStore[key];return `<div class="photo-card"><div class="photo-box">${src?`<img src="${src}" alt="${label}">`:`<span class="empty">${label}<br>사진 없음</span>`}</div><div class="photo-label">${label}</div></div>`}
+    function addMaterialRow(){materialCount++;const idx=materialCount;const wrap=$('materialsInput');const row=document.createElement('div');row.className='component-item material-input-row';row.dataset.idx=idx;row.innerHTML=`<div class="component-head"><b>부자재 ${idx}</b><button class="btn danger" type="button" style="width:auto;padding:6px 9px;font-size:11px" onclick="removeMaterialRow(this)">삭제</button></div><div class="input-group"><div class="field"><label>업체명</label><input type="text" id="mat_company_${idx}"></div><div class="field"><label>분류</label><input type="text" id="mat_type_${idx}" placeholder="예: 용기 / 캡 / 단상자"></div></div><div class="input-group"><div class="field"><label>규격</label><input type="text" id="mat_size_${idx}"></div><div class="field"><label>재질</label><input type="text" id="mat_material_${idx}"></div></div><div class="field"><label>세부사항</label><input type="text" id="mat_detail_${idx}"></div><div class="input-group three"><div class="field"><label>담당자</label><input type="text" id="mat_manager_${idx}"></div><div class="field"><label>연락처</label><input type="text" id="mat_tel_${idx}"></div><div class="field"><label>비고</label><input type="text" id="mat_note_${idx}"></div></div>`;wrap.appendChild(row);updatePreview()}function removeMaterialRow(btn){btn.closest('.material-input-row').remove();updatePreview()}function v(id){return $(id)?$(id).value.trim():''}function text(id,value){if($(id))$(id).textContent=value||'-'}
+    function updatePreview(){text('p_date',v('writeDate'));text('p_day',v('writeDay'));text('p_client',v('clientName'));text('p_client2',v('clientName'));text('p_product',v('productName'));text('p_product2',v('productName'));text('p_capacity',v('capacity'));text('p_capacity2',v('capacity'));text('p_code',v('productCode'));text('p_agreement',v('agreement'));text('p_innerBoxQty',v('innerBoxQty'));text('p_outBoxQty',v('outBoxQty'));text('p_cartonSize',v('cartonSize'));text('p_cartonQty',v('cartonQty'));text('p_totalCartons',v('totalCartons'));text('p_totalLayers',v('totalLayers'));text('p_lotFormat',v('lotFormat'));text('p_lotPosition',v('lotPosition'));text('p_packingDate',v('packingDate'));text('p_qrMark',v('qrMark'));text('p_memo',v('memo'));renderPrintPhotos();renderMaterialTable()}
+    function renderPrintPhotos(){const type=$('productType').value;const cfg=TYPE_CONFIG[type];$('p_componentPhotos').innerHTML=cfg.components.map((name,idx)=>photoCard(name,`component_${idx}`)).join('');$('p_assemblyPhotos').innerHTML=photoCard('결합 상태','assembly')+photoCard('완제품','finished');const packs=[];if($('pack_box').checked)packs.push(photoCard('단상자','pack_box'));if($('pack_tray').checked)packs.push(photoCard('선대','pack_tray'));if($('pack_label').checked)packs.push(photoCard('개봉방지라벨','pack_security'));$('p_packagingPhotos').innerHTML=packs.length?packs.join(''):`<div class="photo-card"><div class="photo-box"><span class="empty">선택된 패키징 항목 없음</span></div><div class="photo-label">패키징</div></div>`;$('p_markPhotos').innerHTML=photoCard('LOT 위치','lot')+photoCard('사용기한 위치','expiry')}
+    function renderMaterialTable(){const rows=[...document.querySelectorAll('.material-input-row')];const tbody=$('p_materialRows');const data=rows.map((row,order)=>{const idx=row.dataset.idx;return{no:order+1,company:v(`mat_company_${idx}`),type:v(`mat_type_${idx}`),size:v(`mat_size_${idx}`),material:v(`mat_material_${idx}`),detail:v(`mat_detail_${idx}`),manager:v(`mat_manager_${idx}`),tel:v(`mat_tel_${idx}`),note:v(`mat_note_${idx}`)}});while(data.length<10){data.push({no:data.length+1})}tbody.innerHTML=data.map(r=>`<tr><td>${r.no||''}</td><td>${r.company||''}</td><td>${r.type||''}</td><td>${r.size||''}</td><td>${r.material||''}</td><td class="wide-note">${r.detail||''}</td><td>${r.manager||''}</td><td>${r.tel||''}</td><td>${r.note||''}</td></tr>`).join('')}
+    function encodeSpecData(data){return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(data)))))}function decodeSpecData(encoded){return decodeURIComponent(escape(atob(decodeURIComponent(encoded))))}function collectCurrentSpecData(){const existingRaw=localStorage.getItem('logiCalcSpecData');let existing={};try{existing=existingRaw?JSON.parse(existingRaw):{}}catch(e){existing={}}return{...existing,companyName:v('clientName')||existing.companyName||'',productName:v('productName')||existing.productName||'',totalQty:existing.totalQty||'',boxQty:v('cartonQty')||existing.boxQty||'',boxSize:v('cartonSize')||existing.boxSize||'',totalBoxes:v('totalCartons')||existing.totalBoxes||'',totalLayers:v('totalLayers')||existing.totalLayers||'',capacity:v('capacity')||existing.capacity||'',agreement:v('agreement')||existing.agreement||'',productCode:v('productCode')||existing.productCode||'',savedFrom:'spec-sheet',updatedAt:new Date().toISOString()}}
+    function applyLogiCalcData(data){if(data.companyName)$('clientName').value=data.companyName;if(data.productName)$('productName').value=data.productName;if(data.capacity)$('capacity').value=data.capacity;if(data.productCode)$('productCode').value=data.productCode;if(data.agreement)$('agreement').value=data.agreement;else if(data.totalQty)$('agreement').value=`총 생산수량: ${data.totalQty}`;if(data.boxQty)$('cartonQty').value=data.boxQty;if(data.cartonQty)$('cartonQty').value=data.cartonQty;if(data.boxSize)$('cartonSize').value=data.boxSize;if(data.cartonSize)$('cartonSize').value=data.cartonSize;if(data.totalBoxes)$('totalCartons').value=data.totalBoxes;if(data.totalLayers)$('totalLayers').value=data.totalLayers;renderLogiCalcVisuals(data)}
+    function loadLogiCalcData(silent){let raw=null;const params=new URLSearchParams(window.location.search);const urlData=params.get('data');if(urlData){try{raw=decodeSpecData(urlData);localStorage.setItem('logiCalcSpecData',raw)}catch(e){console.log('URL 데이터 변환 실패',e)}}if(!raw){raw=localStorage.getItem('logiCalcSpecData')}if(!raw){if(!silent)alert('불러올 적재 시뮬레이션 데이터가 없습니다. 계산 페이지에서 먼저 사양서 작성하기를 눌러주세요.');return}try{const data=JSON.parse(raw);applyLogiCalcData(data);updatePreview();if(!silent)alert('적재 시뮬레이션 데이터를 불러왔습니다.')}catch(e){if(!silent)alert('데이터를 불러오지 못했습니다.')}}function goBackToCalculator(){const data=collectCurrentSpecData();localStorage.setItem('logiCalcSpecData',JSON.stringify(data));const encoded=encodeSpecData(data);window.location.href=`/yuyu?data=${encoded}`}
+    function renderLogiCalcVisuals(data){data=data||{};const visuals=data.layoutVisuals||{};const carton=visuals.carton||{};const pallet=visuals.pallet||{};text('p_logiProductSize',data.productSize||'-');text('p_logiProductWeight',data.productWeight?`${data.productWeight}g`:'-');text('p_logiCartonLayout',data.cartonLayout||(carton.x&&carton.y?`${carton.x}×${carton.y}×${carton.z||1}단`:'-'));text('p_logiBoxSize',data.boxSize||'-');text('p_logiBoxQty',data.boxQty||'-');text('p_logiTotalBoxes',data.totalBoxes||'-');text('p_logiPalletLayer',pallet.boxCount?`${pallet.boxCount}박스/단`:(data.palletLayerBoxCount?`${data.palletLayerBoxCount}박스/단`:'-'));text('p_logiPalletMethod',pallet.method||data.palletMethod||'-');renderSpecCarton(carton,data);renderSpecPallet(pallet,data)}
+    function renderSpecCarton(carton,data){const el=$('p_cartonLayoutViz');if(!el)return;el.innerHTML='';const x=parseInt(carton.x||0,10);const y=parseInt(carton.y||0,10);if(!x||!y){el.innerHTML='<div class="logi-empty">카톤 레이아웃 데이터 없음</div>';text('p_cartonLayoutText','-');return}if(carton.size&&carton.size.w&&carton.size.l){el.style.aspectRatio=`${carton.size.w}/${carton.size.l}`}el.style.gridTemplateColumns=`repeat(${x},1fr)`;el.style.gridTemplateRows=`repeat(${y},1fr)`;for(let k=0;k<x*y;k++){const cell=document.createElement('div');cell.className='spec-carton-cell';el.appendChild(cell)}text('p_cartonLayoutText',carton.text||`입수: ${x}×${y} (${carton.qty||data.boxQty||'-'}개) / 예상 중량 ${data.cartonWeight||'-'}`)}
+    function renderSpecPallet(pallet,data){const el=$('p_palletLayoutViz');if(!el)return;el.innerHTML='';const use=Number(pallet.use||1000);const placements=Array.isArray(pallet.placements)?pallet.placements:[];if(!placements.length){el.innerHTML='<div class="logi-empty">파레트 배치 데이터 없음</div>';text('p_palletLayoutText','-');text('p_palletLayoutSubText','-');return}placements.forEach(p=>{const box=document.createElement('div');box.className='spec-pallet-box'+(p.rot?' rotated':'');box.style.left=(p.x/use*100)+'%';box.style.top=(p.y/use*100)+'%';box.style.width=(p.w/use*100)+'%';box.style.height=(p.l/use*100)+'%';el.appendChild(box)});text('p_palletLayoutText',pallet.text||`1단 기준: ${pallet.boxCount||placements.length}박스 (${pallet.method||data.palletMethod||'-'})`);text('p_palletLayoutSubText',pallet.subText||`현재 배치 기준: 1단 ${pallet.boxCount||placements.length}박스 · 총 ${data.totalLayers||'-'} 분량`)}function saveAsImage(){updatePreview();html2canvas($('specPaper'),{backgroundColor:'#ffffff',scale:2}).then(canvas=>{const link=document.createElement('a');link.download='제품사양서.png';link.href=canvas.toDataURL('image/png');link.click()})}
+    function Preview() { updatePreview(); }
     init();
   </script>
 </body>
