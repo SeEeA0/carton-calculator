@@ -62,7 +62,7 @@
     .input-group.three { grid-template-columns: repeat(3, 1fr); }
     .input-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
     label { font-size: 13px; color: var(--muted); font-weight: 500; }
-    input {
+    input, select {
       width: 100%;
       padding: 12px 14px;
       border-radius: 8px;
@@ -72,7 +72,7 @@
       background: #fff;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
 
     .btn {
       width: 100%;
@@ -322,6 +322,13 @@
         <div class="input-group" style="margin-bottom:20px; max-width: 500px;">
           <div class="input-item"><label>수동 가로 입수</label><input type="number" id="manualX" placeholder="예: 6"></div>
           <div class="input-item"><label>수동 세로 입수</label><input type="number" id="manualY" placeholder="예: 7"></div>
+          <div class="input-item" style="grid-column: span 2;">
+            <label>단상자 회전 여부</label>
+            <select id="manualRotate">
+              <option value="normal" selected>회전 안 함 / 카톤 기준 고정</option>
+              <option value="rotated">제품 90도 회전</option>
+            </select>
+          </div>
           <button class="btn" type="button" onclick="applyManualCarton()" style="grid-column: span 2;">수동 설정 적용</button>
         </div>
         <div class="table-wrap">
@@ -849,36 +856,38 @@ function applyManualCarton(){
   const x = parseInt($('manualX').value, 10) || 0;
   const y = parseInt($('manualY').value, 10) || 0;
   const z = 1;
+  const rotateMode = $('manualRotate') ? $('manualRotate').value : 'normal';
+
   if(!x || !y){ alert('가로/세로 입수를 입력해주세요.'); return; }
 
-  const orientations = [
-    { name: '수동 정방향', w: d.w, l: d.l, h: d.h },
-    { name: '수동 90도 회전', w: d.l, l: d.w, h: d.h }
-  ];
-  const manualCandidates = [];
+  // 수동 설정은 자동으로 90도 회전 후보를 고르지 않습니다.
+  // 사용자가 선택한 방향만 적용됩니다.
+  const o = rotateMode === 'rotated'
+    ? { name: '수동 90도 회전', w: d.l, l: d.w, h: d.h }
+    : { name: '수동 정방향', w: d.w, l: d.l, h: d.h };
 
-  orientations.forEach(o => {
-    const qty = x * y * z;
-    const size = cartonSize(x, y, z, o, d);
-    const kg = (qty * d.g + d.boxWeight) / 1000;
-    if(size.w <= d.maxBoxW && size.l <= d.maxBoxL && kg < d.maxKg){
-      manualCandidates.push({
-        x, y, z, qty, size, kg,
-        orientation: o.name,
-        palletFit: { name: '수동 적재', count: 0, placements: [] },
-        productPerPalletLayer: 0,
-        score: 999999999
-      });
-    }
-  });
+  const qty = x * y * z;
+  const size = cartonSize(x, y, z, o, d);
+  const kg = (qty * d.g + d.boxWeight) / 1000;
 
-  if(!manualCandidates.length){
-    alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 조건을 초과합니다.');
+  if(size.w > d.maxBoxW || size.l > d.maxBoxL || kg >= d.maxKg){
+    alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 조건을 초과합니다. 회전 여부 또는 입수 수량을 확인해주세요.');
     return;
   }
 
-  const manual = manualCandidates.sort((a,b) => b.qty - a.qty)[0];
-  lastCandidates = [manual, ...lastCandidates.filter(c => !(c.x === manual.x && c.y === manual.y && c.size.w === manual.size.w && c.size.l === manual.size.l))].slice(0, 3);
+  const manual = {
+    x, y, z, qty, size, kg,
+    orientation: o.name,
+    palletFit: { name: '수동 적재', count: 0, placements: [] },
+    productPerPalletLayer: 0,
+    score: 999999999
+  };
+
+  lastCandidates = [
+    manual,
+    ...lastCandidates.filter(c => !(c.x === manual.x && c.y === manual.y && c.size.w === manual.size.w && c.size.l === manual.size.l))
+  ].slice(0, 3);
+
   applyCandidate(0);
 }
 
