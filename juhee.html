@@ -127,6 +127,7 @@
       border: 1px solid #dadce0;
       border-radius: 2px;
       min-height: 9px;
+      box-sizing: border-box;
     }
 
     .pallet-stage {
@@ -1026,8 +1027,17 @@ function drawCarton(c){
   const el = $('cartonViz');
   el.innerHTML = '';
 
-  // 실제 mm 기준으로 동일 스케일 표시
-  // 500mm 제한 기준 약 400px로 표시하여, 정방향/90도 회전 시 단상자 크기가 달라 보이지 않게 합니다.
+  const d = (lastResult && lastResult.d) ? lastResult.d : getData();
+  const isRotated = String(c.orientation || '').includes('90도');
+
+  // 단상자는 눕히거나 뒤집지 않고, 바닥 기준 가로/세로 방향만 바뀝니다.
+  const unitW = isRotated ? d.l : d.w;
+  const unitL = isRotated ? d.w : d.l;
+  const gap = Number(d.gap || 0);
+  const margin = Number(d.margin || 0);
+
+  // 실제 mm 기준 동일 스케일 표시
+  // 같은 단상자는 정방향/90도 회전 모두 같은 크기이며 방향만 바뀌어 보입니다.
   const scale = 0.8;
   const visualW = Math.max(80, Math.min(400, c.size.w * scale));
   const visualH = Math.max(80, Math.min(400, c.size.l * scale));
@@ -1036,13 +1046,21 @@ function drawCarton(c){
   el.style.height = visualH + 'px';
   el.style.maxWidth = '100%';
   el.style.aspectRatio = 'auto';
-  el.style.gridTemplateColumns = `repeat(${c.x}, 1fr)`;
-  el.style.gridTemplateRows = `repeat(${c.y}, 1fr)`;
+  el.style.display = 'block';
+  el.style.position = 'relative';
 
-  for(let k = 0; k < c.x * c.y; k++){
-    const cell = document.createElement('div');
-    cell.className = 'carton-cell';
-    el.appendChild(cell);
+  for(let row = 0; row < c.y; row++){
+    for(let col = 0; col < c.x; col++){
+      const cell = document.createElement('div');
+      cell.className = 'carton-cell';
+      cell.style.position = 'absolute';
+      cell.style.left = ((margin + col * (unitW + gap)) / c.size.w * 100) + '%';
+      cell.style.top = ((margin + row * (unitL + gap)) / c.size.l * 100) + '%';
+      cell.style.width = (unitW / c.size.w * 100) + '%';
+      cell.style.height = (unitL / c.size.l * 100) + '%';
+      cell.style.minHeight = '0';
+      el.appendChild(cell);
+    }
   }
 }
 
