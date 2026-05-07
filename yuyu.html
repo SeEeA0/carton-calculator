@@ -221,6 +221,45 @@
       margin-bottom: 16px;
     }
 
+
+    .manual-setting-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .manual-rotate-group {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .manual-rotate-btn {
+      flex: 1;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .manual-rotate-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .manual-apply-row {
+      grid-column: 1 / -1;
+    }
+    @media(max-width:900px){
+      .manual-setting-grid { grid-template-columns: 1fr 1fr; }
+      .manual-apply-row { grid-column: 1 / -1; }
+    }
+
     @media(max-width:900px){
       body { padding: 24px 12px; }
       .grid, .visual-grid { grid-template-columns: 1fr; }
@@ -320,22 +359,30 @@
 
       <div class="card no-export">
         <div class="section-title">다른 후보지 선택 및 수동 입력</div>
-        <div class="input-group" style="margin-bottom:20px; max-width: 500px;">
-          <div class="input-item"><label>수동 가로 입수</label><input type="number" id="manualX" placeholder="예: 6"></div>
-          <div class="input-item"><label>수동 세로 입수</label><input type="number" id="manualY" placeholder="예: 7"></div>
-          <div class="input-item"><label>수동 단수</label><input type="number" id="manualZ" value="1" min="1" step="1"></div>
+        <div class="manual-setting-grid">
           <div class="input-item">
-            <label>단수 기준</label>
-            <input type="text" value="카톤 내부 적층" readonly>
+            <label>수동 가로 입수</label>
+            <input type="number" id="manualX" placeholder="예: 6">
           </div>
-          <div class="input-item" style="grid-column: span 2;">
-            <label>단상자 회전 여부</label>
-            <select id="manualRotate">
-              <option value="normal" selected>회전 안 함 / 카톤 기준 고정</option>
-              <option value="rotated">제품 90도 회전</option>
-            </select>
+          <div class="input-item">
+            <label>수동 세로 입수</label>
+            <input type="number" id="manualY" placeholder="예: 7">
           </div>
-          <button class="btn" type="button" onclick="applyManualCarton()" style="grid-column: span 2;">수동 설정 적용</button>
+          <div class="input-item">
+            <label>카톤 단수</label>
+            <input type="number" id="manualZ" value="1" min="1" step="1">
+          </div>
+          <div class="input-item">
+            <label>단상자 방향</label>
+            <input type="hidden" id="manualRotate" value="normal">
+            <div class="manual-rotate-group">
+              <button class="manual-rotate-btn active" type="button" id="manualRotateNormal" onclick="setManualRotateMode('normal')">정방향</button>
+              <button class="manual-rotate-btn" type="button" id="manualRotateRotated" onclick="setManualRotateMode('rotated')">90도 회전</button>
+            </div>
+          </div>
+          <div class="manual-apply-row">
+            <button class="btn" type="button" onclick="applyManualCarton()">수동 설정 적용</button>
+          </div>
         </div>
         <div class="table-wrap">
           <table>
@@ -849,6 +896,7 @@ function applyCandidate(idx){
   $('resTotalBoxes').textContent = fmt(totalBoxes) + '박스';
   $('resTotalLayers').textContent = '-';
   if($('manualZ')) $('manualZ').value = c.z || d.cartonLayers || 1;
+  if(typeof setManualRotateMode === 'function') setManualRotateMode(String(c.orientation || '').includes('90도') ? 'rotated' : 'normal');
   $('cartonText').textContent = `입수: ${c.x}×${c.y}×${c.z || 1}단 (${fmt(c.qty)}개) / 예상 중량 ${fmt(c.kg, 2)}kg / ${c.orientation}`;
 
   drawCarton(c);
@@ -858,6 +906,16 @@ function applyCandidate(idx){
 
 function selectCandidate(idx){
   applyCandidate(idx);
+}
+
+
+function setManualRotateMode(mode){
+  const input = $('manualRotate');
+  if(input) input.value = mode;
+  const normalBtn = $('manualRotateNormal');
+  const rotatedBtn = $('manualRotateRotated');
+  if(normalBtn) normalBtn.classList.toggle('active', mode === 'normal');
+  if(rotatedBtn) rotatedBtn.classList.toggle('active', mode === 'rotated');
 }
 
 function applyManualCarton(){
