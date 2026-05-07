@@ -409,9 +409,9 @@
     }
 
     .logi-page{
-      break-before:page;
-      page-break-before:always;
-      margin-top:10mm;
+      break-before:auto;
+      page-break-before:auto;
+      margin-top:6mm;
     }
     .logi-visual-wrap{display:grid;grid-template-columns:1fr 1fr;gap:5mm;padding:4mm}
     .logi-visual-card{
@@ -538,7 +538,42 @@
       }
       @page{size:A4 portrait;margin:0}
     }
-  </style>
+  
+    /* 이미지 저장 시 업로드 이미지 비율 유지 */
+    .photo-box{
+      position:relative;
+    }
+
+    .photo-box img,
+    .thumb img{
+      width:100% !important;
+      height:100% !important;
+      object-fit:contain !important;
+      object-position:center center !important;
+      aspect-ratio:auto !important;
+      max-width:100% !important;
+      max-height:100% !important;
+      background:#fff;
+    }
+
+    /* PDF 저장 시 적재 시뮬레이션이 다음 페이지로 강제 이동하며 빈 공간이 생기는 문제 방지 */
+    @media print{
+      .logi-page{
+        break-before:auto !important;
+        page-break-before:auto !important;
+        margin-top:6mm !important;
+      }
+
+      .print-section,
+      .right-box,
+      .photo-card,
+      .logi-visual-card{
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
+    }
+
+</style>
 </head>
 <body>
   <div class="app">
@@ -599,6 +634,7 @@
           <label class="pill-check"><input type="checkbox" id="pack_box" onchange="renderPackagingFields()"> 단상자</label>
           <label class="pill-check"><input type="checkbox" id="pack_tray" onchange="renderPackagingFields()"> 선대</label>
           <label class="pill-check"><input type="checkbox" id="pack_label" onchange="renderPackagingFields()"> 개봉방지라벨</label>
+          <label class="pill-check"><input type="checkbox" id="pack_etc" onchange="renderPackagingFields()"> 기타</label>
         </div>
         <div id="packagingFields" class="component-list" style="margin-top:14px"></div>
 
@@ -947,7 +983,8 @@ function addCustomComponent(){
       const packs=[
         {id:'box',check:'pack_box',label:'단상자',extra:'단상자 입수'},
         {id:'tray',check:'pack_tray',label:'선대',extra:''},
-        {id:'security',check:'pack_label',label:'개봉방지라벨',extra:'부착 위치 / 기준'}
+        {id:'security',check:'pack_label',label:'개봉방지라벨',extra:'부착 위치 / 기준'},
+        {id:'etc',check:'pack_etc',label:'기타',extra:'기타 이름'}
       ];
       packs.forEach(p=>{
         if(!$(p.check).checked)return;
@@ -1128,6 +1165,10 @@ function addCustomComponent(){
       if($('pack_box').checked)packs.push(photoCard('단상자','pack_box'));
       if($('pack_tray').checked)packs.push(photoCard('선대','pack_tray'));
       if($('pack_label').checked)packs.push(photoCard('개봉방지라벨','pack_security'));
+      if($('pack_etc').checked){
+        const etcName = v('memo_pack_etc') || '기타';
+        packs.push(photoCard(etcName,'pack_etc'));
+      }
       $('p_packagingPhotos').innerHTML=packs.length
         ? packs.join('')
         : `<div class="photo-card"><div class="photo-box"><span class="empty">선택된 단상자 항목 없음</span></div><div class="photo-label">단상자</div></div>`;
@@ -1317,15 +1358,67 @@ function addCustomComponent(){
 
     function saveAsImage(){
       updatePreview();
-      html2canvas($('specPaper'),{backgroundColor:'#ffffff',scale:2}).then(canvas=>{
-        const link=document.createElement('a');
-        link.download='제품사양서.png';
-        link.href=canvas.toDataURL('image/png');
+
+      document.querySelectorAll('.photo-box img, .thumb img').forEach(img=>{
+        img.style.objectFit = 'contain';
+        img.style.objectPosition = 'center center';
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+      });
+
+      html2canvas($('specPaper'),{
+        backgroundColor:'#ffffff',
+        scale:2,
+        useCORS:true,
+        allowTaint:true
+      }).then(canvas=>{
+        const link = document.createElement('a');
+        link.download = '제품사양서.png';
+        link.href = canvas.toDataURL('image/png');
         link.click();
       });
     }
 
     init();
   </script>
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  const packagingType = document.getElementById('packagingType');
+  const customBoxWrap = document.getElementById('customBoxWrap');
+  const customBoxName = document.getElementById('customBoxName');
+
+  if(packagingType){
+    packagingType.addEventListener('change', ()=>{
+      if(packagingType.value === '기타'){
+        customBoxWrap.style.display = 'block';
+      }else{
+        customBoxWrap.style.display = 'none';
+      }
+
+      updateCustomPackagingTitle();
+    });
+  }
+
+  if(customBoxName){
+    customBoxName.addEventListener('input', updateCustomPackagingTitle);
+  }
+
+  function updateCustomPackagingTitle(){
+    const labelTargets = document.querySelectorAll('.packaging-title-text');
+
+    let title = packagingType?.value || '단상자';
+
+    if(title === '기타'){
+      title = customBoxName.value?.trim() || '기타';
+    }
+
+    labelTargets.forEach(el=>{
+      el.textContent = title;
+    });
+  }
+});
+</script>
 </body>
 </html>
