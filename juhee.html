@@ -493,11 +493,11 @@
       justify-content:center;
       align-items:center;
       gap:12px;
-      overflow-x:auto;
-      overflow-y:hidden;
+      overflow:visible !important;
       width:100%;
       padding-bottom:6px;
-      scrollbar-width:none;
+      position:relative;
+      z-index:20;
     }
 
     .editor-toolbar::-webkit-scrollbar{
@@ -619,7 +619,24 @@
       .summary { grid-template-columns: 1fr 1fr; }
       .result-actions .btn { width: 100%; }
     }
-  </style>
+  
+    .editor-toolbar{
+      overflow:visible !important;
+      position:relative;
+      z-index:20;
+    }
+
+    .shortcut-help{
+      position:relative;
+      z-index:1000;
+    }
+
+    .shortcut-tooltip{
+      z-index:99999 !important;
+      pointer-events:none;
+    }
+
+</style>
 </head>
 <body>
   <div class="container" id="input-page">
