@@ -311,6 +311,97 @@
       border-color: var(--accent);
     }
 
+
+    .editor-toolbar {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(90px, auto)) 1fr;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .editor-toolbar .reset-btn {
+      justify-self: end;
+      color: var(--danger);
+      border-color: rgba(217,48,37,.35);
+    }
+    .editor-sub-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+      margin: 0 0 16px;
+    }
+    
+    .shortcut-help {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      background: #fff;
+      color: var(--muted);
+      transition: all .2s;
+    }
+
+    .shortcut-help:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .shortcut-tooltip {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: all .2s;
+      z-index: 999;
+      text-align: left;
+      line-height: 1.7;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .shortcut-help:hover .shortcut-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .shortcut-tooltip b {
+      display: inline-block;
+      min-width: 110px;
+      color: var(--accent);
+    }
+
+@media(max-width:900px){
+      .editor-toolbar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .editor-toolbar .reset-btn {
+        justify-self: stretch;
+      }
+      .editor-sub-toolbar {
+        flex-wrap: wrap;
+      }
+    }
+
     @media(max-width:900px){
       .manual-setting-grid { grid-template-columns: 1fr 1fr; }
       .manual-apply-row { grid-column: 1 / -1; }
@@ -527,10 +618,24 @@
           <div class="editor-toolbar">
             <button class="mini-btn active" type="button" id="palletEditBtn" onclick="togglePalletEditMode()">수동 편집 모드</button>
             <button class="mini-btn" type="button" onclick="autoFillPalletSimple()">가볍게 자동 채우기</button>
-            <button class="mini-btn" type="button" onclick="rotateSelectedPalletBox()">회전 (R)</button>
-            <button class="mini-btn" type="button" onclick="addPalletBox()">추가 (+)</button>
-            <button class="mini-btn danger" type="button" onclick="removeSelectedPalletBox()">삭제 (-)</button>
-            <button class="mini-btn" type="button" onclick="resetPalletBoxes()">초기화</button>
+            <button class="mini-btn" type="button" onclick="rotateSelectedPalletBox()">회전</button>
+            <button class="mini-btn" type="button" onclick="addPalletBox()">추가</button>
+            <button class="mini-btn danger" type="button" onclick="removeSelectedPalletBox()">삭제</button>
+            <button class="mini-btn danger reset-btn" type="button" onclick="resetPalletBoxes()">초기화</button>
+<div class="shortcut-help">
+  ?
+  <div class="shortcut-tooltip">
+    <div><b>Cmd/Ctrl + A</b> 전체 선택</div>
+    <div><b>Cmd/Ctrl + C</b> 복사</div>
+    <div><b>Cmd/Ctrl + V</b> 붙여넣기</div>
+    <div><b>Cmd/Ctrl + Z</b> 되돌리기</div>
+    <div><b>Shift + Cmd + Z</b> 다시 실행</div>
+    <div><b>Shift + 클릭</b> 다중 선택</div>
+    <div><b>Delete</b> 선택 박스 삭제</div>
+    <div><b>드래그 이동</b> 중앙 스냅 자동 정렬</div>
+  </div>
+</div>
+
           </div>
           <div class="editor-sub-toolbar">
             <button class="mini-btn small" type="button" onclick="selectAllPalletBoxes()">전체선택</button>
