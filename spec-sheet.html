@@ -573,6 +573,27 @@
       }
     }
 
+
+    .layout{
+      display:grid !important;
+      grid-template-columns:440px minmax(0, 1fr) !important;
+      gap:32px !important;
+      align-items:start !important;
+    }
+    .paper-wrap{
+      grid-column:2 !important;
+      width:100% !important;
+      justify-content:center !important;
+      align-items:flex-start !important;
+    }
+    .panel{
+      grid-column:1 !important;
+    }
+    @media(max-width:1100px){
+      .layout{grid-template-columns:1fr !important;}
+      .panel,.paper-wrap{grid-column:auto !important;}
+    }
+
 </style>
 </head>
 <body>
@@ -1204,7 +1225,15 @@ function addCustomComponent(){
         ? packs.join('')
         : `<div class="photo-card"><div class="photo-box"><span class="empty">선택된 단상자 항목 없음</span></div><div class="photo-label">단상자</div></div>`;
 
-      $('p_markPhotos').innerHTML=photoCard('LOT 위치','lot')+photoCard('사용기한 위치','expiry');
+      
+      const markCards = [];
+      const separate = $('expirySeparateCheck') && $('expirySeparateCheck').checked;
+      markCards.push(photoCard(separate ? 'LOT 위치' : 'LOT / 사용기한 위치', 'lot'));
+      if(separate && imageStore['expiry']){
+        markCards.push(photoCard('사용기한 위치','expiry'));
+      }
+      $('p_markPhotos').innerHTML = markCards.join('');
+
     }
 
     function renderMaterialTable(){
@@ -1452,19 +1481,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 </script>
 
+
 <script>
 function toggleExpirySeparate(){
   const checked = document.getElementById('expirySeparateCheck')?.checked;
-  const wrap = document.getElementById('expirySeparateWrap');
-  const title = document.getElementById('lotMainTitle');
+  const inputWrap = document.getElementById('expirySeparateInputWrap');
+  const inputLabel = document.getElementById('lotMainInputLabel');
 
-  if(checked){
-    wrap.style.display = 'block';
-    title.textContent = 'LOT 위치 사진';
-  }else{
-    wrap.style.display = 'none';
-    title.textContent = 'LOT / 사용기한 위치 사진';
-  }
+  if(inputWrap) inputWrap.style.display = checked ? 'block' : 'none';
+  if(inputLabel) inputLabel.textContent = checked ? 'LOT 위치 사진' : 'LOT / 사용기한 위치 사진';
+
+  if(typeof updatePreview === 'function') updatePreview();
 }
 </script>
 
