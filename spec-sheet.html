@@ -573,88 +573,7 @@
       }
     }
 
-
-    .layout{
-      display:grid !important;
-      grid-template-columns:440px minmax(0, 1fr) !important;
-      gap:32px !important;
-      align-items:start !important;
-    }
-    .paper-wrap{
-      grid-column:2 !important;
-      width:100% !important;
-      justify-content:center !important;
-      align-items:flex-start !important;
-    }
-    .panel{
-      grid-column:1 !important;
-    }
-    @media(max-width:1100px){
-      .layout{grid-template-columns:1fr !important;}
-      .panel,.paper-wrap{grid-column:auto !important;}
-    }
-
 </style>
-
-<style id="hard-layout-fix">
-  @media screen {
-    .app{
-      max-width: 1600px !important;
-      margin: 0 auto !important;
-    }
-
-    .layout{
-      display: block !important;
-      position: relative !important;
-      min-height: 100vh !important;
-    }
-
-    .layout > .panel,
-    .panel{
-      width: 440px !important;
-      max-width: 440px !important;
-      float: left !important;
-      display: block !important;
-      margin-right: 32px !important;
-    }
-
-    .paper-wrap{
-      display: flex !important;
-      justify-content: center !important;
-      align-items: flex-start !important;
-      width: calc(100% - 472px) !important;
-      min-width: 760px !important;
-      margin-left: 472px !important;
-      padding-bottom: 40px !important;
-      overflow: visible !important;
-    }
-
-    .paper{
-      width: 210mm !important;
-      min-width: 210mm !important;
-      max-width: 210mm !important;
-      transform: none !important;
-    }
-
-    @media(max-width:1100px){
-      .layout > .panel,
-      .panel{
-        float: none !important;
-        width: 100% !important;
-        max-width: none !important;
-        margin-right: 0 !important;
-      }
-
-      .paper-wrap{
-        width: 100% !important;
-        min-width: 0 !important;
-        margin-left: 0 !important;
-        overflow-x: auto !important;
-      }
-    }
-  }
-</style>
-
 </head>
 <body>
   <div class="app">
@@ -737,50 +656,19 @@
           <div class="field"><label>총 적재 단수</label><input type="text" id="totalLayers" placeholder="시뮬레이션 불러오기 가능"></div>
         </div>
 
-        <div class="section-title">
-07. LOT No. 관련사항
-
-<div class="lot-grid">
-  <div class="form-group">
-    <label>형식</label>
-    <input type="text" value="당사 기준">
-  </div>
-
-  <div class="form-group">
-    <label>날인 위치</label>
-    <input type="text" value="당사 기준">
-  </div>
-
-  <div class="form-group">
-    <label>포장일</label>
-    <input type="text" value="당사 기준">
-  </div>
-
-  <div class="form-group">
-    <label>Q.R 마크</label>
-    <input type="text" value="없음">
-  </div>
-</div>
-
-<div style="margin-top:18px;">
-  <label style="display:flex;align-items:center;gap:8px;font-weight:700;">
-    <input type="checkbox" id="expirySeparateCheck" onchange="toggleExpirySeparate()">
-    사용기한 별도 위치
-  </label>
-</div>
-
-<div class="lot-photo-wrap" style="margin-top:18px;">
-  <div class="photo-upload-card">
-    <div class="photo-title" id="lotMainTitle">LOT / 사용기한 위치 사진</div>
-    <input type="file" accept="image/*" id="lotMainPhoto">
-  </div>
-
-  <div class="photo-upload-card" id="expirySeparateWrap" style="display:none;">
-    <div class="photo-title">사용기한 위치 사진</div>
-    <input type="file" accept="image/*" id="expirySeparatePhoto">
-  </div>
-</div>
-
+        <div class="section-title">07. LOT No. 관련사항</div>
+        <div class="input-group">
+          <div class="field"><label>형식</label><input type="text" id="lotFormat" value="당사 기준"></div>
+          <div class="field"><label>날인 위치</label><input type="text" id="lotPosition" value="당사 기준"></div>
+        </div>
+        <div class="input-group">
+          <div class="field"><label>포장일</label><input type="text" id="packingDate" value="당사 기준"></div>
+          <div class="field"><label>Q.R 마크</label><input type="text" id="qrMark" value="없음"></div>
+        </div>
+        <div class="input-group">
+          <div class="field"><label>LOT 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'lot')"></div>
+          <div class="field"><label>사용기한 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'expiry')"></div>
+        </div>
 
         <div class="section-title">08. 부자재 구성 및 연락처</div>
         <p class="hint">필수 입력은 아닙니다. 부자재별 정보를 입력하면 하단 표에 반영됩니다.</p>
@@ -1285,15 +1173,7 @@ function addCustomComponent(){
         ? packs.join('')
         : `<div class="photo-card"><div class="photo-box"><span class="empty">선택된 단상자 항목 없음</span></div><div class="photo-label">단상자</div></div>`;
 
-      
-      const markCards = [];
-      const separate = $('expirySeparateCheck') && $('expirySeparateCheck').checked;
-      markCards.push(photoCard(separate ? 'LOT 위치' : 'LOT / 사용기한 위치', 'lot'));
-      if(separate && imageStore['expiry']){
-        markCards.push(photoCard('사용기한 위치','expiry'));
-      }
-      $('p_markPhotos').innerHTML = markCards.join('');
-
+      $('p_markPhotos').innerHTML=photoCard('LOT 위치','lot')+photoCard('사용기한 위치','expiry');
     }
 
     function renderMaterialTable(){
@@ -1540,20 +1420,5 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 });
 </script>
-
-
-<script>
-function toggleExpirySeparate(){
-  const checked = document.getElementById('expirySeparateCheck')?.checked;
-  const inputWrap = document.getElementById('expirySeparateInputWrap');
-  const inputLabel = document.getElementById('lotMainInputLabel');
-
-  if(inputWrap) inputWrap.style.display = checked ? 'block' : 'none';
-  if(inputLabel) inputLabel.textContent = checked ? 'LOT 위치 사진' : 'LOT / 사용기한 위치 사진';
-
-  if(typeof updatePreview === 'function') updatePreview();
-}
-</script>
-
 </body>
 </html>
