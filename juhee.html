@@ -339,7 +339,7 @@
 
       <div class="card">
         <div class="section-title">실시간 카톤 추천 리스트</div>
-        <div class="light-info">멈춤 방지를 위해 파레트 자동 계산은 제외하고, 단상자 세움 상태의 카톤 내부 입수 기준 상위 3개만 추천합니다.</div>
+        <div class="light-info">멈춤 방지를 위해 파레트 자동 계산은 제외하고, 단상자 세움 상태 기준으로 카톤 내부 입수 상위 3개만 추천합니다.</div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -376,7 +376,7 @@
       <div class="card no-export">
         <div class="section-title">다른 후보지 선택 및 수동 입력</div>
         <div class="light-info">
-          카톤 외곽 사이즈는 고정됩니다. 정방향/90도 회전은 단상자를 눕히는 것이 아니라, 카톤 안에서 가로·세로 배치 방향만 바꿔 보여줍니다.
+          90도 회전은 단상자를 눕히는 것이 아니라, 세워진 상태에서 바닥 기준 가로·세로 방향을 바꾸는 설정입니다. 따라서 카톤 가로/세로 규격도 회전 기준으로 다시 계산됩니다.
         </div>
         <div class="manual-setting-grid">
           <div class="input-item">
@@ -655,16 +655,15 @@ function drawCarton(c){
   el.innerHTML = '';
 
   const isRotated = String(c.orientation || '').includes('90도');
-  const drawCols = isRotated ? c.y : c.x;
-  const drawRows = isRotated ? c.x : c.y;
 
-  // 카톤 외곽 사이즈는 항상 실제 카톤 사이즈 기준으로 고정합니다.
-  // 90도 회전은 단상자의 배치 방향만 바꿔서 보여줍니다.
+  // 90도 회전은 단상자를 눕히는 것이 아니라,
+  // 세워진 상태에서 바닥 기준 가로/세로 방향을 바꾸는 것입니다.
+  // 따라서 높이(h)는 그대로이고, 카톤 가로/세로(size.w/size.l)는 계산값대로 표시합니다.
   el.classList.toggle('rotated-layout', isRotated);
   el.classList.toggle('normal-layout', !isRotated);
   el.style.aspectRatio = `${Math.max(1, c.size.w)} / ${Math.max(1, c.size.l)}`;
-  el.style.gridTemplateColumns = `repeat(${drawCols}, 1fr)`;
-  el.style.gridTemplateRows = `repeat(${drawRows}, 1fr)`;
+  el.style.gridTemplateColumns = `repeat(${c.x}, 1fr)`;
+  el.style.gridTemplateRows = `repeat(${c.y}, 1fr)`;
 
   for(let k = 0; k < c.x * c.y; k++){
     const cell = document.createElement('div');
@@ -958,7 +957,9 @@ function applyManualCarton(){
   // 단상자는 눕히거나 뒤집지 않습니다.
   // 카톤 외곽 사이즈는 정방향 기준으로 고정하고,
   // 90도 회전은 단상자의 가로/세로 배치 기준 표시용으로만 사용합니다.
-  const o = { name: rotateMode === 'rotated' ? '수동 90도 회전' : '수동 정방향', w: d.w, l: d.l, h: d.h };
+  const o = rotateMode === 'rotated'
+    ? { name: '수동 90도 회전', w: d.l, l: d.w, h: d.h }
+    : { name: '수동 정방향', w: d.w, l: d.l, h: d.h };
 
   const qty = x * y * z;
   const size = cartonSize(x, y, z, o, d);
