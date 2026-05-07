@@ -62,7 +62,7 @@
     .input-group.three { grid-template-columns: repeat(3, 1fr); }
     .input-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
     label { font-size: 13px; color: var(--muted); font-weight: 500; }
-    input {
+    input, select {
       width: 100%;
       padding: 12px 14px;
       border-radius: 8px;
@@ -72,7 +72,7 @@
       background: #fff;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
 
     .btn {
       width: 100%;
@@ -221,6 +221,45 @@
       margin-bottom: 16px;
     }
 
+
+    .manual-setting-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .manual-rotate-group {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .manual-rotate-btn {
+      flex: 1;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .manual-rotate-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .manual-apply-row {
+      grid-column: 1 / -1;
+    }
+    @media(max-width:900px){
+      .manual-setting-grid { grid-template-columns: 1fr 1fr; }
+      .manual-apply-row { grid-column: 1 / -1; }
+    }
+
     @media(max-width:900px){
       body { padding: 24px 12px; }
       .grid, .visual-grid { grid-template-columns: 1fr; }
@@ -264,6 +303,7 @@
             <div class="input-item"><label>제품 간 여유 (mm)</label><input type="number" id="gap" value="0" step="0.5"></div>
             <div class="input-item"><label>카톤 외곽 여유 (mm)</label><input type="number" id="margin" value="20" step="0.5"></div>
           </div>
+          <div class="input-item"><label>카톤 내부 단수</label><input type="number" id="cartonLayers" value="1" min="1" step="1"></div>
           <div class="input-group">
             <div class="input-item"><label>최대 가로 제한 (mm)</label><input type="number" id="maxBoxW" value="500" max="500"></div>
             <div class="input-item"><label>최대 세로 제한 (mm)</label><input type="number" id="maxBoxL" value="500" max="500"></div>
@@ -283,7 +323,7 @@
 
       <div class="card">
         <div class="section-title">실시간 카톤 추천 리스트</div>
-        <div class="light-info">멈춤 방지를 위해 파레트 자동 계산은 제외하고, 카톤 내부 입수 기준 상위 3개만 추천합니다.</div>
+        <div class="light-info">멈춤 방지를 위해 파레트 자동 계산은 제외하고, 단상자 세움 상태의 카톤 내부 입수 기준 상위 3개만 추천합니다.</div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -299,7 +339,7 @@
             <tbody id="previewRows"></tbody>
           </table>
         </div>
-        <p class="note">※ 점수 기준: 입수 수량 우선 + 카톤 크기 균형 + 실무용 규격 안정성</p>
+        <p class="note">※ 점수 기준: 입수 수량 우선 + 카톤 크기 균형 + 단상자 세움 상태 기준</p>
       </div>
     </div>
   </div>
@@ -319,10 +359,33 @@
 
       <div class="card no-export">
         <div class="section-title">다른 후보지 선택 및 수동 입력</div>
-        <div class="input-group" style="margin-bottom:20px; max-width: 500px;">
-          <div class="input-item"><label>수동 가로 입수</label><input type="number" id="manualX" placeholder="예: 6"></div>
-          <div class="input-item"><label>수동 세로 입수</label><input type="number" id="manualY" placeholder="예: 7"></div>
-          <button class="btn" type="button" onclick="applyManualCarton()" style="grid-column: span 2;">수동 설정 적용</button>
+        <div class="light-info">
+          단상자는 눕히거나 뒤집지 않고, 세워진 상태 그대로 카톤 안에서 가로/세로 배치 방향만 선택합니다.
+        </div>
+        <div class="manual-setting-grid">
+          <div class="input-item">
+            <label>수동 가로 입수</label>
+            <input type="number" id="manualX" placeholder="예: 6">
+          </div>
+          <div class="input-item">
+            <label>수동 세로 입수</label>
+            <input type="number" id="manualY" placeholder="예: 7">
+          </div>
+          <div class="input-item">
+            <label>카톤 단수</label>
+            <input type="number" id="manualZ" value="1" min="1" step="1">
+          </div>
+          <div class="input-item">
+            <label>단상자 배치 기준</label>
+            <input type="hidden" id="manualRotate" value="normal">
+            <div class="manual-rotate-group">
+              <button class="manual-rotate-btn active" type="button" id="manualRotateNormal" onclick="setManualRotateMode('normal')" title="단상자 가로 방향이 카톤 가로 방향과 동일">정방향</button>
+              <button class="manual-rotate-btn" type="button" id="manualRotateRotated" onclick="setManualRotateMode('rotated')" title="단상자 가로 방향이 카톤 세로 방향과 동일">90도 회전</button>
+            </div>
+          </div>
+          <div class="manual-apply-row">
+            <button class="btn" type="button" onclick="applyManualCarton()">수동 설정 적용</button>
+          </div>
         </div>
         <div class="table-wrap">
           <table>
@@ -443,6 +506,7 @@ function loadCalculatorDataFromUrl(){
   setInputValue('maxBoxL', input.maxBoxL);
   setInputValue('palletOuter', input.palletOuter);
   setInputValue('palletUse', input.palletUse);
+  setInputValue('cartonLayers', input.cartonLayers || data.cartonLayers);
 
   if(input.productSize && (!input.productWidth || !input.productLength || !input.productHeight)){
     const m = String(input.productSize).match(/([0-9.]+)\s*[×xX]\s*([0-9.]+)\s*[×xX]\s*([0-9.]+)/);
@@ -477,7 +541,8 @@ function getData(){
     maxBoxW: Math.min(500, n('maxBoxW') || 500),
     maxBoxL: Math.min(500, n('maxBoxL') || 500),
     palletOuter: n('palletOuter') || 1100,
-    palletUse: n('palletUse') || 1000
+    palletUse: n('palletUse') || 1000,
+    cartonLayers: Math.max(1, i('cartonLayers') || 1)
   };
 }
 
@@ -506,7 +571,7 @@ function makeCandidates(d){
 
     for(let x = 1; x <= maxX; x++){
       for(let y = 1; y <= maxY; y++){
-        const z = 1;
+        const z = Math.max(1, d.cartonLayers || 1);
         const qty = x * y * z;
         if(qty < 1 || qty > maxQtyByWeight) continue;
 
@@ -561,7 +626,7 @@ function renderPreview(){
   $('previewRows').innerHTML = rows.map((r, idx) => `
     <tr class="${idx === 0 ? 'best' : ''}">
       <td>${idx === 0 ? '<span class="badge">BEST</span>' : idx + 1}</td>
-      <td>${r.x}×${r.y}×1단</td>
+      <td>${r.x}×${r.y}×${r.z || 1}단</td>
       <td>${fmt(r.qty)}개</td>
       <td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td>
       <td>${fmt(r.kg, 2)}kg</td>
@@ -805,7 +870,7 @@ function renderResultCandidateRows(){
   $('resultCandidateRows').innerHTML = lastCandidates.map((r, idx) => `
     <tr class="clickable-row ${idx === selectedCandidateIndex ? 'selected-row' : ''}" onclick="selectCandidate(${idx})">
       <td>${idx === selectedCandidateIndex ? '<span class="badge blue">선택</span>' : idx + 1}</td>
-      <td>${r.x}×${r.y}×1단</td>
+      <td>${r.x}×${r.y}×${r.z || 1}단</td>
       <td>${fmt(r.qty)}개</td>
       <td>${fmt(r.size.w)}×${fmt(r.size.l)}×${fmt(r.size.h)}mm</td>
       <td>${fmt(r.kg, 2)}kg</td>
@@ -833,7 +898,9 @@ function applyCandidate(idx){
   $('resBoxSize').textContent = `${fmt(c.size.w)}×${fmt(c.size.l)}×${fmt(c.size.h)}mm`;
   $('resTotalBoxes').textContent = fmt(totalBoxes) + '박스';
   $('resTotalLayers').textContent = '-';
-  $('cartonText').textContent = `입수: ${c.x}×${c.y} (${fmt(c.qty)}개) / 예상 중량 ${fmt(c.kg, 2)}kg / ${c.orientation}`;
+  if($('manualZ')) $('manualZ').value = c.z || d.cartonLayers || 1;
+  if(typeof setManualRotateMode === 'function') setManualRotateMode(String(c.orientation || '').includes('90도') ? 'rotated' : 'normal');
+  $('cartonText').textContent = `입수: ${c.x}×${c.y}×${c.z || 1}단 (${fmt(c.qty)}개) / 예상 중량 ${fmt(c.kg, 2)}kg / ${c.orientation}`;
 
   drawCarton(c);
   drawPalletBase(d);
@@ -844,41 +911,55 @@ function selectCandidate(idx){
   applyCandidate(idx);
 }
 
+
+function setManualRotateMode(mode){
+  const input = $('manualRotate');
+  if(input) input.value = mode;
+  const normalBtn = $('manualRotateNormal');
+  const rotatedBtn = $('manualRotateRotated');
+  if(normalBtn) normalBtn.classList.toggle('active', mode === 'normal');
+  if(rotatedBtn) rotatedBtn.classList.toggle('active', mode === 'rotated');
+}
+
 function applyManualCarton(){
   const d = getData();
   const x = parseInt($('manualX').value, 10) || 0;
   const y = parseInt($('manualY').value, 10) || 0;
-  const z = 1;
+  const z = Math.max(1, parseInt($('manualZ') ? $('manualZ').value : d.cartonLayers, 10) || d.cartonLayers || 1);
+  const rotateMode = $('manualRotate') ? $('manualRotate').value : 'normal';
+
   if(!x || !y){ alert('가로/세로 입수를 입력해주세요.'); return; }
 
-  const orientations = [
-    { name: '수동 정방향', w: d.w, l: d.l, h: d.h },
-    { name: '수동 90도 회전', w: d.l, l: d.w, h: d.h }
-  ];
-  const manualCandidates = [];
+  // 단상자를 눕히거나 뒤집는 것이 아니라,
+  // 세워진 상태에서 카톤 바닥 기준 가로/세로 배치 방향만 바꿉니다.
+  // 정방향: 단상자 가로 = 카톤 가로
+  // 90도 회전: 단상자 가로 = 카톤 세로
+  const o = rotateMode === 'rotated'
+    ? { name: '수동 90도 회전', w: d.l, l: d.w, h: d.h }
+    : { name: '수동 정방향', w: d.w, l: d.l, h: d.h };
 
-  orientations.forEach(o => {
-    const qty = x * y * z;
-    const size = cartonSize(x, y, z, o, d);
-    const kg = (qty * d.g + d.boxWeight) / 1000;
-    if(size.w <= d.maxBoxW && size.l <= d.maxBoxL && kg < d.maxKg){
-      manualCandidates.push({
-        x, y, z, qty, size, kg,
-        orientation: o.name,
-        palletFit: { name: '수동 적재', count: 0, placements: [] },
-        productPerPalletLayer: 0,
-        score: 999999999
-      });
-    }
-  });
+  const qty = x * y * z;
+  const size = cartonSize(x, y, z, o, d);
+  const kg = (qty * d.g + d.boxWeight) / 1000;
 
-  if(!manualCandidates.length){
-    alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 조건을 초과합니다.');
+  if(size.w > d.maxBoxW || size.l > d.maxBoxL || kg >= d.maxKg){
+    alert('입력한 입수 구조는 500×500 이하 / 15kg 미만 조건을 초과합니다. 회전 여부 또는 입수 수량을 확인해주세요.');
     return;
   }
 
-  const manual = manualCandidates.sort((a,b) => b.qty - a.qty)[0];
-  lastCandidates = [manual, ...lastCandidates.filter(c => !(c.x === manual.x && c.y === manual.y && c.size.w === manual.size.w && c.size.l === manual.size.l))].slice(0, 3);
+  const manual = {
+    x, y, z, qty, size, kg,
+    orientation: o.name,
+    palletFit: { name: '수동 적재', count: 0, placements: [] },
+    productPerPalletLayer: 0,
+    score: 999999999
+  };
+
+  lastCandidates = [
+    manual,
+    ...lastCandidates.filter(c => !(c.x === manual.x && c.y === manual.y && c.z === manual.z && c.size.w === manual.size.w && c.size.l === manual.size.l))
+  ].slice(0, 3);
+
   applyCandidate(0);
 }
 
@@ -893,6 +974,7 @@ function calculate(){
   selectedCandidateIndex = 0;
   $('input-page').style.display = 'none';
   $('result-page').style.display = 'block';
+  if($('manualZ')) $('manualZ').value = d.cartonLayers || 1;
   applyCandidate(0);
   window.scrollTo(0,0);
 }
@@ -975,7 +1057,7 @@ function goToSpecSheet(){
         qty: c.qty,
         size: c.size,
         weight: c.kg,
-        text: `입수: ${c.x}×${c.y} (${fmt(c.qty)}개) / 예상 중량 ${fmt(c.kg,2)}kg / ${c.orientation}`
+        text: `입수: ${c.x}×${c.y}×${c.z || 1}단 (${fmt(c.qty)}개) / 예상 중량 ${fmt(c.kg,2)}kg / ${c.orientation}`
       },
       pallet: {
         use: d.palletUse,
@@ -1004,7 +1086,8 @@ function goToSpecSheet(){
       maxBoxW: d.maxBoxW || '',
       maxBoxL: d.maxBoxL || '',
       palletOuter: d.palletOuter || '',
-      palletUse: d.palletUse || ''
+      palletUse: d.palletUse || '',
+      cartonLayers: d.cartonLayers || 1
     },
 
     createdAt: new Date().toISOString()
