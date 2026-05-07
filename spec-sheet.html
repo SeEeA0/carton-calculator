@@ -573,6 +573,9 @@
       }
     }
 
+
+    .layout::after{content:'';display:block;clear:both}
+
 </style>
 </head>
 <body>
@@ -665,9 +668,21 @@
           <div class="field"><label>포장일</label><input type="text" id="packingDate" value="당사 기준"></div>
           <div class="field"><label>Q.R 마크</label><input type="text" id="qrMark" value="없음"></div>
         </div>
-        <div class="input-group">
-          <div class="field"><label>LOT 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'lot')"></div>
-          <div class="field"><label>사용기한 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'expiry')"></div>
+
+        <div class="field" style="margin-top:6px">
+          <label class="pill-check" style="width:max-content">
+            <input type="checkbox" id="expirySeparateCheck" onchange="toggleExpirySeparate()"> 사용기한 별도 위치
+          </label>
+        </div>
+
+        <div class="field">
+          <label id="lotMainInputLabel">LOT / 사용기한 위치 사진</label>
+          <input type="file" accept="image/*" onchange="uploadImage(event,'lot')">
+        </div>
+
+        <div class="field" id="expirySeparateInputWrap" style="display:none">
+          <label>사용기한 위치 사진</label>
+          <input type="file" accept="image/*" onchange="uploadImage(event,'expiry')">
         </div>
 
         <div class="section-title">08. 부자재 구성 및 연락처</div>
@@ -901,7 +916,7 @@
           <button class="btn small danger-light" type="button" onclick="removeComponentItem(this)">삭제</button>
         </div>
         <div class="field">
-          <label>구성품명</label>
+          
           <input class="component-name-input" type="text" id="label_${key}" value="${name || ''}" placeholder="예: 용기 / 펌프 / 패킹">
         </div>
         <div class="image-picker">
@@ -939,7 +954,7 @@
         </div>
 
         <div class="field">
-          <label>항목명</label>
+          
           <input class="component-name-input" type="text" id="label_${key}" value="${name}" placeholder="예: 결합 상태 / 완제품">
         </div>
 
@@ -974,6 +989,24 @@ function addCustomComponent(){
       const key = row.dataset.key;
       if(key && imageStore[key]) delete imageStore[key];
       row.remove();
+      updatePreview();
+    }
+
+
+    function toggleExpirySeparate(){
+      const checked = $('expirySeparateCheck') && $('expirySeparateCheck').checked;
+      const wrap = $('expirySeparateInputWrap');
+      const label = $('lotMainInputLabel');
+
+      if(wrap) wrap.style.display = checked ? 'flex' : 'none';
+      if(label) label.textContent = checked ? 'LOT 위치 사진' : 'LOT / 사용기한 위치 사진';
+
+      if(!checked && imageStore['expiry']){
+        delete imageStore['expiry'];
+        const expiryInput = document.querySelector('#expirySeparateInputWrap input[type="file"]');
+        if(expiryInput) expiryInput.value = '';
+      }
+
       updatePreview();
     }
 
@@ -1173,7 +1206,15 @@ function addCustomComponent(){
         ? packs.join('')
         : `<div class="photo-card"><div class="photo-box"><span class="empty">선택된 단상자 항목 없음</span></div><div class="photo-label">단상자</div></div>`;
 
-      $('p_markPhotos').innerHTML=photoCard('LOT 위치','lot')+photoCard('사용기한 위치','expiry');
+      
+      const markCards = [];
+      const separate = $('expirySeparateCheck') && $('expirySeparateCheck').checked;
+      markCards.push(photoCard(separate ? 'LOT 위치' : 'LOT / 사용기한 위치', 'lot'));
+      if(separate && imageStore['expiry']){
+        markCards.push(photoCard('사용기한 위치','expiry'));
+      }
+      $('p_markPhotos').innerHTML = markCards.join('');
+
     }
 
     function renderMaterialTable(){
@@ -1383,42 +1424,5 @@ function addCustomComponent(){
 
     init();
   </script>
-<script>
-document.addEventListener('DOMContentLoaded', ()=>{
-  const packagingType = document.getElementById('packagingType');
-  const customBoxWrap = document.getElementById('customBoxWrap');
-  const customBoxName = document.getElementById('customBoxName');
-
-  if(packagingType){
-    packagingType.addEventListener('change', ()=>{
-      if(packagingType.value === '기타'){
-        customBoxWrap.style.display = 'block';
-      }else{
-        customBoxWrap.style.display = 'none';
-      }
-
-      updateCustomPackagingTitle();
-    });
-  }
-
-  if(customBoxName){
-    customBoxName.addEventListener('input', updateCustomPackagingTitle);
-  }
-
-  function updateCustomPackagingTitle(){
-    const labelTargets = document.querySelectorAll('.packaging-title-text');
-
-    let title = packagingType?.value || '단상자';
-
-    if(title === '기타'){
-      title = customBoxName.value?.trim() || '기타';
-    }
-
-    labelTargets.forEach(el=>{
-      el.textContent = title;
-    });
-  }
-});
-</script>
 </body>
 </html>
