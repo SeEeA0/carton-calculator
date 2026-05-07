@@ -1036,11 +1036,16 @@ function drawCarton(c){
   const gap = Number(d.gap || 0);
   const margin = Number(d.margin || 0);
 
-  // 실제 mm 기준 동일 스케일 표시
-  // 같은 단상자는 정방향/90도 회전 모두 같은 크기이며 방향만 바뀌어 보입니다.
-  const scale = 0.8;
-  const visualW = Math.max(80, Math.min(400, c.size.w * scale));
-  const visualH = Math.max(80, Math.min(400, c.size.l * scale));
+  
+  // 카톤 자체 크기도 내용물 비율 기준으로 맞춤
+  const contentW = (margin * 2) + (c.x * unitW) + ((c.x - 1) * gap);
+  const contentH = (margin * 2) + (c.y * unitL) + ((c.y - 1) * gap);
+
+  const scale = 1.15;
+
+  const visualW = Math.max(140, Math.min(520, contentW * scale));
+  const visualH = Math.max(140, Math.min(520, contentH * scale));
+
 
   el.style.width = visualW + 'px';
   el.style.height = visualH + 'px';
