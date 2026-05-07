@@ -127,22 +127,6 @@
       border: 1px solid #dadce0;
       border-radius: 2px;
       min-height: 9px;
-      position: relative;
-      overflow: hidden;
-    }
-    .carton-cell::after {
-      content: '';
-      position: absolute;
-      inset: 6%;
-      border-radius: 2px;
-      border: 1px solid rgba(95,99,104,.18);
-      background: rgba(255,255,255,.16);
-    }
-    .carton-viz.rotated-layout .carton-cell::after {
-      inset: 6% 18%;
-    }
-    .carton-viz.normal-layout .carton-cell::after {
-      inset: 6%;
     }
 
     .pallet-stage {
@@ -376,7 +360,7 @@
       <div class="card no-export">
         <div class="section-title">다른 후보지 선택 및 수동 입력</div>
         <div class="light-info">
-          90도 회전은 단상자를 눕히는 것이 아니라, 세워진 상태에서 바닥 기준 가로·세로 방향을 바꾸는 설정입니다. 따라서 카톤 가로/세로 규격도 회전 기준으로 다시 계산됩니다.
+          90도 회전은 단상자를 눕히는 것이 아니라, 세워진 상태에서 바닥 기준 가로·세로 방향을 바꾸는 설정입니다. 화면 레이아웃은 실제 mm 기준 동일 스케일로 표시됩니다.
         </div>
         <div class="manual-setting-grid">
           <div class="input-item">
@@ -654,14 +638,16 @@ function drawCarton(c){
   const el = $('cartonViz');
   el.innerHTML = '';
 
-  const isRotated = String(c.orientation || '').includes('90도');
+  // 실제 mm 기준으로 동일 스케일 표시
+  // 500mm 제한 기준 약 400px로 표시하여, 정방향/90도 회전 시 단상자 크기가 달라 보이지 않게 합니다.
+  const scale = 0.8;
+  const visualW = Math.max(80, Math.min(400, c.size.w * scale));
+  const visualH = Math.max(80, Math.min(400, c.size.l * scale));
 
-  // 90도 회전은 단상자를 눕히는 것이 아니라,
-  // 세워진 상태에서 바닥 기준 가로/세로 방향을 바꾸는 것입니다.
-  // 따라서 높이(h)는 그대로이고, 카톤 가로/세로(size.w/size.l)는 계산값대로 표시합니다.
-  el.classList.toggle('rotated-layout', isRotated);
-  el.classList.toggle('normal-layout', !isRotated);
-  el.style.aspectRatio = `${Math.max(1, c.size.w)} / ${Math.max(1, c.size.l)}`;
+  el.style.width = visualW + 'px';
+  el.style.height = visualH + 'px';
+  el.style.maxWidth = '100%';
+  el.style.aspectRatio = 'auto';
   el.style.gridTemplateColumns = `repeat(${c.x}, 1fr)`;
   el.style.gridTemplateRows = `repeat(${c.y}, 1fr)`;
 
