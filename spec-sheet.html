@@ -591,22 +591,8 @@
         <button class="btn ghost" type="button" onclick="addCustomComponent()" style="margin-top:12px">+ 구성품 추가</button>
 
         <div class="section-title">04. 결합 / 완제품</div>
-        <div class="component-list">
-          <div class="component-item">
-            <div class="component-head"><b>결합 상태</b><span class="required">1장</span></div>
-            <div class="image-picker">
-              <div class="thumb" id="thumb_assembly">사진</div>
-              <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'assembly')">
-            </div>
-          </div>
-          <div class="component-item">
-            <div class="component-head"><b>완제품</b><span class="required">1장</span></div>
-            <div class="image-picker">
-              <div class="thumb" id="thumb_finished">사진</div>
-              <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'finished')">
-            </div>
-          </div>
-        </div>
+        <div id="assemblyFields" class="component-list"></div>
+        <button class="btn ghost" type="button" onclick="addAssemblyItem()" style="margin-top:12px">+ 항목 추가</button>
 
         <div class="section-title">05. 단상자 옵션</div>
         <div class="check-list">
@@ -804,6 +790,7 @@
     const imageStore = {};
     let materialCount = 0;
     let componentCount = 0;
+    let assemblyCount = 0;
 
     const TYPE_CONFIG = {
       dropper:{label:'스포이드 용기',components:['용기','스포이드','패킹'],extra:[]},
@@ -825,6 +812,7 @@
       updateDay();
       renderTypeFields();
       renderPackagingFields();
+      renderAssemblyFields();
       addMaterialRow();
       bindInputs();
       loadLogiCalcData(true);
@@ -889,7 +877,58 @@
       updatePreview();
     }
 
-    function addCustomComponent(){
+    
+    function renderAssemblyFields(){
+      const wrap = $('assemblyFields');
+      wrap.innerHTML = '';
+      assemblyCount = 0;
+
+      addAssemblyItem('결합 상태');
+      addAssemblyItem('완제품');
+    }
+
+    function addAssemblyItem(name='새 항목'){
+      assemblyCount++;
+      const key = `assembly_dynamic_${assemblyCount}`;
+
+      const wrap = $('assemblyFields');
+      const item = document.createElement('div');
+      item.className = 'component-item assembly-photo-row';
+      item.dataset.key = key;
+
+      item.innerHTML = `
+        <div class="component-head">
+          <b>결합 / 완제품</b>
+          <button class="btn small danger-light" type="button" onclick="removeAssemblyItem(this)">삭제</button>
+        </div>
+
+        <div class="field">
+          <label>항목명</label>
+          <input class="component-name-input" type="text" id="label_${key}" value="${name}" placeholder="예: 결합 상태 / 완제품">
+        </div>
+
+        <div class="image-picker">
+          <div class="thumb" id="thumb_${key}">사진</div>
+          <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')">
+        </div>
+      `;
+
+      wrap.appendChild(item);
+      updatePreview();
+    }
+
+    function removeAssemblyItem(btn){
+      const row = btn.closest('.assembly-photo-row');
+      if(!row) return;
+
+      const key = row.dataset.key;
+      if(key && imageStore[key]) delete imageStore[key];
+
+      row.remove();
+      updatePreview();
+    }
+
+function addCustomComponent(){
       addComponentItem('새 구성품');
     }
 
@@ -1073,7 +1112,17 @@
           }).join('')
         : `<div class="photo-card"><div class="photo-box"><span class="empty">구성품 없음</span></div><div class="photo-label">구성품</div></div>`;
 
-      $('p_assemblyPhotos').innerHTML=photoCard('결합 상태','assembly')+photoCard('완제품','finished');
+      
+      const assemblyRows = [...document.querySelectorAll('.assembly-photo-row')];
+      $('p_assemblyPhotos').innerHTML = assemblyRows.length
+        ? assemblyRows.map(row=>{
+            const key = row.dataset.key;
+            const labelEl = $(`label_${key}`);
+            const label = labelEl ? labelEl.value.trim() || '항목' : '항목';
+            return photoCard(label, key);
+          }).join('')
+        : `<div class="photo-card"><div class="photo-box"><span class="empty">항목 없음</span></div><div class="photo-label">결합 / 완제품</div></div>`;
+
 
       const packs=[];
       if($('pack_box').checked)packs.push(photoCard('단상자','pack_box'));
