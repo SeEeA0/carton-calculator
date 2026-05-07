@@ -656,19 +656,50 @@
           <div class="field"><label>총 적재 단수</label><input type="text" id="totalLayers" placeholder="시뮬레이션 불러오기 가능"></div>
         </div>
 
-        <div class="section-title">07. LOT No. 관련사항</div>
-        <div class="input-group">
-          <div class="field"><label>형식</label><input type="text" id="lotFormat" value="당사 기준"></div>
-          <div class="field"><label>날인 위치</label><input type="text" id="lotPosition" value="당사 기준"></div>
-        </div>
-        <div class="input-group">
-          <div class="field"><label>포장일</label><input type="text" id="packingDate" value="당사 기준"></div>
-          <div class="field"><label>Q.R 마크</label><input type="text" id="qrMark" value="없음"></div>
-        </div>
-        <div class="input-group">
-          <div class="field"><label>LOT 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'lot')"></div>
-          <div class="field"><label>사용기한 위치 사진</label><input type="file" accept="image/*" onchange="uploadImage(event,'expiry')"></div>
-        </div>
+        <div class="section-title">
+07. LOT No. 관련사항
+
+<div class="lot-grid">
+  <div class="form-group">
+    <label>형식</label>
+    <input type="text" value="당사 기준">
+  </div>
+
+  <div class="form-group">
+    <label>날인 위치</label>
+    <input type="text" value="당사 기준">
+  </div>
+
+  <div class="form-group">
+    <label>포장일</label>
+    <input type="text" value="당사 기준">
+  </div>
+
+  <div class="form-group">
+    <label>Q.R 마크</label>
+    <input type="text" value="없음">
+  </div>
+</div>
+
+<div style="margin-top:18px;">
+  <label style="display:flex;align-items:center;gap:8px;font-weight:700;">
+    <input type="checkbox" id="expirySeparateCheck" onchange="toggleExpirySeparate()">
+    사용기한 별도 위치
+  </label>
+</div>
+
+<div class="lot-photo-wrap" style="margin-top:18px;">
+  <div class="photo-upload-card">
+    <div class="photo-title" id="lotMainTitle">LOT / 사용기한 위치 사진</div>
+    <input type="file" accept="image/*" id="lotMainPhoto">
+  </div>
+
+  <div class="photo-upload-card" id="expirySeparateWrap" style="display:none;">
+    <div class="photo-title">사용기한 위치 사진</div>
+    <input type="file" accept="image/*" id="expirySeparatePhoto">
+  </div>
+</div>
+
 
         <div class="section-title">08. 부자재 구성 및 연락처</div>
         <p class="hint">필수 입력은 아닙니다. 부자재별 정보를 입력하면 하단 표에 반영됩니다.</p>
@@ -1420,5 +1451,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 });
 </script>
+
+<script>
+function toggleExpirySeparate(){
+  const checked = document.getElementById('expirySeparateCheck')?.checked;
+  const wrap = document.getElementById('expirySeparateWrap');
+  const title = document.getElementById('lotMainTitle');
+
+  if(checked){
+    wrap.style.display = 'block';
+    title.textContent = 'LOT 위치 사진';
+  }else{
+    wrap.style.display = 'none';
+    title.textContent = 'LOT / 사용기한 위치 사진';
+  }
+}
+</script>
+
 </body>
 </html>
