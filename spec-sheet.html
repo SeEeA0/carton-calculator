@@ -172,6 +172,12 @@
     .thumb img{width:100%;height:100%;object-fit:cover;display:block}
     .file-input{font-size:11px;padding:9px;background:#fff}
 
+    .component-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+    .btn.small{padding:7px 10px;font-size:11px;border-radius:9px;width:auto}
+    .btn.danger-light{background:#fff;color:var(--danger);border:1px solid #fecaca}
+    .component-name-input{font-weight:800;background:#fff}
+
+
     .paper-wrap{display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding-bottom:30px}
     .paper{
       width:210mm;
@@ -578,10 +584,11 @@
             <option value="mask">마스크팩</option>
           </select>
         </div>
-        <p class="hint">선택한 타입에 맞춰 필요한 구성품 사진 업로드 칸이 자동 생성됩니다. 구성품 사진은 항목별 1장 기준입니다.</p>
+        <p class="hint">구성품 이름은 직접 수정할 수 있으며, 필요 시 항목을 추가하거나 삭제할 수 있습니다.</p>
 
         <div class="section-title">03. 구성품 사진</div>
         <div id="typeFields" class="component-list"></div>
+        <button class="btn ghost" type="button" onclick="addCustomComponent()" style="margin-top:12px">+ 구성품 추가</button>
 
         <div class="section-title">04. 결합 / 완제품</div>
         <div class="component-list">
@@ -601,7 +608,7 @@
           </div>
         </div>
 
-        <div class="section-title">05. 패키징 옵션</div>
+        <div class="section-title">05. 단상자 옵션</div>
         <div class="check-list">
           <label class="pill-check"><input type="checkbox" id="pack_box" onchange="renderPackagingFields()"> 단상자</label>
           <label class="pill-check"><input type="checkbox" id="pack_tray" onchange="renderPackagingFields()"> 선대</label>
@@ -686,7 +693,7 @@
                 <div class="photo-grid single" id="p_assemblyPhotos"></div>
               </div>
               <div class="print-section">
-                <div class="print-section-title">패키징 사진</div>
+                <div class="print-section-title">단상자 사진</div>
                 <div class="photo-grid" id="p_packagingPhotos"></div>
               </div>
             </div>
@@ -796,6 +803,7 @@
     const $ = id => document.getElementById(id);
     const imageStore = {};
     let materialCount = 0;
+    let componentCount = 0;
 
     const TYPE_CONFIG = {
       dropper:{label:'스포이드 용기',components:['용기','스포이드','패킹'],extra:[]},
@@ -842,26 +850,55 @@
       const cfg=TYPE_CONFIG[type];
       const wrap=$('typeFields');
       wrap.innerHTML='';
-      cfg.components.forEach((name,idx)=>{
-        const key=`component_${idx}`;
-        const item=document.createElement('div');
-        item.className='component-item';
-        item.innerHTML=`
-          <div class="component-head"><b>${name}</b><span class="required">사진 1장</span></div>
-          <div class="image-picker">
-            <div class="thumb" id="thumb_${key}">사진</div>
-            <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')">
-          </div>
-          <input type="hidden" id="label_${key}" value="${name}">
-        `;
-        wrap.appendChild(item);
-      });
+      componentCount = 0;
+
+      cfg.components.forEach(name=>addComponentItem(name));
+
       cfg.extra.forEach(field=>{
         const div=document.createElement('div');
         div.className='field';
         div.innerHTML=`<label>${field.label}</label><input type="text" id="${field.id}" placeholder="${field.placeholder}">`;
         wrap.appendChild(div);
       });
+      updatePreview();
+    }
+
+    function addComponentItem(name){
+      componentCount++;
+      const idx = componentCount;
+      const key = `component_${idx}`;
+      const wrap = $('typeFields');
+      const item = document.createElement('div');
+      item.className = 'component-item component-photo-row';
+      item.dataset.key = key;
+      item.innerHTML = `
+        <div class="component-head">
+          <b>구성품</b>
+          <button class="btn small danger-light" type="button" onclick="removeComponentItem(this)">삭제</button>
+        </div>
+        <div class="field">
+          <label>구성품명</label>
+          <input class="component-name-input" type="text" id="label_${key}" value="${name || ''}" placeholder="예: 용기 / 펌프 / 패킹">
+        </div>
+        <div class="image-picker">
+          <div class="thumb" id="thumb_${key}">사진</div>
+          <input class="file-input" type="file" accept="image/*" onchange="uploadImage(event,'${key}')">
+        </div>
+      `;
+      wrap.appendChild(item);
+      updatePreview();
+    }
+
+    function addCustomComponent(){
+      addComponentItem('새 구성품');
+    }
+
+    function removeComponentItem(btn){
+      const row = btn.closest('.component-photo-row');
+      if(!row) return;
+      const key = row.dataset.key;
+      if(key && imageStore[key]) delete imageStore[key];
+      row.remove();
       updatePreview();
     }
 
@@ -1026,16 +1063,26 @@
     }
 
     function renderPrintPhotos(){
-      const type=$('productType').value;
-      const cfg=TYPE_CONFIG[type];
-      $('p_componentPhotos').innerHTML=cfg.components.map((name,idx)=>photoCard(name,`component_${idx}`)).join('');
+      const componentRows = [...document.querySelectorAll('.component-photo-row')];
+      $('p_componentPhotos').innerHTML = componentRows.length
+        ? componentRows.map(row=>{
+            const key = row.dataset.key;
+            const labelEl = $(`label_${key}`);
+            const label = labelEl ? labelEl.value.trim() || '구성품' : '구성품';
+            return photoCard(label, key);
+          }).join('')
+        : `<div class="photo-card"><div class="photo-box"><span class="empty">구성품 없음</span></div><div class="photo-label">구성품</div></div>`;
+
       $('p_assemblyPhotos').innerHTML=photoCard('결합 상태','assembly')+photoCard('완제품','finished');
 
       const packs=[];
       if($('pack_box').checked)packs.push(photoCard('단상자','pack_box'));
       if($('pack_tray').checked)packs.push(photoCard('선대','pack_tray'));
       if($('pack_label').checked)packs.push(photoCard('개봉방지라벨','pack_security'));
-      $('p_packagingPhotos').innerHTML=packs.length?packs.join(''):`<div class="photo-card"><div class="photo-box"><span class="empty">선택된 패키징 항목 없음</span></div><div class="photo-label">패키징</div></div>`;
+      $('p_packagingPhotos').innerHTML=packs.length
+        ? packs.join('')
+        : `<div class="photo-card"><div class="photo-box"><span class="empty">선택된 단상자 항목 없음</span></div><div class="photo-label">단상자</div></div>`;
+
       $('p_markPhotos').innerHTML=photoCard('LOT 위치','lot')+photoCard('사용기한 위치','expiry');
     }
 
