@@ -127,6 +127,22 @@
       border: 1px solid #dadce0;
       border-radius: 2px;
       min-height: 9px;
+      position: relative;
+      overflow: hidden;
+    }
+    .carton-cell::after {
+      content: '';
+      position: absolute;
+      inset: 6%;
+      border-radius: 2px;
+      border: 1px solid rgba(95,99,104,.18);
+      background: rgba(255,255,255,.16);
+    }
+    .carton-viz.rotated-layout .carton-cell::after {
+      inset: 6% 18%;
+    }
+    .carton-viz.normal-layout .carton-cell::after {
+      inset: 6%;
     }
 
     .pallet-stage {
@@ -360,7 +376,7 @@
       <div class="card no-export">
         <div class="section-title">다른 후보지 선택 및 수동 입력</div>
         <div class="light-info">
-          단상자는 눕히거나 뒤집지 않고, 세워진 상태 그대로 카톤 안에서 가로/세로 배치 방향만 선택합니다.
+          카톤 외곽 사이즈는 고정됩니다. 정방향/90도 회전은 단상자를 눕히는 것이 아니라, 카톤 안에서 가로·세로 배치 방향만 바꿔 보여줍니다.
         </div>
         <div class="manual-setting-grid">
           <div class="input-item">
@@ -559,8 +575,7 @@ function makeCandidates(d){
 
   const maxQtyByWeight = Math.max(1, Math.floor(((d.maxKg * 1000) - d.boxWeight - 1) / d.g));
   const orientations = [
-    { name: '정방향', w: d.w, l: d.l, h: d.h },
-    { name: '90도 회전', w: d.l, l: d.w, h: d.h }
+    { name: '정방향', w: d.w, l: d.l, h: d.h }
   ];
 
   const list = [];
@@ -638,9 +653,19 @@ function renderPreview(){
 function drawCarton(c){
   const el = $('cartonViz');
   el.innerHTML = '';
+
+  const isRotated = String(c.orientation || '').includes('90도');
+  const drawCols = isRotated ? c.y : c.x;
+  const drawRows = isRotated ? c.x : c.y;
+
+  // 카톤 외곽 사이즈는 항상 실제 카톤 사이즈 기준으로 고정합니다.
+  // 90도 회전은 단상자의 배치 방향만 바꿔서 보여줍니다.
+  el.classList.toggle('rotated-layout', isRotated);
+  el.classList.toggle('normal-layout', !isRotated);
   el.style.aspectRatio = `${Math.max(1, c.size.w)} / ${Math.max(1, c.size.l)}`;
-  el.style.gridTemplateColumns = `repeat(${c.x}, 1fr)`;
-  el.style.gridTemplateRows = `repeat(${c.y}, 1fr)`;
+  el.style.gridTemplateColumns = `repeat(${drawCols}, 1fr)`;
+  el.style.gridTemplateRows = `repeat(${drawRows}, 1fr)`;
+
   for(let k = 0; k < c.x * c.y; k++){
     const cell = document.createElement('div');
     cell.className = 'carton-cell';
@@ -930,13 +955,10 @@ function applyManualCarton(){
 
   if(!x || !y){ alert('가로/세로 입수를 입력해주세요.'); return; }
 
-  // 단상자를 눕히거나 뒤집는 것이 아니라,
-  // 세워진 상태에서 카톤 바닥 기준 가로/세로 배치 방향만 바꿉니다.
-  // 정방향: 단상자 가로 = 카톤 가로
-  // 90도 회전: 단상자 가로 = 카톤 세로
-  const o = rotateMode === 'rotated'
-    ? { name: '수동 90도 회전', w: d.l, l: d.w, h: d.h }
-    : { name: '수동 정방향', w: d.w, l: d.l, h: d.h };
+  // 단상자는 눕히거나 뒤집지 않습니다.
+  // 카톤 외곽 사이즈는 정방향 기준으로 고정하고,
+  // 90도 회전은 단상자의 가로/세로 배치 기준 표시용으로만 사용합니다.
+  const o = { name: rotateMode === 'rotated' ? '수동 90도 회전' : '수동 정방향', w: d.w, l: d.l, h: d.h };
 
   const qty = x * y * z;
   const size = cartonSize(x, y, z, o, d);
@@ -957,7 +979,7 @@ function applyManualCarton(){
 
   lastCandidates = [
     manual,
-    ...lastCandidates.filter(c => !(c.x === manual.x && c.y === manual.y && c.z === manual.z && c.size.w === manual.size.w && c.size.l === manual.size.l))
+    ...lastCandidates.filter(c => !(c.x === manual.x && c.y === manual.y && c.z === manual.z && c.size.w === manual.size.w && c.size.l === manual.size.l && c.orientation === manual.orientation))
   ].slice(0, 3);
 
   applyCandidate(0);
