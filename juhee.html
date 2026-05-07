@@ -390,6 +390,156 @@
       color: var(--accent);
     }
 
+
+    .editor-toolbar .reset-btn {
+      min-width: 92px !important;
+      width: auto !important;
+      white-space: nowrap !important;
+      writing-mode: horizontal-tb !important;
+      word-break: keep-all !important;
+      line-height: 1.2 !important;
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+    }
+
+
+    .editor-toolbar{
+      display:flex !important;
+      justify-content:center;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .editor-sub-toolbar{
+      display:flex !important;
+      justify-content:center;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top:0;
+      margin-bottom:16px;
+    }
+
+    .editor-toolbar .mini-btn,
+    .editor-sub-toolbar .mini-btn{
+      min-width:140px;
+      height:56px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+      line-height:1;
+    }
+
+    .shortcut-help{
+      width:56px;
+      height:56px;
+      flex:0 0 56px;
+    }
+
+    #centerSnapBtn{
+      min-width:180px;
+    }
+
+    
+    .editor-toolbar,
+    .editor-sub-toolbar{
+      display:flex !important;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+      flex-wrap:nowrap !important;
+      overflow-x:auto;
+      padding-bottom:4px;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+
+    .editor-toolbar::-webkit-scrollbar,
+    .editor-sub-toolbar::-webkit-scrollbar{
+      display:none;
+    }
+
+    .editor-toolbar .mini-btn,
+    .editor-sub-toolbar .mini-btn{
+      min-width:auto !important;
+      width:auto !important;
+      height:44px !important;
+      padding:0 18px !important;
+      border-radius:24px;
+      font-size:14px;
+      line-height:1;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+
+    .shortcut-help{
+      width:44px !important;
+      height:44px !important;
+      flex:0 0 44px !important;
+    }
+
+    #centerSnapBtn{
+      min-width:auto !important;
+      padding:0 20px !important;
+    }
+
+    
+    .editor-toolbar{
+      display:flex !important;
+      flex-wrap:nowrap !important;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      width:100%;
+      padding-bottom:6px;
+      scrollbar-width:none;
+    }
+
+    .editor-toolbar::-webkit-scrollbar{
+      display:none;
+    }
+
+    .editor-toolbar > *{
+      flex:0 0 auto;
+    }
+
+@media(max-width:900px){
+      .editor-toolbar,
+      .editor-sub-toolbar{
+        justify-content:flex-start;
+      }
+
+      .editor-toolbar .mini-btn,
+      .editor-sub-toolbar .mini-btn{
+        height:42px !important;
+        padding:0 16px !important;
+        font-size:13px;
+      }
+
+      .shortcut-help{
+        width:42px !important;
+        height:42px !important;
+      }
+    }
+
+@media(max-width:900px){
+      .editor-toolbar,
+      .editor-sub-toolbar{
+        gap:10px;
+      }
+
+      .editor-toolbar .mini-btn,
+      .editor-sub-toolbar .mini-btn{
+        min-width:120px;
+        height:52px;
+      }
+    }
+
 @media(max-width:900px){
       .editor-toolbar {
         grid-template-columns: repeat(2, 1fr);
@@ -617,10 +767,8 @@
           <div class="visual-title">파레트 수동 적재 레이아웃</div>
           <div class="editor-toolbar">
             <button class="mini-btn active" type="button" id="palletEditBtn" onclick="togglePalletEditMode()">수동 편집 모드</button>
-            <button class="mini-btn" type="button" onclick="autoFillPalletSimple()">가볍게 자동 채우기</button>
-            <button class="mini-btn" type="button" onclick="rotateSelectedPalletBox()">회전</button>
-            <button class="mini-btn" type="button" onclick="addPalletBox()">추가</button>
-            <button class="mini-btn danger" type="button" onclick="removeSelectedPalletBox()">삭제</button>
+            <button class="mini-btn" type="button" onclick="autoFillPalletSimple()">자동 채우기</button>
+
             <button class="mini-btn danger reset-btn" type="button" onclick="resetPalletBoxes()">초기화</button>
 <div class="shortcut-help">
   ?
@@ -637,12 +785,7 @@
 </div>
 
           </div>
-          <div class="editor-sub-toolbar">
-            <button class="mini-btn small" type="button" onclick="selectAllPalletBoxes()">전체선택</button>
-            <button class="mini-btn small history-btn" type="button" onclick="undoPalletAction()" title="되돌리기 Ctrl/Command+Z" aria-label="되돌리기">↶</button>
-            <button class="mini-btn small history-btn" type="button" onclick="redoPalletAction()" title="다시 실행 Ctrl/Command+Y 또는 Ctrl/Command+Shift+Z" aria-label="다시 실행">↷</button>
-            <button class="mini-btn small toggle-on" type="button" id="centerSnapBtn" onclick="toggleCenterSnap()">중앙 스냅 ON</button>
-          </div>
+          
           <div class="pallet-stage"><div id="palletViz" class="pallet-inner"></div></div>
           <p class="note" id="palletText" style="text-align:center; margin-top:20px; font-weight: 500; color: var(--accent);"></p>
           <p class="note" id="manualPalletText" style="text-align:center;"></p>
@@ -1160,7 +1303,7 @@ function updateManualPalletCount(){
   $('resTotalLayers').textContent = count ? fmt(totalLayers) + '단' : '-';
   $('manualPalletText').textContent = count
     ? `현재 배치 기준: 1단 ${fmt(count)}박스 · 총 ${fmt(totalLayers)}단 분량${selected ? ` · 선택 ${selected}개` : ''}${bad ? ` · 겹침 ${bad}개 확인 필요` : ''}`
-    : '파레트 박스를 + 버튼으로 추가하거나 “가볍게 자동 채우기”를 눌러주세요.';
+    : '파레트 박스를 + 버튼으로 추가하거나 “자동 채우기”를 눌러주세요.';
   $('palletText').textContent = count ? `1단 기준: ${fmt(count)}박스 (수동 배치)` : '파레트 수동 배치 대기';
 }
 
