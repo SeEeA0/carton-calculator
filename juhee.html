@@ -255,9 +255,121 @@
     .manual-apply-row {
       grid-column: 1 / -1;
     }
+
+    .pallet-inner.snap-x::before,
+    .pallet-inner.snap-y::after {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .pallet-inner.snap-x::before {
+      left: 50%;
+      top: 0;
+      width: 0;
+      height: 100%;
+      border-left: 2px solid var(--accent);
+      opacity: .75;
+    }
+    .pallet-inner.snap-y::after {
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 0;
+      border-top: 2px solid var(--accent);
+      opacity: .75;
+    }
+    .editor-sub-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: -6px 0 16px;
+    }
+    .mini-btn.small {
+      padding: 7px 12px;
+      font-size: 11px;
+    }
+
+    .history-btn {
+      min-width: 42px;
+      height: 34px;
+      padding: 0 12px;
+      font-size: 22px;
+      line-height: 1;
+      color: #5f6368;
+      background: #fff;
+    }
+    .history-btn:hover {
+      color: var(--accent);
+      background: var(--hover);
+    }
+
+    .mini-btn.toggle-on {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
     @media(max-width:900px){
       .manual-setting-grid { grid-template-columns: 1fr 1fr; }
       .manual-apply-row { grid-column: 1 / -1; }
+    }
+
+
+    .pallet-inner.snap-x::before,
+    .pallet-inner.snap-y::after {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .pallet-inner.snap-x::before {
+      left: 50%;
+      top: 0;
+      width: 0;
+      height: 100%;
+      border-left: 2px solid var(--accent);
+      opacity: .75;
+    }
+    .pallet-inner.snap-y::after {
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 0;
+      border-top: 2px solid var(--accent);
+      opacity: .75;
+    }
+    .editor-sub-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: -6px 0 16px;
+    }
+    .mini-btn.small {
+      padding: 7px 12px;
+      font-size: 11px;
+    }
+
+    .history-btn {
+      min-width: 42px;
+      height: 34px;
+      padding: 0 12px;
+      font-size: 22px;
+      line-height: 1;
+      color: #5f6368;
+      background: #fff;
+    }
+    .history-btn:hover {
+      color: var(--accent);
+      background: var(--hover);
+    }
+
+    .mini-btn.toggle-on {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
     }
 
     @media(max-width:900px){
@@ -360,7 +472,7 @@
       <div class="card no-export">
         <div class="section-title">다른 후보지 선택 및 수동 입력</div>
         <div class="light-info">
-          90도 회전은 단상자를 눕히는 것이 아니라, 세워진 상태에서 바닥 기준 가로·세로 방향을 바꾸는 설정입니다. 화면 레이아웃은 실제 mm 기준 동일 스케일로 표시됩니다.
+          ※ 수동 설정 시 가로·세로 입수와 단수를 직접 지정할 수 있으며, 정방향/90도 회전은 단상자를 눕히는 것이 아닌 카톤 내부 배치 방향만 변경됩니다.
         </div>
         <div class="manual-setting-grid">
           <div class="input-item">
@@ -420,6 +532,12 @@
             <button class="mini-btn danger" type="button" onclick="removeSelectedPalletBox()">삭제 (-)</button>
             <button class="mini-btn" type="button" onclick="resetPalletBoxes()">초기화</button>
           </div>
+          <div class="editor-sub-toolbar">
+            <button class="mini-btn small" type="button" onclick="selectAllPalletBoxes()">전체선택</button>
+            <button class="mini-btn small history-btn" type="button" onclick="undoPalletAction()" title="되돌리기 Ctrl/Command+Z" aria-label="되돌리기">↶</button>
+            <button class="mini-btn small history-btn" type="button" onclick="redoPalletAction()" title="다시 실행 Ctrl/Command+Y 또는 Ctrl/Command+Shift+Z" aria-label="다시 실행">↷</button>
+            <button class="mini-btn small toggle-on" type="button" id="centerSnapBtn" onclick="toggleCenterSnap()">중앙 스냅 ON</button>
+          </div>
           <div class="pallet-stage"><div id="palletViz" class="pallet-inner"></div></div>
           <p class="note" id="palletText" style="text-align:center; margin-top:20px; font-weight: 500; color: var(--accent);"></p>
           <p class="note" id="manualPalletText" style="text-align:center;"></p>
@@ -441,6 +559,11 @@ let lastCandidates = [];
 let selectedCandidateIndex = 0;
 let palletEditMode = true;
 let selectedPalletBox = null;
+let selectedPalletBoxes = [];
+let copiedPalletBoxes = [];
+let centerSnapEnabled = true;
+let palletHistory = [];
+let palletRedoHistory = [];
 let previewTimer = null;
 
 const $ = id => document.getElementById(id);
@@ -675,10 +798,52 @@ function togglePalletEditMode(){
   $('palletEditBtn').textContent = palletEditMode ? '수동 편집 모드' : '보기 모드';
 }
 
-function selectPalletBox(box){
-  document.querySelectorAll('#palletViz .pallet-box').forEach(b => b.classList.remove('selected'));
+
+function getPalletBoxes(){
+  return [...document.querySelectorAll('#palletViz .pallet-box')];
+}
+
+function clearPalletSelection(){
+  selectedPalletBoxes.forEach(b => b.classList.remove('selected'));
+  selectedPalletBoxes = [];
+  selectedPalletBox = null;
+}
+
+function selectPalletBox(box, additive = false){
+  if(!box){
+    clearPalletSelection();
+    return;
+  }
+
+  if(!additive){
+    clearPalletSelection();
+  }
+
+  const exists = selectedPalletBoxes.includes(box);
+
+  if(additive && exists){
+    box.classList.remove('selected');
+    selectedPalletBoxes = selectedPalletBoxes.filter(b => b !== box);
+    selectedPalletBox = selectedPalletBoxes[selectedPalletBoxes.length - 1] || null;
+    return;
+  }
+
+  if(!exists){
+    box.classList.add('selected');
+    selectedPalletBoxes.push(box);
+  }
+
   selectedPalletBox = box;
-  if(box) box.classList.add('selected');
+}
+
+function selectAllPalletBoxes(){
+  if(!palletEditMode) return;
+  clearPalletSelection();
+  getPalletBoxes().forEach(box => {
+    box.classList.add('selected');
+    selectedPalletBoxes.push(box);
+  });
+  selectedPalletBox = selectedPalletBoxes[selectedPalletBoxes.length - 1] || null;
 }
 
 function createPalletBox(leftPct, topPct, widthPct, heightPct, rotated){
@@ -691,72 +856,161 @@ function createPalletBox(leftPct, topPct, widthPct, heightPct, rotated){
   unit.style.height = heightPct + '%';
   unit.dataset.w = widthPct;
   unit.dataset.h = heightPct;
-  unit.addEventListener('click', e => { if(palletEditMode){ e.stopPropagation(); selectPalletBox(unit); } });
+  unit.addEventListener('click', e => {
+    if(palletEditMode){
+      e.stopPropagation();
+      selectPalletBox(unit, e.shiftKey);
+    }
+  });
   unit.addEventListener('mousedown', startDragPalletBox);
   unit.addEventListener('touchstart', startDragPalletBox, { passive: false });
   el.appendChild(unit);
   return unit;
 }
 
+function getSelectedBoxesForAction(targetBox){
+  if(selectedPalletBoxes.length && selectedPalletBoxes.includes(targetBox)){
+    return selectedPalletBoxes;
+  }
+  return targetBox ? [targetBox] : selectedPalletBoxes;
+}
+
+function getGroupBoundsPx(boxes, areaRect){
+  if(!boxes.length) return null;
+  const rects = boxes.map(b => {
+    const r = b.getBoundingClientRect();
+    return {
+      el: b,
+      x: r.left - areaRect.left,
+      y: r.top - areaRect.top,
+      w: r.width,
+      h: r.height
+    };
+  });
+  const minX = Math.min(...rects.map(r => r.x));
+  const minY = Math.min(...rects.map(r => r.y));
+  const maxX = Math.max(...rects.map(r => r.x + r.w));
+  const maxY = Math.max(...rects.map(r => r.y + r.h));
+  return { rects, minX, minY, maxX, maxY, w: maxX - minX, h: maxY - minY };
+}
+
 function startDragPalletBox(e){
   if(!palletEditMode) return;
   e.preventDefault();
-  const box = e.currentTarget;
-  selectPalletBox(box);
+
+  const targetBox = e.currentTarget;
+  if(!selectedPalletBoxes.includes(targetBox)){
+    selectPalletBox(targetBox, e.shiftKey);
+  }
+
   const area = $('palletViz');
   const rect = area.getBoundingClientRect();
-  const boxRect = box.getBoundingClientRect();
+  const movingBoxes = getSelectedBoxesForAction(targetBox);
   const startX = (e.touches ? e.touches[0].clientX : e.clientX);
   const startY = (e.touches ? e.touches[0].clientY : e.clientY);
-  const startLeft = boxRect.left - rect.left;
-  const startTop = boxRect.top - rect.top;
+
+  const starts = movingBoxes.map(box => {
+    const r = box.getBoundingClientRect();
+    return {
+      box,
+      left: r.left - rect.left,
+      top: r.top - rect.top,
+      w: r.width,
+      h: r.height
+    };
+  });
 
   function move(ev){
     ev.preventDefault();
     const x = (ev.touches ? ev.touches[0].clientX : ev.clientX);
     const y = (ev.touches ? ev.touches[0].clientY : ev.clientY);
-    const snap = 4;
-    let nx = Math.round((startLeft + x - startX) / snap) * snap;
-    let ny = Math.round((startTop + y - startY) / snap) * snap;
-    nx = Math.max(0, Math.min(nx, rect.width - box.offsetWidth));
-    ny = Math.max(0, Math.min(ny, rect.height - box.offsetHeight));
-    box.style.left = (nx / rect.width * 100) + '%';
-    box.style.top = (ny / rect.height * 100) + '%';
+    const snapGrid = 4;
+    let dx = Math.round((x - startX) / snapGrid) * snapGrid;
+    let dy = Math.round((y - startY) / snapGrid) * snapGrid;
+
+    const minLeft = Math.min(...starts.map(s => s.left));
+    const minTop = Math.min(...starts.map(s => s.top));
+    const maxRight = Math.max(...starts.map(s => s.left + s.w));
+    const maxBottom = Math.max(...starts.map(s => s.top + s.h));
+
+    dx = Math.max(-minLeft, Math.min(dx, rect.width - maxRight));
+    dy = Math.max(-minTop, Math.min(dy, rect.height - maxBottom));
+
+    area.classList.remove('snap-x', 'snap-y');
+
+    if(centerSnapEnabled){
+      const groupCenterX = (minLeft + maxRight) / 2 + dx;
+      const groupCenterY = (minTop + maxBottom) / 2 + dy;
+      const palletCenterX = rect.width / 2;
+      const palletCenterY = rect.height / 2;
+      const threshold = 14;
+
+      if(Math.abs(groupCenterX - palletCenterX) <= threshold){
+        dx += palletCenterX - groupCenterX;
+        area.classList.add('snap-x');
+      }
+      if(Math.abs(groupCenterY - palletCenterY) <= threshold){
+        dy += palletCenterY - groupCenterY;
+        area.classList.add('snap-y');
+      }
+    }
+
+    starts.forEach(s => {
+      const nx = s.left + dx;
+      const ny = s.top + dy;
+      s.box.style.left = (nx / rect.width * 100) + '%';
+      s.box.style.top = (ny / rect.height * 100) + '%';
+    });
+
     requestAnimationFrame(() => {
       checkPalletCollisions();
       updateManualPalletCount();
     });
   }
+
   function up(){
+    area.classList.remove('snap-x', 'snap-y');
     document.removeEventListener('mousemove', move);
     document.removeEventListener('mouseup', up);
     document.removeEventListener('touchmove', move);
     document.removeEventListener('touchend', up);
   }
+
   document.addEventListener('mousemove', move);
   document.addEventListener('mouseup', up);
   document.addEventListener('touchmove', move, { passive: false });
   document.addEventListener('touchend', up);
 }
 
-function rotateSelectedPalletBox(){
-  if(!selectedPalletBox){ alert('회전할 카톤박스를 먼저 클릭해주세요.'); return; }
-  const left = parseFloat(selectedPalletBox.style.left) || 0;
-  const top = parseFloat(selectedPalletBox.style.top) || 0;
-  const w = parseFloat(selectedPalletBox.dataset.w || selectedPalletBox.style.width) || 0;
-  const h = parseFloat(selectedPalletBox.dataset.h || selectedPalletBox.style.height) || 0;
-  if(!w || !h){ alert('선택한 카톤 사이즈를 읽지 못했습니다.'); return; }
+function rotateOnePalletBox(box){
+  const left = parseFloat(box.style.left) || 0;
+  const top = parseFloat(box.style.top) || 0;
+  const w = parseFloat(box.dataset.w || box.style.width) || 0;
+  const h = parseFloat(box.dataset.h || box.style.height) || 0;
+  if(!w || !h) return false;
+
   const newW = h;
   const newH = w;
-  selectedPalletBox.style.width = newW + '%';
-  selectedPalletBox.style.height = newH + '%';
-  selectedPalletBox.dataset.w = newW;
-  selectedPalletBox.dataset.h = newH;
-  selectedPalletBox.style.left = Math.min(left, 100 - newW) + '%';
-  selectedPalletBox.style.top = Math.min(top, 100 - newH) + '%';
-  selectedPalletBox.classList.toggle('rotated');
+  box.style.width = newW + '%';
+  box.style.height = newH + '%';
+  box.dataset.w = newW;
+  box.dataset.h = newH;
+  box.style.left = Math.min(left, 100 - newW) + '%';
+  box.style.top = Math.min(top, 100 - newH) + '%';
+  box.classList.toggle('rotated');
+  return true;
+}
+
+function rotateSelectedPalletBox(){
+  const targets = selectedPalletBoxes.length ? selectedPalletBoxes : (selectedPalletBox ? [selectedPalletBox] : []);
+  if(!targets.length){
+    alert('회전할 카톤박스를 먼저 클릭해주세요.');
+    return;
+  }
+  targets.forEach(rotateOnePalletBox);
   checkPalletCollisions();
   updateManualPalletCount();
+  savePalletHistory();
 }
 
 function addPalletBox(){
@@ -776,11 +1030,16 @@ function addPalletBox(){
 }
 
 function removeSelectedPalletBox(){
-  if(!selectedPalletBox){ alert('삭제할 카톤박스를 먼저 클릭해주세요.'); return; }
-  selectedPalletBox.remove();
-  selectedPalletBox = null;
+  const targets = selectedPalletBoxes.length ? [...selectedPalletBoxes] : (selectedPalletBox ? [selectedPalletBox] : []);
+  if(!targets.length){
+    alert('삭제할 카톤박스를 먼저 클릭해주세요.');
+    return;
+  }
+  targets.forEach(box => box.remove());
+  clearPalletSelection();
   updateManualPalletCount();
   checkPalletCollisions();
+  savePalletHistory();
 }
 
 function currentLayerBoxes(){
@@ -791,17 +1050,17 @@ function updateManualPalletCount(){
   if(!lastResult) return;
   const count = currentLayerBoxes();
   const bad = document.querySelectorAll('#palletViz .pallet-box.bad').length;
+  const selected = selectedPalletBoxes.length;
   const totalLayers = count ? Math.ceil(lastResult.totalBoxes / count) : 0;
   $('resTotalLayers').textContent = count ? fmt(totalLayers) + '단' : '-';
   $('manualPalletText').textContent = count
-    ? `현재 배치 기준: 1단 ${fmt(count)}박스 · 총 ${fmt(totalLayers)}단 분량${bad ? ` · 겹침 ${bad}개 확인 필요` : ''}`
+    ? `현재 배치 기준: 1단 ${fmt(count)}박스 · 총 ${fmt(totalLayers)}단 분량${selected ? ` · 선택 ${selected}개` : ''}${bad ? ` · 겹침 ${bad}개 확인 필요` : ''}`
     : '파레트 박스를 + 버튼으로 추가하거나 “가볍게 자동 채우기”를 눌러주세요.';
   $('palletText').textContent = count ? `1단 기준: ${fmt(count)}박스 (수동 배치)` : '파레트 수동 배치 대기';
 }
 
 function resetPalletBoxes(){
-  if(!lastResult) return;
-  drawPalletBase(lastResult.d);
+  if(lastResult) return drawPalletBase(lastResult.d);
 }
 
 function checkPalletCollisions(){
@@ -857,6 +1116,7 @@ function autoFillPalletSimple(){
   const startX = Math.max(0, (100 - totalW) / 2);
   const startY = Math.max(0, (100 - totalH) / 2);
 
+  clearPalletSelection();
   for(let yy = 0; yy < rows; yy++){
     for(let xx = 0; xx < cols; xx++){
       createPalletBox(startX + xx * widthPct, startY + yy * heightPct, widthPct, heightPct, rotated);
@@ -869,13 +1129,198 @@ function autoFillPalletSimple(){
 function drawPalletBase(d, addOne = true){
   const el = $('palletViz');
   el.innerHTML = '';
-  selectedPalletBox = null;
+  clearPalletSelection();
   setPalletAreaSize(d);
-  el.onclick = () => { if(palletEditMode) selectPalletBox(null); };
+  el.onclick = () => { if(palletEditMode) clearPalletSelection(); updateManualPalletCount(); };
   if(addOne && lastResult) addPalletBox();
+  updateManualPalletCount();
+  savePalletHistory();
+}
+
+function getSelectedBoundsPercent(){
+  const boxes = selectedPalletBoxes.length ? selectedPalletBoxes : [];
+  if(!boxes.length) return null;
+  const rects = boxes.map(b => ({
+    el: b,
+    left: parseFloat(b.style.left) || 0,
+    top: parseFloat(b.style.top) || 0,
+    width: parseFloat(b.style.width) || 0,
+    height: parseFloat(b.style.height) || 0
+  }));
+  const minLeft = Math.min(...rects.map(r => r.left));
+  const minTop = Math.min(...rects.map(r => r.top));
+  const maxRight = Math.max(...rects.map(r => r.left + r.width));
+  const maxBottom = Math.max(...rects.map(r => r.top + r.height));
+  return { rects, minLeft, minTop, maxRight, maxBottom, width: maxRight - minLeft, height: maxBottom - minTop };
+}
+
+function moveSelectedGroup(dx, dy){
+  const bounds = getSelectedBoundsPercent();
+  if(!bounds) return;
+  let finalDx = dx;
+  let finalDy = dy;
+  if(bounds.minLeft + finalDx < 0) finalDx = -bounds.minLeft;
+  if(bounds.maxRight + finalDx > 100) finalDx = 100 - bounds.maxRight;
+  if(bounds.minTop + finalDy < 0) finalDy = -bounds.minTop;
+  if(bounds.maxBottom + finalDy > 100) finalDy = 100 - bounds.maxBottom;
+  bounds.rects.forEach(r => {
+    r.el.style.left = (r.left + finalDx) + '%';
+    r.el.style.top = (r.top + finalDy) + '%';
+  });
+}
+
+function alignSelectedBoxes(mode){
+  const bounds = getSelectedBoundsPercent();
+  if(!bounds || bounds.rects.length < 1){
+    alert('정렬할 박스를 선택해주세요.');
+    return;
+  }
+
+  if(mode === 'left'){
+    bounds.rects.forEach(r => r.el.style.left = bounds.minLeft + '%');
+  }else if(mode === 'top'){
+    bounds.rects.forEach(r => r.el.style.top = bounds.minTop + '%');
+  }else if(mode === 'centerX'){
+    moveSelectedGroup(50 - (bounds.minLeft + bounds.width / 2), 0);
+  }else if(mode === 'centerY'){
+    moveSelectedGroup(0, 50 - (bounds.minTop + bounds.height / 2));
+  }else if(mode === 'centerBoth'){
+    moveSelectedGroup(50 - (bounds.minLeft + bounds.width / 2), 50 - (bounds.minTop + bounds.height / 2));
+  }
+
+  checkPalletCollisions();
   updateManualPalletCount();
 }
 
+function distributeSelectedBoxes(axis){
+  const bounds = getSelectedBoundsPercent();
+  if(!bounds || bounds.rects.length < 3){
+    alert('간격 맞춤은 3개 이상 선택해주세요.');
+    return;
+  }
+
+  const rects = [...bounds.rects].sort((a,b) => axis === 'x' ? a.left - b.left : a.top - b.top);
+
+  if(axis === 'x'){
+    const totalWidth = rects.reduce((sum,r) => sum + r.width, 0);
+    const gap = (bounds.width - totalWidth) / (rects.length - 1);
+    let cursor = bounds.minLeft;
+    rects.forEach(r => {
+      r.el.style.left = cursor + '%';
+      cursor += r.width + gap;
+    });
+  }else{
+    const totalHeight = rects.reduce((sum,r) => sum + r.height, 0);
+    const gap = (bounds.height - totalHeight) / (rects.length - 1);
+    let cursor = bounds.minTop;
+    rects.forEach(r => {
+      r.el.style.top = cursor + '%';
+      cursor += r.height + gap;
+    });
+  }
+
+  checkPalletCollisions();
+  updateManualPalletCount();
+}
+
+function copySelectedBoxes(){
+  const boxes = selectedPalletBoxes.length ? selectedPalletBoxes : [];
+  if(!boxes.length){
+    alert('복사할 박스를 선택해주세요.');
+    return;
+  }
+  copiedPalletBoxes = boxes.map(b => ({
+    left: parseFloat(b.style.left) || 0,
+    top: parseFloat(b.style.top) || 0,
+    width: parseFloat(b.style.width) || 0,
+    height: parseFloat(b.style.height) || 0,
+    rotated: b.classList.contains('rotated')
+  }));
+}
+
+function pasteCopiedBoxes(){
+  if(!copiedPalletBoxes.length){
+    alert('붙여넣을 박스가 없습니다.');
+    return;
+  }
+  clearPalletSelection();
+  copiedPalletBoxes.forEach(item => {
+    const offset = 2;
+    const left = Math.min(100 - item.width, item.left + offset);
+    const top = Math.min(100 - item.height, item.top + offset);
+    const unit = createPalletBox(left, top, item.width, item.height, item.rotated);
+    unit.classList.add('selected');
+    selectedPalletBoxes.push(unit);
+  });
+  selectedPalletBox = selectedPalletBoxes[selectedPalletBoxes.length - 1] || null;
+  checkPalletCollisions();
+  updateManualPalletCount();
+}
+
+
+function savePalletHistory(){
+  const state = getPalletBoxes().map(box => ({
+    left: box.style.left,
+    top: box.style.top,
+    width: box.style.width,
+    height: box.style.height,
+    rotated: box.classList.contains('rotated')
+  }));
+
+  palletHistory.push(JSON.stringify(state));
+
+  if(palletHistory.length > 50){
+    palletHistory.shift();
+  }
+
+  palletRedoHistory = [];
+}
+
+function restorePalletState(serialized){
+  const state = JSON.parse(serialized || '[]');
+  const area = $('palletViz');
+  area.innerHTML = '';
+  clearPalletSelection();
+
+  state.forEach(item => {
+    createPalletBox(
+      parseFloat(item.left),
+      parseFloat(item.top),
+      parseFloat(item.width),
+      parseFloat(item.height),
+      item.rotated
+    );
+  });
+
+  checkPalletCollisions();
+  updateManualPalletCount();
+}
+
+function undoPalletAction(){
+  if(palletHistory.length < 2) return;
+
+  const current = palletHistory.pop();
+  palletRedoHistory.push(current);
+
+  const prev = palletHistory[palletHistory.length - 1];
+  restorePalletState(prev);
+}
+
+function redoPalletAction(){
+  if(!palletRedoHistory.length) return;
+
+  const next = palletRedoHistory.pop();
+  palletHistory.push(next);
+  restorePalletState(next);
+}
+function toggleCenterSnap(){
+  centerSnapEnabled = !centerSnapEnabled;
+  const btn = $('centerSnapBtn');
+  if(btn){
+    btn.textContent = centerSnapEnabled ? '중앙 스냅 ON' : '중앙 스냅 OFF';
+    btn.classList.toggle('toggle-on', centerSnapEnabled);
+  }
+}
 function renderResultCandidateRows(){
   $('resultCandidateRows').innerHTML = lastCandidates.map((r, idx) => `
     <tr class="clickable-row ${idx === selectedCandidateIndex ? 'selected-row' : ''}" onclick="selectCandidate(${idx})">
@@ -1115,10 +1560,50 @@ document.addEventListener('input', e => {
 
 document.addEventListener('keydown', e => {
   if(!palletEditMode) return;
-  if(e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
-  if(e.key === 'r' || e.key === 'R') rotateSelectedPalletBox();
+  if(e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+  const key = e.key.toLowerCase();
+  const isShortcut = e.ctrlKey || e.metaKey; // Windows Ctrl / Mac Command 모두 지원
+
+  // Ctrl/Command + A : 전체 선택
+  if(isShortcut && key === 'a'){
+    e.preventDefault();
+    selectAllPalletBoxes();
+    updateManualPalletCount();
+    return;
+  }
+
+  // Ctrl/Command + Z : 되돌리기
+  if(isShortcut && key === 'z' && !e.shiftKey){
+    e.preventDefault();
+    undoPalletAction();
+    return;
+  }
+
+  // Ctrl/Command + Y 또는 Ctrl/Command + Shift + Z : 다시 실행
+  if((isShortcut && key === 'y') || (isShortcut && e.shiftKey && key === 'z')){
+    e.preventDefault();
+    redoPalletAction();
+    return;
+  }
+
+  // Ctrl/Command + C : 복사
+  if(isShortcut && key === 'c'){
+    e.preventDefault();
+    copySelectedBoxes();
+    return;
+  }
+
+  // Ctrl/Command + V : 붙여넣기
+  if(isShortcut && key === 'v'){
+    e.preventDefault();
+    pasteCopiedBoxes();
+    return;
+  }
+
+  if(key === 'r') rotateSelectedPalletBox();
   if(e.key === '+' || e.key === '=') addPalletBox();
-  if(e.key === '-') removeSelectedPalletBox();
+  if(e.key === '-' || e.key === 'Delete' || e.key === 'Backspace') removeSelectedPalletBox();
 });
 
 loadCalculatorDataFromUrl();
