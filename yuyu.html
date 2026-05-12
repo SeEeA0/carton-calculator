@@ -169,6 +169,8 @@
       box-sizing: border-box;
       cursor: pointer;
       touch-action: none;
+      transition: none !important;
+      will-change: left, top, width, height;
     }
     .pallet-box::before {
       content: '';
@@ -1227,61 +1229,54 @@ function startDragPalletBox(e){
 
   const area = $('palletViz');
   const rect = area.getBoundingClientRect();
+  const d = lastResult && lastResult.d ? lastResult.d : getData();
+  const useMM = d.palletUse || d.palletOuter || 1100;
+  const pxPerMM = rect.width / useMM;
   const movingBoxes = getSelectedBoxesForAction(targetBox);
   const startX = (e.touches ? e.touches[0].clientX : e.clientX);
   const startY = (e.touches ? e.touches[0].clientY : e.clientY);
 
+  // 드래그 중에는 내부 좌표를 mm 기준으로 계산합니다.
+  // % → px → % 재계산으로 생기는 '물렁하게 밀리는 느낌'을 줄이기 위한 처리입니다.
   const starts = movingBoxes.map(box => {
-    const r = box.getBoundingClientRect();
+    const leftPct = parseFloat(box.style.left) || 0;
+    const topPct = parseFloat(box.style.top) || 0;
+    const widthPct = parseFloat(box.style.width) || 0;
+    const heightPct = parseFloat(box.style.height) || 0;
     return {
       box,
-      left: r.left - rect.left,
-      top: r.top - rect.top,
-      w: r.width,
-      h: r.height
+      leftMM: leftPct / 100 * useMM,
+      topMM: topPct / 100 * useMM,
+      widthMM: widthPct / 100 * useMM,
+      heightMM: heightPct / 100 * useMM
     };
   });
+
+  const minLeft = Math.min(...starts.map(s => s.leftMM));
+  const minTop = Math.min(...starts.map(s => s.topMM));
+  const maxRight = Math.max(...starts.map(s => s.leftMM + s.widthMM));
+  const maxBottom = Math.max(...starts.map(s => s.topMM + s.heightMM));
 
   function move(ev){
     ev.preventDefault();
     const x = (ev.touches ? ev.touches[0].clientX : ev.clientX);
     const y = (ev.touches ? ev.touches[0].clientY : ev.clientY);
-    const snapGrid = 4;
-    let dx = Math.round((x - startX) / snapGrid) * snapGrid;
-    let dy = Math.round((y - startY) / snapGrid) * snapGrid;
 
-    const minLeft = Math.min(...starts.map(s => s.left));
-    const minTop = Math.min(...starts.map(s => s.top));
-    const maxRight = Math.max(...starts.map(s => s.left + s.w));
-    const maxBottom = Math.max(...starts.map(s => s.top + s.h));
+    // 마우스 이동값을 실제 mm로 변환 후 1mm 단위로 스냅합니다.
+    let dxMM = Math.round((x - startX) / pxPerMM);
+    let dyMM = Math.round((y - startY) / pxPerMM);
 
-    dx = Math.max(-minLeft, Math.min(dx, rect.width - maxRight));
-    dy = Math.max(-minTop, Math.min(dy, rect.height - maxBottom));
+    // 파레트 바깥으로 나가지 않도록 mm 기준으로 제한합니다.
+    dxMM = Math.max(-minLeft, Math.min(dxMM, useMM - maxRight));
+    dyMM = Math.max(-minTop, Math.min(dyMM, useMM - maxBottom));
 
     area.classList.remove('snap-x', 'snap-y');
 
-    if(centerSnapEnabled){
-      const groupCenterX = (minLeft + maxRight) / 2 + dx;
-      const groupCenterY = (minTop + maxBottom) / 2 + dy;
-      const palletCenterX = rect.width / 2;
-      const palletCenterY = rect.height / 2;
-      const threshold = 14;
-
-      if(Math.abs(groupCenterX - palletCenterX) <= threshold){
-        dx += palletCenterX - groupCenterX;
-        area.classList.add('snap-x');
-      }
-      if(Math.abs(groupCenterY - palletCenterY) <= threshold){
-        dy += palletCenterY - groupCenterY;
-        area.classList.add('snap-y');
-      }
-    }
-
     starts.forEach(s => {
-      const nx = s.left + dx;
-      const ny = s.top + dy;
-      s.box.style.left = (nx / rect.width * 100) + '%';
-      s.box.style.top = (ny / rect.height * 100) + '%';
+      const nxMM = s.leftMM + dxMM;
+      const nyMM = s.topMM + dyMM;
+      s.box.style.left = roundPct(nxMM / useMM * 100, 6) + '%';
+      s.box.style.top = roundPct(nyMM / useMM * 100, 6) + '%';
     });
 
     requestAnimationFrame(() => {
@@ -1296,6 +1291,7 @@ function startDragPalletBox(e){
     document.removeEventListener('mouseup', up);
     document.removeEventListener('touchmove', move);
     document.removeEventListener('touchend', up);
+    savePalletHistory();
   }
 
   document.addEventListener('mousemove', move);
