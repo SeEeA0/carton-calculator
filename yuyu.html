@@ -685,7 +685,7 @@
           <div class="section-title">3. 파레트 기준</div>
           <div class="input-group">
             <div class="input-item"><label>파레트 전체 (mm)</label><input type="number" id="palletOuter" value="1100"></div>
-            <div class="input-item"><label>실제 사용 영역 (mm)</label><input type="number" id="palletUse" value="1000"></div>
+            <div class="input-item"><label>실제 사용 영역 (mm)</label><input type="number" id="palletUse" value="1100"></div>
           </div>
           <p class="note">※ 무거운 자동 최적화 대신, 결과 화면에서 직접 파레트 배치를 편집합니다.</p>
         </div>
@@ -930,16 +930,18 @@ function getData(){
     maxBoxW: Math.min(500, n('maxBoxW') || 500),
     maxBoxL: Math.min(500, n('maxBoxL') || 500),
     palletOuter: n('palletOuter') || 1100,
-    palletUse: n('palletUse') || 1000,
+    palletUse: n('palletUse') || n('palletOuter') || 1100,
     cartonLayers: Math.max(1, i('cartonLayers') || 1)
   };
 }
 
 function cartonSize(x, y, z, o, d){
+  // 카톤 외곽 여유는 "카톤 1박스 기준 총 +mm"로 계산합니다.
+  // 예: margin=20이면 가로/세로/높이 각각 전체 치수에 +20mm만 추가됩니다.
   return {
-    w: Math.ceil(x * o.w + Math.max(0, x - 1) * d.gap + d.margin * 2),
-    l: Math.ceil(y * o.l + Math.max(0, y - 1) * d.gap + d.margin * 2),
-    h: Math.ceil(z * o.h + Math.max(0, z - 1) * d.gap + d.margin * 2)
+    w: Math.ceil(x * o.w + Math.max(0, x - 1) * d.gap + d.margin),
+    l: Math.ceil(y * o.l + Math.max(0, y - 1) * d.gap + d.margin),
+    h: Math.ceil(z * o.h + Math.max(0, z - 1) * d.gap + d.margin)
   };
 }
 
@@ -954,8 +956,8 @@ function makeCandidates(d){
   const list = [];
 
   orientations.forEach(o => {
-    const maxX = Math.max(1, Math.floor((d.maxBoxW - d.margin * 2 + d.gap) / (o.w + d.gap)));
-    const maxY = Math.max(1, Math.floor((d.maxBoxL - d.margin * 2 + d.gap) / (o.l + d.gap)));
+    const maxX = Math.max(1, Math.floor((d.maxBoxW - d.margin + d.gap) / (o.w + d.gap)));
+    const maxY = Math.max(1, Math.floor((d.maxBoxL - d.margin + d.gap) / (o.l + d.gap)));
 
     for(let x = 1; x <= maxX; x++){
       for(let y = 1; y <= maxY; y++){
@@ -1035,11 +1037,12 @@ function drawCarton(c){
   const unitL = isRotated ? d.w : d.l;
   const gap = Number(d.gap || 0);
   const margin = Number(d.margin || 0);
+  const sideMargin = margin / 2;
 
   
-  // 카톤 자체 크기도 내용물 비율 기준으로 맞춤
-  const contentW = (margin * 2) + (c.x * unitW) + ((c.x - 1) * gap);
-  const contentH = (margin * 2) + (c.y * unitL) + ((c.y - 1) * gap);
+  // margin은 전체 여유값이므로 시각화에서는 좌우/상하에 절반씩 나눠 표현
+  const contentW = margin + (c.x * unitW) + ((c.x - 1) * gap);
+  const contentH = margin + (c.y * unitL) + ((c.y - 1) * gap);
 
   const scale = 1.15;
 
@@ -1059,8 +1062,8 @@ function drawCarton(c){
       const cell = document.createElement('div');
       cell.className = 'carton-cell';
       cell.style.position = 'absolute';
-      cell.style.left = ((margin + col * (unitW + gap)) / c.size.w * 100) + '%';
-      cell.style.top = ((margin + row * (unitL + gap)) / c.size.l * 100) + '%';
+      cell.style.left = ((sideMargin + col * (unitW + gap)) / c.size.w * 100) + '%';
+      cell.style.top = ((sideMargin + row * (unitL + gap)) / c.size.l * 100) + '%';
       cell.style.width = (unitW / c.size.w * 100) + '%';
       cell.style.height = (unitL / c.size.l * 100) + '%';
       cell.style.minHeight = '0';
@@ -1886,6 +1889,27 @@ document.addEventListener('keydown', e => {
   if(isShortcut && key === 'v'){
     e.preventDefault();
     pasteCopiedBoxes();
+    return;
+  }
+
+  // 방향키 미세조절: 선택한 아웃박스(카톤박스)를 파레트 위에서 조금씩 이동
+  // 기본 0.2% 이동, Shift + 방향키는 1% 이동
+  if(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)){
+    if(!selectedPalletBoxes.length) return;
+    e.preventDefault();
+
+    const step = e.shiftKey ? 1 : 0.2;
+    let dx = 0;
+    let dy = 0;
+
+    if(e.key === 'ArrowLeft') dx = -step;
+    if(e.key === 'ArrowRight') dx = step;
+    if(e.key === 'ArrowUp') dy = -step;
+    if(e.key === 'ArrowDown') dy = step;
+
+    moveSelectedGroup(dx, dy);
+    checkPalletCollisions();
+    updateManualPalletCount();
     return;
   }
 
