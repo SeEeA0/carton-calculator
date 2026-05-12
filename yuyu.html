@@ -798,6 +798,8 @@
     <div><b>Shift + Cmd + Z</b> 다시 실행</div>
     <div><b>Shift + 클릭</b> 다중 선택</div>
     <div><b>Delete</b> 선택 박스 삭제</div>
+    <div><b>방향키</b> 1mm 미세 이동</div>
+    <div><b>Shift + 방향키</b> 10mm 이동</div>
     <div><b>드래그 이동</b> 중앙 스냅 자동 정렬</div>
   </div>
 </div>
@@ -1072,8 +1074,32 @@ function drawCarton(c){
   }
 }
 
-function rectsOverlap(a,b){
-  return !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.l <= b.y || b.y + b.l <= a.y);
+function rectsOverlap(a,b,tolerance = 0){
+  // tolerance는 딱 맞닿는 박스가 border/렌더링 오차 때문에 겹침으로 잡히는 것을 방지합니다.
+  return !(
+    a.x + a.w <= b.x + tolerance ||
+    b.x + b.w <= a.x + tolerance ||
+    a.y + a.l <= b.y + tolerance ||
+    b.y + b.l <= a.y + tolerance
+  );
+}
+
+function roundPct(value, digits = 6){
+  const n = parseFloat(value) || 0;
+  const m = Math.pow(10, digits);
+  return Math.round(n * m) / m;
+}
+
+function mmToPct(mm){
+  const d = lastResult && lastResult.d ? lastResult.d : getData();
+  const use = d.palletUse || d.palletOuter || 1100;
+  return use ? (mm / use * 100) : 0;
+}
+
+function clampPct(value, size){
+  const v = parseFloat(value) || 0;
+  const s = parseFloat(size) || 0;
+  return roundPct(Math.max(0, Math.min(100 - s, v)));
 }
 
 function setPalletAreaSize(d){
@@ -1140,13 +1166,18 @@ function selectAllPalletBoxes(){
 function createPalletBox(leftPct, topPct, widthPct, heightPct, rotated){
   const el = $('palletViz');
   const unit = document.createElement('div');
+  const w = roundPct(widthPct);
+  const h = roundPct(heightPct);
+  const left = clampPct(leftPct, w);
+  const top = clampPct(topPct, h);
+
   unit.className = 'pallet-box' + (rotated ? ' rotated' : '');
-  unit.style.left = leftPct + '%';
-  unit.style.top = topPct + '%';
-  unit.style.width = widthPct + '%';
-  unit.style.height = heightPct + '%';
-  unit.dataset.w = widthPct;
-  unit.dataset.h = heightPct;
+  unit.style.left = left + '%';
+  unit.style.top = top + '%';
+  unit.style.width = w + '%';
+  unit.style.height = h + '%';
+  unit.dataset.w = w;
+  unit.dataset.h = h;
   unit.addEventListener('click', e => {
     if(palletEditMode){
       e.stopPropagation();
@@ -1357,15 +1388,24 @@ function resetPalletBoxes(){
 function checkPalletCollisions(){
   const boxes = [...document.querySelectorAll('#palletViz .pallet-box')];
   boxes.forEach(b => b.classList.remove('bad'));
-  const area = $('palletViz');
-  const ar = area.getBoundingClientRect();
-  const rects = boxes.map(b => {
-    const r = b.getBoundingClientRect();
-    return { el: b, x: r.left - ar.left, y: r.top - ar.top, w: r.width, l: r.height };
-  });
+
+  // DOM border가 아니라 실제 1100mm 사용 영역 기준 % 좌표로 겹침을 판단합니다.
+  // 2mm 이하는 화면 렌더링/소수점 오차로 보고 겹침에서 제외합니다.
+  const d = lastResult && lastResult.d ? lastResult.d : getData();
+  const use = d.palletUse || d.palletOuter || 1100;
+  const tolerancePct = use ? (2 / use * 100) : 0.18;
+
+  const rects = boxes.map(b => ({
+    el: b,
+    x: parseFloat(b.style.left) || 0,
+    y: parseFloat(b.style.top) || 0,
+    w: parseFloat(b.style.width) || 0,
+    l: parseFloat(b.style.height) || 0
+  }));
+
   for(let a = 0; a < rects.length; a++){
     for(let b = a + 1; b < rects.length; b++){
-      if(rectsOverlap(rects[a], rects[b])){
+      if(rectsOverlap(rects[a], rects[b], tolerancePct)){
         rects[a].el.classList.add('bad');
         rects[b].el.classList.add('bad');
       }
@@ -1892,13 +1932,13 @@ document.addEventListener('keydown', e => {
     return;
   }
 
-  // 방향키 미세조절: 선택한 아웃박스(카톤박스)를 파레트 위에서 조금씩 이동
-  // 기본 0.2% 이동, Shift + 방향키는 1% 이동
+  // 방향키 미세조절: 선택한 아웃박스(카톤박스)를 파레트 위에서 mm 기준으로 이동
+  // 기본 1mm 이동, Shift + 방향키는 10mm 이동
   if(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)){
     if(!selectedPalletBoxes.length) return;
     e.preventDefault();
 
-    const step = e.shiftKey ? 1 : 0.2;
+    const step = mmToPct(e.shiftKey ? 10 : 1);
     let dx = 0;
     let dy = 0;
 
