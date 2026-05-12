@@ -164,7 +164,9 @@
     .pallet-box {
       position: absolute;
       background: var(--soft-blue);
-      border: 1.5px solid var(--accent);
+      border: 0;
+      outline: 2px solid var(--accent); /* 외곽선은 실제 크기에 포함하지 않음 */
+      outline-offset: -2px;
       border-radius: 4px;
       box-sizing: border-box;
       cursor: pointer;
@@ -179,9 +181,9 @@
       border: 1px solid rgba(26,115,232,0.2);
       border-radius: 3px;
     }
-    .pallet-box.rotated { background: var(--soft-yellow); border-color: var(--warning); }
-    .pallet-box.selected { outline: 3px solid var(--accent); z-index: 10; box-shadow: 0 0 10px rgba(26,115,232,0.4); }
-    .pallet-box.bad { background: var(--soft-red); border-color: var(--danger); }
+    .pallet-box.rotated { background: var(--soft-yellow); outline-color: var(--warning); }
+    .pallet-box.selected { outline-width: 3px; z-index: 10; box-shadow: 0 0 10px rgba(26,115,232,0.4); }
+    .pallet-box.bad { background: var(--soft-red); outline-color: var(--danger); }
 
     .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     .summary-item {
@@ -1104,6 +1106,42 @@ function clampPct(value, size){
   return roundPct(Math.max(0, Math.min(100 - s, v)));
 }
 
+function clampMM(value, sizeMM, useMM){
+  const v = parseFloat(value) || 0;
+  const s = parseFloat(sizeMM) || 0;
+  return Math.max(0, Math.min(useMM - s, v));
+}
+
+function getPalletRectMM(box, useMM){
+  const leftPct = parseFloat(box.style.left) || 0;
+  const topPct = parseFloat(box.style.top) || 0;
+  const widthPct = parseFloat(box.style.width) || 0;
+  const heightPct = parseFloat(box.style.height) || 0;
+  return {
+    box,
+    left: leftPct / 100 * useMM,
+    top: topPct / 100 * useMM,
+    right: (leftPct + widthPct) / 100 * useMM,
+    bottom: (topPct + heightPct) / 100 * useMM,
+    width: widthPct / 100 * useMM,
+    height: heightPct / 100 * useMM
+  };
+}
+
+function getSnapDeltaMM(value, targets, thresholdMM){
+  let best = 0;
+  let bestAbs = thresholdMM + 1;
+  targets.forEach(t => {
+    const delta = t - value;
+    const abs = Math.abs(delta);
+    if(abs <= thresholdMM && abs < bestAbs){
+      best = delta;
+      bestAbs = abs;
+    }
+  });
+  return best;
+}
+
 function setPalletAreaSize(d){
   const el = $('palletViz');
   const useRatio = Math.min(100, Math.max(10, d.palletUse / d.palletOuter * 100));
@@ -1270,7 +1308,37 @@ function startDragPalletBox(e){
     dxMM = Math.max(-minLeft, Math.min(dxMM, useMM - maxRight));
     dyMM = Math.max(-minTop, Math.min(dyMM, useMM - maxBottom));
 
+    // 가장자리/다른 박스에 가까우면 1mm 단위로 딱 붙도록 스냅합니다.
+    // 이 처리 때문에 마우스로 만졌을 때 '풀리듯이 밀리는 느낌'이 줄어듭니다.
+    const snapThresholdMM = 6;
+    const movingSet = new Set(movingBoxes);
+    const otherRects = getPalletBoxes()
+      .filter(box => !movingSet.has(box))
+      .map(box => getPalletRectMM(box, useMM));
+
+    const snapXTargets = [0, useMM];
+    const snapYTargets = [0, useMM];
+    otherRects.forEach(r => {
+      snapXTargets.push(r.left, r.right);
+      snapYTargets.push(r.top, r.bottom);
+    });
+
+    const groupLeft = minLeft + dxMM;
+    const groupRight = maxRight + dxMM;
+    const groupTop = minTop + dyMM;
+    const groupBottom = maxBottom + dyMM;
+
+    const snapDx = getSnapDeltaMM(groupLeft, snapXTargets, snapThresholdMM) || getSnapDeltaMM(groupRight, snapXTargets, snapThresholdMM);
+    const snapDy = getSnapDeltaMM(groupTop, snapYTargets, snapThresholdMM) || getSnapDeltaMM(groupBottom, snapYTargets, snapThresholdMM);
+
+    dxMM += snapDx;
+    dyMM += snapDy;
+    dxMM = Math.max(-minLeft, Math.min(dxMM, useMM - maxRight));
+    dyMM = Math.max(-minTop, Math.min(dyMM, useMM - maxBottom));
+
     area.classList.remove('snap-x', 'snap-y');
+    if(snapDx) area.classList.add('snap-x');
+    if(snapDy) area.classList.add('snap-y');
 
     starts.forEach(s => {
       const nxMM = s.leftMM + dxMM;
@@ -1386,10 +1454,10 @@ function checkPalletCollisions(){
   boxes.forEach(b => b.classList.remove('bad'));
 
   // DOM border가 아니라 실제 1100mm 사용 영역 기준 % 좌표로 겹침을 판단합니다.
-  // 2mm 이하는 화면 렌더링/소수점 오차로 보고 겹침에서 제외합니다.
+  // 5mm 이하는 화면 렌더링/외곽선/소수점 오차로 보고 겹침에서 제외합니다.
   const d = lastResult && lastResult.d ? lastResult.d : getData();
   const use = d.palletUse || d.palletOuter || 1100;
-  const tolerancePct = use ? (2 / use * 100) : 0.18;
+  const tolerancePct = use ? (5 / use * 100) : 0.45;
 
   const rects = boxes.map(b => ({
     el: b,
