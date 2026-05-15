@@ -943,13 +943,19 @@ function getData(){
 
 function cartonSize(x, y, z, o, d){
 
-  // 최소 25mm 보장
-  const margin = Math.max(25, Number(d.margin || 25));
+  // 가로/세로 외곽 여유
+  const sideMargin = Math.max(25, Number(d.margin || 25));
+
+  // 높이 상단 여유만
+  const topMargin = Math.max(25, Number(d.margin || 25));
 
   return {
-    w: Math.ceil(x * o.w + Math.max(0, x - 1) * d.gap + margin),
-    l: Math.ceil(y * o.l + Math.max(0, y - 1) * d.gap + margin),
-    h: Math.ceil(z * o.h + Math.max(0, z - 1) * d.gap + margin)
+    w: Math.ceil(x * o.w + Math.max(0, x - 1) * d.gap + sideMargin),
+
+    l: Math.ceil(y * o.l + Math.max(0, y - 1) * d.gap + sideMargin),
+
+    // 하단 추가 없이 상단만 여유
+    h: Math.ceil(z * o.h + Math.max(0, z - 1) * d.gap + topMargin)
   };
 }
 
