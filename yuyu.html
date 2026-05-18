@@ -821,7 +821,7 @@
     <div class="result-actions">
       <button class="btn gray" onclick="backToInput()">수정하기</button>
       <button class="btn dark" onclick="downloadImg()">이미지로 저장</button>
-      <button class="btn" onclick="goToSpecSheet()">사양서 작성하기</button>
+      <button class="btn" onclick="goToSpecSheet()">칼선 다운로드</button>
     </div>
   </div>
 
@@ -1880,6 +1880,24 @@ function goToSpecSheet(){
     alert('먼저 카톤 추천 계산을 완료해주세요.');
     return;
   }
+
+function goToDieline(){
+
+  if(!lastResult || !lastResult.c){
+    alert('먼저 계산을 진행해주세요.');
+    return;
+  }
+
+  const c = lastResult.c;
+
+  const params = new URLSearchParams({
+    w: c.size.w,
+    l: c.size.l,
+    h: c.size.h
+  });
+
+  location.href = `/dieline?${params.toString()}`;
+}
 
   const { d, c, totalBoxes } = lastResult;
   const currentLayerCount = currentLayerBoxes();
