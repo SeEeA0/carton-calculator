@@ -1875,12 +1875,6 @@ function getCurrentPalletPlacementsForSpec(){
   });
 }
 
-function goToSpecSheet(){
-  if(!lastResult){
-    alert('먼저 카톤 추천 계산을 완료해주세요.');
-    return;
-  }
-
 function goToDieline(){
 
   if(!lastResult || !lastResult.c){
@@ -1896,7 +1890,7 @@ function goToDieline(){
     h: c.size.h
   });
 
-  location.href = `/dieline?${params.toString()}`;
+  location.href = `dieline.html?${params.toString()}`;
 }
 
   const { d, c, totalBoxes } = lastResult;
