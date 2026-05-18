@@ -822,7 +822,8 @@
       <button class="btn gray" onclick="backToInput()">수정하기</button>
       <button class="btn dark" onclick="downloadImg()">이미지로 저장</button>
       <button class="btn" onclick="goToSpecSheet()">사양서 작성하기</button>
-    </div>
+      <button class="btn" onclick="goToDieline()">카톤 칼선 다운로드</button>
+</div>
   </div>
 
 <script>
@@ -2032,6 +2033,25 @@ document.addEventListener('keydown', e => {
 
 loadCalculatorDataFromUrl();
 renderPreview();
+
+  function goToDieline(){
+
+  if(!lastResult || !lastResult.c){
+    alert('먼저 카톤 추천 계산을 완료해주세요.');
+    return;
+  }
+
+  const c = lastResult.c;
+
+  const params = new URLSearchParams({
+    w: c.size.w,
+    l: c.size.l,
+    h: c.size.h
+  });
+
+  window.location.href = `dieline.html?${params.toString()}`;
+}
+  
 </script>
 </body>
 </html>
