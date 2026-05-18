@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>카튼 칼선 다운로드</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body {
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  background: #f6f7f8;
+  color: #222;
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.08);
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-size: 30px;
+}
+
+.desc {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.info div {
+  background: #f5f6f7;
+  border-radius: 16px;
+  padding: 18px;
+  text-align: center;
+}
+
+.info b {
+  display: block;
+  font-size: 22px;
+  margin-top: 6px;
+}
+
+button {
+  width: 100%;
+  height: 56px;
+  border: 0;
+  border-radius: 18px;
+  background: #111;
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.preview {
+  margin-top: 30px;
+  overflow: auto;
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+}
+
+svg {
+  background: white;
+}
+
+.cut {
+  stroke: #111;
+  stroke-width: 0.4;
+  fill: none;
+}
+
+.fold {
+  stroke: #888;
+  stroke-width: 0.25;
+  stroke-dasharray: 4 3;
+}
+
+.label {
+  font-size: 12px;
+  fill: #333;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>카튼 칼선 PDF 다운로드</h1>
+    <p class="desc">계산된 카톤 규격을 기준으로 1:1 mm 벡터 칼선을 생성합니다.</p>
+
+    <div class="info">
+      <div>가로 W<b id="wText"></b></div>
+      <div>세로 L<b id="lText"></b></div>
+      <div>높이 H<b id="hText"></b></div>
+      <div>날개 높이<b id="flapText"></b></div>
+    </div>
+
+    <button onclick="downloadPDF()">1:1 벡터 PDF 다운로드</button>
+
+    <div class="preview">
+      <svg id="previewSvg"></svg>
+    </div>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+
+const W = Number(params.get("w")) || 340;
+const L = Number(params.get("l")) || 410;
+const H = Number(params.get("h")) || 170;
+
+const GLUE = 30;
+
+// 상/하단 날개 동일
+const FLAP = Math.max(W, L) / 2;
+
+// 패널 순서
+const panels = [L, W, L, W];
+
+const totalWidth = panels.reduce((a, b) => a + b, 0) + GLUE;
+const totalHeight = FLAP + H + FLAP;
+
+document.getElementById("wText").textContent = W + "mm";
+document.getElementById("lText").textContent = L + "mm";
+document.getElementById("hText").textContent = H + "mm";
+document.getElementById("flapText").textContent = FLAP + "mm";
+
+function drawPreview() {
+  const svg = document.getElementById("previewSvg");
+
+  const scale = 0.7;
+  const margin = 40;
+
+  svg.setAttribute("width", totalWidth * scale + margin * 2);
+  svg.setAttribute("height", totalHeight * scale + margin * 2);
+  svg.setAttribute("viewBox", `0 0 ${totalWidth * scale + margin * 2} ${totalHeight * scale + margin * 2}`);
+
+  svg.innerHTML = "";
+
+  function line(x1, y1, x2, y2, cls) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    el.setAttribute("x1", x1 * scale + margin);
+    el.setAttribute("y1", y1 * scale + margin);
+    el.setAttribute("x2", x2 * scale + margin);
+    el.setAttribute("y2", y2 * scale + margin);
+    el.setAttribute("class", cls);
+    svg.appendChild(el);
+  }
+
+  function text(content, x, y) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    el.setAttribute("x", x * scale + margin);
+    el.setAttribute("y", y * scale + margin);
+    el.setAttribute("class", "label");
+    el.textContent = content;
+    svg.appendChild(el);
+  }
+
+  // 외곽 재단선
+  line(0, 0, totalWidth, 0, "cut");
+  line(totalWidth, 0, totalWidth, totalHeight, "cut");
+  line(totalWidth, totalHeight, 0, totalHeight, "cut");
+  line(0, totalHeight, 0, 0, "cut");
+
+  // 가로 접지선
+  line(0, FLAP, totalWidth, FLAP, "fold");
+  line(0, FLAP + H, totalWidth, FLAP + H, "fold");
+
+  // 세로 패널선
+  let x = 0;
+  panels.forEach((p, i) => {
+    x += p;
+    line(x, 0, x, totalHeight, "fold");
+  });
+
+  // 풀칠면
+  line(totalWidth - GLUE, 0, totalWidth - GLUE, totalHeight, "fold");
+
+  // 라벨
+  text(`전체 ${totalWidth} × ${totalHeight}mm`, 10, -12);
+  text(`상단날개 ${FLAP}mm`, 10, FLAP / 2);
+  text(`본체 ${H}mm`, 10, FLAP + H / 2);
+  text(`하단날개 ${FLAP}mm`, 10, FLAP + H + FLAP / 2);
+
+  let tx = 0;
+  panels.forEach((p) => {
+    text(`${p}mm`, tx + p / 2 - 15, FLAP + H / 2);
+    tx += p;
+  });
+
+  text(`풀칠 ${GLUE}mm`, totalWidth - GLUE + 3, FLAP + H / 2);
+}
+
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+
+  const pdf = new jsPDF({
+    orientation: totalWidth > totalHeight ? "landscape" : "portrait",
+    unit: "mm",
+    format: [totalWidth, totalHeight]
+  });
+
+  pdf.setLineWidth(0.3);
+
+  // 재단선
+  pdf.setDrawColor(0, 0, 0);
+  pdf.rect(0, 0, totalWidth, totalHeight);
+
+  // 접지선
+  pdf.setDrawColor(120, 120, 120);
+  pdf.setLineDashPattern([4, 3], 0);
+
+  pdf.line(0, FLAP, totalWidth, FLAP);
+  pdf.line(0, FLAP + H, totalWidth, FLAP + H);
+
+  let x = 0;
+  panels.forEach((p) => {
+    x += p;
+    pdf.line(x, 0, x, totalHeight);
+  });
+
+  pdf.line(totalWidth - GLUE, 0, totalWidth - GLUE, totalHeight);
+
+  // 치수 텍스트
+  pdf.setLineDashPattern([], 0);
+  pdf.setTextColor(40, 40, 40);
+  pdf.setFontSize(8);
+
+  pdf.text(`Carton Dieline 1:1 / ${W}x${L}x${H}mm`, 8, 8);
+  pdf.text(`Top Flap: ${FLAP}mm`, 8, FLAP / 2);
+  pdf.text(`Body: ${H}mm`, 8, FLAP + H / 2);
+  pdf.text(`Bottom Flap: ${FLAP}mm`, 8, FLAP + H + FLAP / 2);
+
+  let labelX = 0;
+  panels.forEach((p) => {
+    pdf.text(`${p}mm`, labelX + p / 2 - 8, FLAP + H / 2);
+    labelX += p;
+  });
+
+  pdf.text(`Glue ${GLUE}mm`, totalWidth - GLUE + 3, FLAP + H / 2);
+
+  pdf.save(`carton-dieline_${W}x${L}x${H}mm.pdf`);
+}
+
+drawPreview();
+</script>
+</body>
+</html>
