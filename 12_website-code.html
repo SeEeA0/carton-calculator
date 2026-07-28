@@ -16,28 +16,128 @@
 <header class="topbar">
   <button class="menu-btn" data-menu type="button">☰ 메뉴</button>
   <div><strong>12. 홈페이지 HTML·CSS 및 기능 수정</strong></div>
-  <div class="top-actions"><button class="action-btn" data-reset type="button">체크 초기화</button><button class="action-btn" data-print type="button">인쇄</button></div>
+  <div class="top-actions"><button class="action-btn" data-reset type="button">체크 초기화</button><button class="action-btn" data-print type="button">인쇄소 인쇄</button></div>
 </header>
 <main class="main">
-  <div class="breadcrumb">디자인팀 업무 인수인계 / 홈페이지 / 12</div>
-  <section class="hero"><div class="eyebrow">WORK GUIDE 12</div><h2>홈페이지 HTML·CSS 및 기능 수정</h2><p>Cafe24 다국어몰의 HTML·CSS, 메뉴, 문의 게시판, 검색과 반응형 화면을 안전하게 수정하고 테스트합니다.</p><div class="hero-meta"><span class="pill">업무 설명</span><span class="pill">진행 순서</span><span class="pill">실무 체크리스트</span></div></section>
-  <div class="progress-card"><div class="progress-row"><strong>페이지 체크 진행률</strong><span data-progress-text></span></div><div class="progress-track"><div class="progress-fill" data-progress-fill></div></div></div>
-  <div class="toc"><h3>이 페이지의 구성</h3><ol><li><a href="#scope">HTML·CSS 및 기능 수정 범위</a></li><li><a href="#backup">작업 전 백업</a></li><li><a href="#tasks">주요 코드 관리 업무</a></li><li><a href="#paths">다국어 경로 관리 예시</a></li><li><a href="#test">수정 후 테스트</a></li><li><a href="#restore">오류 발생 시 복구</a></li><li><a href="#check">홈페이지 코드 체크리스트</a></li></ol></div>
-  <section class="section" id="scope"><h3>HTML·CSS 및 기능 수정 범위</h3>
-<p>Cafe24 기반 홈페이지에서 헤더, 메뉴, 문의 버튼, 검색, 게시판, 반응형 화면과 페이지별 HTML·CSS를 수정합니다. 서버나 결제처럼 직접 담당하지 않은 기능은 인수인계 범위에 포함하지 않습니다.</p>
-</section><section class="section" id="backup"><h3>작업 전 백업</h3>
-<ul><li>수정할 언어몰과 페이지 경로 확인</li><li>기존 HTML·CSS 전체 복사 또는 파일 백업</li><li>공통 레이아웃인지 개별 페이지 코드인지 확인</li><li>수정 전 화면 캡처</li><li>같은 클래스가 다른 페이지에 영향을 주는지 확인</li></ul>
-</section><section class="section" id="tasks"><h3>주요 코드 관리 업무</h3>
-<ul><li>헤더와 푸터 메뉴 구성</li><li>CONTACT, 검색, 제품·회사·박람회 메뉴 링크</li><li>문의 게시판 작성 페이지 연결</li><li>문의 완료 페이지와 다국어 경로</li><li>연혁 타임라인, 공장 갤러리, 인증서 롤링</li><li>PC·태블릿·모바일 반응형 CSS</li><li>이미지 경로와 텍스트 정렬</li></ul>
-</section><section class="section" id="paths"><h3>다국어 경로 관리 예시</h3>
-<div class="table-wrap"><table><thead><tr><th>몰</th><th>문의 작성 경로 예시</th></tr></thead><tbody><tr><td>한국어</td><td><span class="code-inline">/board/product/write.html?board_no=6</span></td></tr><tr><td>영어</td><td><span class="code-inline">/shop2/board/product/write.html?board_no=6</span></td></tr><tr><td>베트남어</td><td><span class="code-inline">/shop3/board/free/write.html?board_no=6</span></td></tr></tbody></table></div>
-<p>실제 운영 중인 경로가 변경될 수 있으므로 관리자에서 최종 주소를 확인하고 적용합니다.</p>
-</section><section class="section" id="test"><h3>수정 후 테스트</h3>
-<div class="two-col"><div class="mini-card"><h4>화면</h4><p>PC, 태블릿, 모바일에서 너비, 여백, 글자, 이미지 잘림과 스크롤을 확인합니다.</p></div><div class="mini-card"><h4>기능</h4><p>메뉴 이동, CONTACT, 검색, 게시판 작성, 완료 화면, 파일 업로드와 버튼 동작을 확인합니다.</p></div></div>
-</section><section class="section" id="restore"><h3>오류 발생 시 복구</h3>
-<p>수정 후 레이아웃이나 기능에 문제가 생기면 임의로 여러 부분을 계속 변경하지 말고, 백업 코드로 먼저 복구한 뒤 수정 범위를 좁혀 다시 작업합니다.</p>
-</section><section class="section" id="check"><h3>홈페이지 코드 체크리스트</h3><div class="checklist"><label class="check-item"><input type="checkbox"><span>수정 대상 언어몰과 페이지를 확인했다</span></label><label class="check-item"><input type="checkbox"><span>수정 전 HTML·CSS를 백업했다</span></label><label class="check-item"><input type="checkbox"><span>공통 코드와 개별 페이지 코드를 구분했다</span></label><label class="check-item"><input type="checkbox"><span>다른 페이지에 같은 클래스가 사용되는지 확인했다</span></label><label class="check-item"><input type="checkbox"><span>링크 경로가 언어몰에 맞는지 확인했다</span></label><label class="check-item"><input type="checkbox"><span>헤더와 푸터 메뉴가 정상 작동한다</span></label><label class="check-item"><input type="checkbox"><span>CONTACT와 문의 게시판이 정상 연결된다</span></label><label class="check-item"><input type="checkbox"><span>검색 기능이 정상 작동한다</span></label><label class="check-item"><input type="checkbox"><span>PC 화면을 확인했다</span></label><label class="check-item"><input type="checkbox"><span>태블릿 화면을 확인했다</span></label><label class="check-item"><input type="checkbox"><span>모바일 화면을 확인했다</span></label><label class="check-item"><input type="checkbox"><span>크롬에서 확인했다</span></label><label class="check-item"><input type="checkbox"><span>사파리에서 확인했다</span></label><label class="check-item"><input type="checkbox"><span>문제 발생 시 백업 코드로 복구할 수 있다</span></label><label class="check-item"><input type="checkbox"><span>수정 내용과 날짜를 기록했다</span></label></div></section>
-  <nav class="page-nav"><a href="11_website-content.html"><small>이전 페이지</small><strong>← 홈페이지 콘텐츠 및 운영 관리</strong></a><a class="next" href="13_exhibition-planning.html"><small>다음 페이지</small><strong>박람회 정보 및 부스 규격 확인 →</strong></a></nav>
+  <div class="breadcrumb">디자인팀 업무 인수인계 / 홈페이지 관리 / 12</div>
+  <section class="hero">
+    <div class="eyebrow">WORK GUIDE 12</div>
+    <h2>홈페이지 HTML·CSS 및 기능 수정</h2>
+    <p>Cafe24 기반 다국어몰의 HTML, CSS, 네비게이션 메뉴, 문의 게시판, 검색 기능 및 반응형 레이아웃을 안전하게 수정하고 철저하게 테스트합니다.</p>
+    <div class="hero-meta"><span class="pill">Cafe24 코드 관리</span><span class="pill">다국어 경로 및 반응형</span><span class="pill">에러 백업 및 복구</span></div>
+  </section>
+
+  <div class="progress-card">
+    <div class="progress-row"><strong>페이지 체크 진행률</strong><span data-progress-text></span></div>
+    <div class="progress-track"><div class="progress-fill" data-progress-fill></div></div>
+  </div>
+
+  <div class="toc">
+    <h3>이 페이지의 구성</h3>
+    <ol>
+      <li><a href="#scope">HTML·CSS 및 기능 수정 범위</a></li>
+      <li><a href="#backup">안전한 작업 전 백업 절차</a></li>
+      <li><a href="#tasks">주요 코드 관리 및 수정 업무</a></li>
+      <li><a href="#paths">언어몰별 다국어 경로 관리 예시</a></li>
+      <li><a href="#test">수정 후 크로스브라우징 및 디바이스 테스트</a></li>
+      <li><a href="#restore">오류 발생 시 신속 복구 가이드</a></li>
+      <li><a href="#check">실무 마스터 체크리스트</a></li>
+    </ol>
+  </div>
+
+  <section class="section" id="scope">
+    <h3>HTML·CSS 및 기능 수정 범위</h3>
+    <p>Cafe24 플랫폼 기반의 공식 홈페이지에서 헤더, 푸터, 네비게이션 메뉴, 문의 버튼, 검색창, 게시판 템플릿, 반응형 화면 및 페이지별 HTML·CSS 코드를 직접 수정·관리합니다. 단, 서버 인프라 관리나 결제 모듈 연동 등 디자인팀 소관 외의 전문 서버 기능은 인수인계 범위에 포함되지 않습니다.</p>
+  </section>
+
+  <section class="section" id="backup">
+    <h3>안전한 작업 전 백업 절차</h3>
+    <div class="mini-card" style="margin-top: 16px;">
+      <p>• 수정할 대상 언어몰과 정확한 파일 경로를 먼저 확인<br>• 수정 전 기존 HTML·CSS 전체 소스 복사 또는 별도 파일 백업<br>• 해당 코드가 공통 레이아웃인지, 특정 개별 페이지 코드인지 파악<br>• 수정 전 화면 상태를 캡처하여 시각적 기준점 마련<br>• 동일한 클래스(Class)명이 다른 페이지의 디자인에 의도치 않은 영향을 주는지 검토</p>
+    </div>
+  </section>
+
+  <section class="section" id="tasks">
+    <h3>주요 코드 관리 및 수정 업무</h3>
+    <div class="mini-card" style="margin-top: 16px;">
+      <p>• 헤더 및 푸터 네비게이션 메뉴 구조 개편<br>• CONTACT, 통합 검색, 제품·회사·박람회 관련 메뉴 하이퍼링크 연결<br>• 고객 문의 게시판 글 작성 및 접수 페이지 연동<br>• 문의 완료 페이지 및 언어몰별 분기 경로 설정<br>• 연혁 타임라인, 공장 이미지 갤러리, 인증서 롤링 배너 구현<br>• PC·태블릿·모바일 디바이스 대응 반응형 CSS 스타일 조정<br>• 에셋 이미지 경로 정비 및 텍스트 정렬 상태 최적화</p>
+    </div>
+  </section>
+
+  <section class="section" id="paths">
+    <h3>언어몰별 다국어 경로 관리 예시</h3>
+    <p>Cafe24 다국어몰 환경에서는 언어별로 경로 체계가 다르므로 오작동이 없도록 주의해야 합니다.</p>
+    <div class="table-wrap" style="margin-top: 16px;">
+      <table>
+        <thead>
+          <tr>
+            <th>언어몰 구분</th>
+            <th>문의 작성 경로 예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>한국어몰</strong></td>
+            <td><span class="code-inline">/board/product/write.html?board_no=6</span></td>
+          </tr>
+          <tr>
+            <td><strong>영어몰</strong></td>
+            <td><span class="code-inline">/shop2/board/product/write.html?board_no=6</span></td>
+          </tr>
+          <tr>
+            <td><strong>베트남어몰</strong></td>
+            <td><span class="code-inline">/shop3/board/free/write.html?board_no=6</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top: 12px;">💡 실제 운영 중인 사이트의 구조 개편에 따라 경로가 변경될 수 있으므로, 수정 작업 전 Cafe24 관리자 모드에서 최종 주소를 반드시 재확인하고 적용해야 합니다.</p>
+  </section>
+
+  <section class="section" id="test">
+    <h3>수정 후 크로스브라우징 및 디바이스 테스트</h3>
+    <div class="two-col" style="margin-top: 16px;">
+      <div class="mini-card">
+        <h4>💻 화면 레이아웃 검수</h4>
+        <p>PC, 태블릿, 모바일 해상도에서 콘텐츠 너비, 여백, 폰트 크기, 이미지 잘림 현상 및 불필요한 스크롤 발생 여부를 다각도로 확인합니다.</p>
+      </div>
+      <div class="mini-card">
+        <h4>⚙️ 기능 동작 검수</h4>
+        <p>메뉴 이동, CONTACT 버튼, 검색 결과, 게시판 작성 및 완료 화면, 첨부파일 업로드 등 인터랙티브 버튼의 정상 작동 여부를 테스트합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="restore">
+    <h3>오류 발생 시 신속 복구 가이드</h3>
+    <p>코드 수정 후 레이아웃이 깨지거나 기능에 심각한 오류가 발생한 경우, 원인을 찾기 위해 임의로 여러 코드를 동시에 수정하지 마십시오. <strong>작업 전 백업해 둔 원본 코드로 즉시 복구</strong>한 뒤, 수정 범위를 최소 단위로 좁혀가며 안전하게 재작업을 진행합니다.</p>
+  </section>
+
+  <section class="section" id="check">
+    <h3>실무 마스터 체크리스트</h3>
+    <div class="checklist">
+      <label class="check-item"><input type="checkbox"><span>수정 대상이 되는 언어몰과 구체적인 페이지를 확인했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>코드 수정 작업에 들어가기 전 기존 HTML·CSS를 안전하게 백업했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>수정하려는 코드가 공통 레이아웃인지 개별 페이지인지 구분했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>동일한 CSS 클래스명이 타 페이지 디자인에 영향을 주는지 검토했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>적용된 링크 및 URL 경로가 해당 언어몰 체계에 정확히 부합한다</span></label>
+      <label class="check-item"><input type="checkbox"><span>상·하단 헤더와 푸터 네비게이션 메뉴가 정상 작동한다</span></label>
+      <label class="check-item"><input type="checkbox"><span>CONTACT 및 고객 문의 게시판 기능이 바르게 연결된다</span></label>
+      <label class="check-item"><input type="checkbox"><span>사이트 내 통합 검색 기능이 오류 없이 작동한다</span></label>
+      <label class="check-item"><input type="checkbox"><span>PC 데스크톱 환경에서 화면 레이아웃을 최종 검수했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>태블릿 디바이스 환경에서 화면 반응형을 검수했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>모바일 스마트폰 환경에서 화면 반응형을 검수했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>크롬(Chrome) 브라우저에서 정상 출력을 확인했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>사파리(Safari) 브라우저에서 정상 출력을 확인했다</span></label>
+      <label class="check-item"><input type="checkbox"><span>코드 오류 발생 시 백업본으로 즉시 원상복구할 수 있는 상태다</span></label>
+      <label class="check-item"><input type="checkbox"><span>코드 수정 날짜와 주요 변경 내역을 작업 일지에 기록했다</span></label>
+    </div>
+  </section>
+
+  <nav class="page-nav">
+    <a href="11_website-content.html" class="next" style="align-items: flex-start;"><small>이전 페이지</small><strong>← 홈페이지 콘텐츠 및 운영 관리</strong></a>
+    <a class="next" href="13_exhibition-planning.html"><small>다음 페이지</small><strong>박람회 정보 및 부스 규격 확인 →</strong></a>
+  </nav>
 </main>
 <footer class="footer">디자인팀 실무 프로세스 및 업무 인수인계 · 체크 상태는 현재 브라우저에 저장됩니다.</footer>
 </div>
