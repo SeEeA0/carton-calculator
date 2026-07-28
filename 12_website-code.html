@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>홈페이지 HTML·CSS 및 기능 수정 | 디자인팀 업무 인수인계</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand"><h1>디자인팀 업무<br>인수인계 가이드</h1><p>패키지 개발 · 홈페이지 운영 · 박람회 디자인</p></div>
+  <div class="nav-group"><div class="nav-group-title">전체 업무</div><a class="nav-link" href="index.html"><span class="nav-num">00</span><span>전체 업무 메인</span></a></div><div class="nav-group"><div class="nav-group-title">A. 패키지 개발</div><a class="nav-link" href="01_project-planning.html"><span class="nav-num">01</span><span>프로젝트 시작 및 브랜드 기획</span></a><a class="nav-link" href="02_container.html"><span class="nav-num">02</span><span>용기 선정 및 CT 테스트</span></a><a class="nav-link" href="03_package-design.html"><span class="nav-num">03</span><span>용기·단상자 디자인</span></a><a class="nav-link" href="04_qc-review.html"><span class="nav-num">04</span><span>QC 검수 및 최종 파일</span></a><a class="nav-link" href="05_dieline.html"><span class="nav-num">05</span><span>칼선·목형 및 아웃박스 디자인</span></a><a class="nav-link" href="06_order-schedule.html"><span class="nav-num">06</span><span>견적·발주 및 납기 관리</span></a><a class="nav-link" href="07_color-proofing.html"><span class="nav-num">07</span><span>단상자 색상 감리</span></a><a class="nav-link" href="08_product-spec.html"><span class="nav-num">08</span><span>제품사양서·생산 전달·관리 샘플</span></a><a class="nav-link" href="09_logistics.html"><span class="nav-num">09</span><span>아웃박스 및 파레트 계산</span></a><a class="nav-link" href="10_customer-assets.html"><span class="nav-num">10</span><span>완제품 이미지·상세페이지·고객사 자료</span></a></div><div class="nav-group"><div class="nav-group-title">B. 홈페이지 관리</div><a class="nav-link" href="11_website-content.html"><span class="nav-num">11</span><span>홈페이지 콘텐츠 및 운영 관리</span></a><a class="nav-link active" href="12_website-code.html"><span class="nav-num">12</span><span>홈페이지 HTML·CSS 및 기능 수정</span></a></div><div class="nav-group"><div class="nav-group-title">C. 박람회 디자인</div><a class="nav-link" href="13_exhibition-planning.html"><span class="nav-num">13</span><span>박람회 정보 및 부스 규격 확인</span></a><a class="nav-link" href="14_exhibition-design.html"><span class="nav-num">14</span><span>박람회 백월 디자인 및 국가별 언어</span></a></div>
+</aside>
+<div class="content">
+<header class="topbar">
+  <button class="menu-btn" data-menu type="button">☰ 메뉴</button>
+  <div><strong>12. 홈페이지 HTML·CSS 및 기능 수정</strong></div>
+  <div class="top-actions"><button class="action-btn" data-reset type="button">체크 초기화</button><button class="action-btn" data-print type="button">인쇄</button></div>
+</header>
+<main class="main">
+  <div class="breadcrumb">디자인팀 업무 인수인계 / 홈페이지 / 12</div>
+  <section class="hero"><div class="eyebrow">WORK GUIDE 12</div><h2>홈페이지 HTML·CSS 및 기능 수정</h2><p>Cafe24 다국어몰의 HTML·CSS, 메뉴, 문의 게시판, 검색과 반응형 화면을 안전하게 수정하고 테스트합니다.</p><div class="hero-meta"><span class="pill">업무 설명</span><span class="pill">진행 순서</span><span class="pill">실무 체크리스트</span></div></section>
+  <div class="progress-card"><div class="progress-row"><strong>페이지 체크 진행률</strong><span data-progress-text></span></div><div class="progress-track"><div class="progress-fill" data-progress-fill></div></div></div>
+  <div class="toc"><h3>이 페이지의 구성</h3><ol><li><a href="#scope">HTML·CSS 및 기능 수정 범위</a></li><li><a href="#backup">작업 전 백업</a></li><li><a href="#tasks">주요 코드 관리 업무</a></li><li><a href="#paths">다국어 경로 관리 예시</a></li><li><a href="#test">수정 후 테스트</a></li><li><a href="#restore">오류 발생 시 복구</a></li><li><a href="#check">홈페이지 코드 체크리스트</a></li></ol></div>
+  <section class="section" id="scope"><h3>HTML·CSS 및 기능 수정 범위</h3>
+<p>Cafe24 기반 홈페이지에서 헤더, 메뉴, 문의 버튼, 검색, 게시판, 반응형 화면과 페이지별 HTML·CSS를 수정합니다. 서버나 결제처럼 직접 담당하지 않은 기능은 인수인계 범위에 포함하지 않습니다.</p>
+</section><section class="section" id="backup"><h3>작업 전 백업</h3>
+<ul><li>수정할 언어몰과 페이지 경로 확인</li><li>기존 HTML·CSS 전체 복사 또는 파일 백업</li><li>공통 레이아웃인지 개별 페이지 코드인지 확인</li><li>수정 전 화면 캡처</li><li>같은 클래스가 다른 페이지에 영향을 주는지 확인</li></ul>
+</section><section class="section" id="tasks"><h3>주요 코드 관리 업무</h3>
+<ul><li>헤더와 푸터 메뉴 구성</li><li>CONTACT, 검색, 제품·회사·박람회 메뉴 링크</li><li>문의 게시판 작성 페이지 연결</li><li>문의 완료 페이지와 다국어 경로</li><li>연혁 타임라인, 공장 갤러리, 인증서 롤링</li><li>PC·태블릿·모바일 반응형 CSS</li><li>이미지 경로와 텍스트 정렬</li></ul>
+</section><section class="section" id="paths"><h3>다국어 경로 관리 예시</h3>
+<div class="table-wrap"><table><thead><tr><th>몰</th><th>문의 작성 경로 예시</th></tr></thead><tbody><tr><td>한국어</td><td><span class="code-inline">/board/product/write.html?board_no=6</span></td></tr><tr><td>영어</td><td><span class="code-inline">/shop2/board/product/write.html?board_no=6</span></td></tr><tr><td>베트남어</td><td><span class="code-inline">/shop3/board/free/write.html?board_no=6</span></td></tr></tbody></table></div>
+<p>실제 운영 중인 경로가 변경될 수 있으므로 관리자에서 최종 주소를 확인하고 적용합니다.</p>
+</section><section class="section" id="test"><h3>수정 후 테스트</h3>
+<div class="two-col"><div class="mini-card"><h4>화면</h4><p>PC, 태블릿, 모바일에서 너비, 여백, 글자, 이미지 잘림과 스크롤을 확인합니다.</p></div><div class="mini-card"><h4>기능</h4><p>메뉴 이동, CONTACT, 검색, 게시판 작성, 완료 화면, 파일 업로드와 버튼 동작을 확인합니다.</p></div></div>
+</section><section class="section" id="restore"><h3>오류 발생 시 복구</h3>
+<p>수정 후 레이아웃이나 기능에 문제가 생기면 임의로 여러 부분을 계속 변경하지 말고, 백업 코드로 먼저 복구한 뒤 수정 범위를 좁혀 다시 작업합니다.</p>
+</section><section class="section" id="check"><h3>홈페이지 코드 체크리스트</h3><div class="checklist"><label class="check-item"><input type="checkbox"><span>수정 대상 언어몰과 페이지를 확인했다</span></label><label class="check-item"><input type="checkbox"><span>수정 전 HTML·CSS를 백업했다</span></label><label class="check-item"><input type="checkbox"><span>공통 코드와 개별 페이지 코드를 구분했다</span></label><label class="check-item"><input type="checkbox"><span>다른 페이지에 같은 클래스가 사용되는지 확인했다</span></label><label class="check-item"><input type="checkbox"><span>링크 경로가 언어몰에 맞는지 확인했다</span></label><label class="check-item"><input type="checkbox"><span>헤더와 푸터 메뉴가 정상 작동한다</span></label><label class="check-item"><input type="checkbox"><span>CONTACT와 문의 게시판이 정상 연결된다</span></label><label class="check-item"><input type="checkbox"><span>검색 기능이 정상 작동한다</span></label><label class="check-item"><input type="checkbox"><span>PC 화면을 확인했다</span></label><label class="check-item"><input type="checkbox"><span>태블릿 화면을 확인했다</span></label><label class="check-item"><input type="checkbox"><span>모바일 화면을 확인했다</span></label><label class="check-item"><input type="checkbox"><span>크롬에서 확인했다</span></label><label class="check-item"><input type="checkbox"><span>사파리에서 확인했다</span></label><label class="check-item"><input type="checkbox"><span>문제 발생 시 백업 코드로 복구할 수 있다</span></label><label class="check-item"><input type="checkbox"><span>수정 내용과 날짜를 기록했다</span></label></div></section>
+  <nav class="page-nav"><a href="11_website-content.html"><small>이전 페이지</small><strong>← 홈페이지 콘텐츠 및 운영 관리</strong></a><a class="next" href="13_exhibition-planning.html"><small>다음 페이지</small><strong>박람회 정보 및 부스 규격 확인 →</strong></a></nav>
+</main>
+<footer class="footer">디자인팀 실무 프로세스 및 업무 인수인계 · 체크 상태는 현재 브라우저에 저장됩니다.</footer>
+</div>
+</div>
+<script src="assets/script.js"></script>
+</body>
+</html>

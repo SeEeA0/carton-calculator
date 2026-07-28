@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>아웃박스 및 파레트 계산 | 디자인팀 업무 인수인계</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand"><h1>디자인팀 업무<br>인수인계 가이드</h1><p>패키지 개발 · 홈페이지 운영 · 박람회 디자인</p></div>
+  <div class="nav-group"><div class="nav-group-title">전체 업무</div><a class="nav-link" href="index.html"><span class="nav-num">00</span><span>전체 업무 메인</span></a></div><div class="nav-group"><div class="nav-group-title">A. 패키지 개발</div><a class="nav-link" href="01_project-planning.html"><span class="nav-num">01</span><span>프로젝트 시작 및 브랜드 기획</span></a><a class="nav-link" href="02_container.html"><span class="nav-num">02</span><span>용기 선정 및 CT 테스트</span></a><a class="nav-link" href="03_package-design.html"><span class="nav-num">03</span><span>용기·단상자 디자인</span></a><a class="nav-link" href="04_qc-review.html"><span class="nav-num">04</span><span>QC 검수 및 최종 파일</span></a><a class="nav-link" href="05_dieline.html"><span class="nav-num">05</span><span>칼선·목형 및 아웃박스 디자인</span></a><a class="nav-link" href="06_order-schedule.html"><span class="nav-num">06</span><span>견적·발주 및 납기 관리</span></a><a class="nav-link" href="07_color-proofing.html"><span class="nav-num">07</span><span>단상자 색상 감리</span></a><a class="nav-link" href="08_product-spec.html"><span class="nav-num">08</span><span>제품사양서·생산 전달·관리 샘플</span></a><a class="nav-link active" href="09_logistics.html"><span class="nav-num">09</span><span>아웃박스 및 파레트 계산</span></a><a class="nav-link" href="10_customer-assets.html"><span class="nav-num">10</span><span>완제품 이미지·상세페이지·고객사 자료</span></a></div><div class="nav-group"><div class="nav-group-title">B. 홈페이지 관리</div><a class="nav-link" href="11_website-content.html"><span class="nav-num">11</span><span>홈페이지 콘텐츠 및 운영 관리</span></a><a class="nav-link" href="12_website-code.html"><span class="nav-num">12</span><span>홈페이지 HTML·CSS 및 기능 수정</span></a></div><div class="nav-group"><div class="nav-group-title">C. 박람회 디자인</div><a class="nav-link" href="13_exhibition-planning.html"><span class="nav-num">13</span><span>박람회 정보 및 부스 규격 확인</span></a><a class="nav-link" href="14_exhibition-design.html"><span class="nav-num">14</span><span>박람회 백월 디자인 및 국가별 언어</span></a></div>
+</aside>
+<div class="content">
+<header class="topbar">
+  <button class="menu-btn" data-menu type="button">☰ 메뉴</button>
+  <div><strong>09. 아웃박스 및 파레트 계산</strong></div>
+  <div class="top-actions"><button class="action-btn" data-reset type="button">체크 초기화</button><button class="action-btn" data-print type="button">인쇄</button></div>
+</header>
+<main class="main">
+  <div class="breadcrumb">디자인팀 업무 인수인계 / 패키지 / 09</div>
+  <section class="hero"><div class="eyebrow">WORK GUIDE 09</div><h2>아웃박스 및 파레트 계산</h2><p>완제품 무게와 단상자 규격을 기준으로 아웃박스 입수, 총 박스 수량, 파레트 한 단 수량과 총 적재 단수를 계산합니다.</p><div class="hero-meta"><span class="pill">업무 설명</span><span class="pill">진행 순서</span><span class="pill">실무 체크리스트</span></div></section>
+  <div class="progress-card"><div class="progress-row"><strong>페이지 체크 진행률</strong><span data-progress-text></span></div><div class="progress-track"><div class="progress-fill" data-progress-fill></div></div></div>
+  <div class="toc"><h3>이 페이지의 구성</h3><ol><li><a href="#input">계산 전 필요한 정보</a></li><li><a href="#rules">아웃박스 기본 기준</a></li><li><a href="#array">12×7 배열 계산 예시</a></li><li><a href="#box-count">총 아웃박스 수량</a></li><li><a href="#pallet">파레트 적재 단수</a></li><li><a href="#weight">아웃박스와 파레트 무게</a></li><li><a href="#check">물류 계산 체크리스트</a></li></ol></div>
+  <section class="section" id="input"><h3>계산 전 필요한 정보</h3>
+<ul><li>단상자 실제 가로·세로·높이</li><li>용기 + 내용물 + 단상자 기준 완제품 1개의 무게</li><li>총 발주 수량</li><li>희망 아웃박스 입수 배열</li><li>파레트 한 단에 배치 가능한 아웃박스 수</li></ul>
+<p>완제품 무게는 초기에 내용물 무게 + 약 10~20g으로 가늠할 수 있지만, 무거운 유리 용기나 특수 용기는 실제로 측정하는 것이 안전합니다.</p>
+</section><section class="section" id="rules"><h3>아웃박스 기본 기준</h3>
+<ul><li>아웃박스 1개 총중량은 15kg 이하</li><li>가로·세로·높이는 각각 500mm 이하가 들기 편함</li><li>파레트 1,100mm 기준으로 적재</li><li>회오리 형태로 쌓기 좋도록 정사각형보다 직사각형 아웃박스가 유리</li></ul>
+</section><section class="section" id="array"><h3>12×7 배열 계산 예시</h3>
+<p>단상자를 가로 12개, 세로 7개, 한 층으로 넣는 경우 아웃박스 1개당 84개가 들어갑니다.</p>
+<div class="kpi"><div class="kpi-card"><strong>12</strong><span>가로 배열</span></div><div class="kpi-card"><strong>7</strong><span>세로 배열</span></div><div class="kpi-card"><strong>84개</strong><span>아웃박스 입수</span></div><div class="kpi-card"><strong>+20mm</strong><span>전체 배열 여유</span></div></div>
+<p>아웃박스 내부 가로와 세로는 단상자 배열 전체 길이에 20mm를 한 번 더해 계산합니다. 단상자 한 개마다 20mm를 더하는 것이 아닙니다.</p>
+</section><section class="section" id="box-count"><h3>총 아웃박스 수량</h3>
+<p>총 발주 수량이 5,000개이고 아웃박스당 84개가 들어가면:</p>
+<div class="request-box">5,000 ÷ 84 = 약 59.52 → 올림하여 총 60박스
+
+정규 아웃박스 59개 × 84개 = 4,956개
+마지막 잔량 아웃박스 = 44개</div>
+<p>마지막 잔량 박스에는 실제 입수 수량을 표시하고 내부에서 제품이 움직이지 않도록 고정합니다.</p>
+</section><section class="section" id="pallet"><h3>파레트 적재 단수</h3>
+<p>파레트 한 단에 아웃박스 8개를 쌓을 수 있다면 총 60박스는 다음과 같습니다.</p>
+<div class="request-box">60박스 ÷ 8박스 = 7단 + 나머지 4박스
+
+1~7단: 각 8박스 = 56박스
+8단: 4박스
+실제 적재 높이 기준: 총 8단</div>
+<p>마지막 단의 4박스도 한 층 높이를 차지하므로 전체 높이는 8단으로 계산합니다.</p>
+</section><section class="section" id="weight"><h3>아웃박스와 파레트 무게</h3>
+<p>아웃박스 총중량은 완제품 1개 무게 × 입수 수량 + 아웃박스 자체 무게로 계산합니다. 파레트 총중량은 모든 아웃박스 무게의 합계와 파레트 자체 무게를 더합니다.</p>
+</section><section class="section" id="check"><h3>물류 계산 체크리스트</h3><div class="checklist"><label class="check-item"><input type="checkbox"><span>단상자의 실제 가로·세로·높이를 확인했다</span></label><label class="check-item"><input type="checkbox"><span>완제품 1개 무게를 확인했다</span></label><label class="check-item"><input type="checkbox"><span>총 발주 수량을 확인했다</span></label><label class="check-item"><input type="checkbox"><span>아웃박스 1개당 배열과 입수 수량을 계산했다</span></label><label class="check-item"><input type="checkbox"><span>가로·세로 배열 전체에 각각 20mm 여유를 적용했다</span></label><label class="check-item"><input type="checkbox"><span>아웃박스 총중량이 15kg 이하인지 확인했다</span></label><label class="check-item"><input type="checkbox"><span>아웃박스 각 변이 500mm 이하인지 확인했다</span></label><label class="check-item"><input type="checkbox"><span>파레트 1,100mm 기준 배치를 확인했다</span></label><label class="check-item"><input type="checkbox"><span>회오리 적재가 가능한 직사각형 규격인지 확인했다</span></label><label class="check-item"><input type="checkbox"><span>총 아웃박스 수량을 소수점 올림으로 계산했다</span></label><label class="check-item"><input type="checkbox"><span>마지막 잔량 박스 입수 수량을 계산했다</span></label><label class="check-item"><input type="checkbox"><span>파레트 한 단 적재 박스 수를 확인했다</span></label><label class="check-item"><input type="checkbox"><span>가득 차는 단수와 마지막 단 수량을 계산했다</span></label><label class="check-item"><input type="checkbox"><span>실제 적재 높이를 마지막 단 포함으로 계산했다</span></label><label class="check-item"><input type="checkbox"><span>잔량 박스 표기와 고정 방법을 확인했다</span></label></div></section>
+  <nav class="page-nav"><a href="08_product-spec.html"><small>이전 페이지</small><strong>← 제품사양서·생산 전달·관리 샘플</strong></a><a class="next" href="10_customer-assets.html"><small>다음 페이지</small><strong>완제품 이미지·상세페이지·고객사 자료 →</strong></a></nav>
+</main>
+<footer class="footer">디자인팀 실무 프로세스 및 업무 인수인계 · 체크 상태는 현재 브라우저에 저장됩니다.</footer>
+</div>
+</div>
+<script src="assets/script.js"></script>
+</body>
+</html>
