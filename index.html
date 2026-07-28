@@ -1,125 +1,202 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carton Calculator Hub</title>
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --dark-color: #2c3e50;
-            --bg-color: #f4f7f6;
-        }
-
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: var(--dark-color);
-        }
-
-        .container {
-            text-align: center;
-            max-width: 900px;
-            width: 100%;
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: var(--dark-color);
-        }
-
-        p.subtitle {
-            color: #7f8c8d;
-            margin-bottom: 40px;
-        }
-
-        .card-wrapper {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 40px 30px;
-            text-decoration: none;
-            color: inherit;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 2px solid transparent;
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            border-color: var(--primary-color);
-        }
-
-        .icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            margin: 0 0 15px 0;
-            font-size: 1.5rem;
-        }
-
-        .card p {
-            font-size: 0.95rem;
-            color: #636e72;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-
-        .btn {
-            padding: 10px 25px;
-            border-radius: 25px;
-            background: var(--primary-color);
-            color: white;
-            font-weight: bold;
-            font-size: 0.9rem;
-            transition: background 0.3s;
-        }
-
-        .card:hover .btn {
-            background: var(--dark-color);
-        }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 1.8rem; }
-            .card-wrapper { grid-template-columns: 1fr; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전체 업무 메인 | 디자인팀 업무 인수인계</title>
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-
-    <div class="container">
-        <h1>Carton Calculator</h1>
-        <p class="subtitle">필요한 계산기 도구를 선택하세요.</p>
-
-        <div class="card-wrapper">
-            <a href="https://carton-calculator.pages.dev/yuyu" class="card">
-                <div class="icon">📦</div>
-                <h2>Yuyu Calculator</h2>
-                <p>카톤 규격 및 수량을 <br>빠르고 정확하게 계산합니다.</p>
-                <div class="btn">이동하기</div>
-            </a>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>디자인팀 업무<br>인수인계 가이드</h1>
+        <p>패키지 개발 · 홈페이지 운영 · 박람회 디자인</p>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">전체 업무</div>
+        <a class="nav-link active" href="index.html"><span class="nav-num">00</span><span>전체 업무 메인</span></a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">A. 패키지 개발</div>
+        <a class="nav-link" href="01_project-planning.html"><span class="nav-num">01</span><span>프로젝트 시작 및 브랜드 기획</span></a>
+        <a class="nav-link" href="02_container.html"><span class="nav-num">02</span><span>용기 선정 및 CT 테스트</span></a>
+        <a class="nav-link" href="03_package-design.html"><span class="nav-num">03</span><span>용기·단상자 디자인</span></a>
+        <a class="nav-link" href="04_qc-review.html"><span class="nav-num">04</span><span>QC 검수 및 최종 파일</span></a>
+        <a class="nav-link" href="05_dieline.html"><span class="nav-num">05</span><span>칼선·목형 및 아웃박스 디자인</span></a>
+        <a class="nav-link" href="06_order-schedule.html"><span class="nav-num">06</span><span>견적·발주 및 납기 관리</span></a>
+        <a class="nav-link" href="07_color-proofing.html"><span class="nav-num">07</span><span>단상자 색상 감리</span></a>
+        <a class="nav-link" href="08_product-spec.html"><span class="nav-num">08</span><span>제품사양서·생산 전달·관리 샘플</span></a>
+        <a class="nav-link" href="09_logistics.html"><span class="nav-num">09</span><span>아웃박스 및 파레트 계산</span></a>
+        <a class="nav-link" href="10_customer-assets.html"><span class="nav-num">10</span><span>완제품 이미지·상세페이지·고객사 자료</span></a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">B. 홈페이지 관리</div>
+        <a class="nav-link" href="11_website-content.html"><span class="nav-num">11</span><span>홈페이지 콘텐츠 및 운영 관리</span></a>
+        <a class="nav-link" href="12_website-code.html"><span class="nav-num">12</span><span>홈페이지 HTML·CSS 및 기능 수정</span></a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">C. 박람회 디자인</div>
+        <a class="nav-link" href="13_exhibition-planning.html"><span class="nav-num">13</span><span>박람회 정보 및 부스 규격 확인</span></a>
+        <a class="nav-link" href="14_exhibition-design.html"><span class="nav-num">14</span><span>박람회 백월 디자인 및 국가별 언어</span></a>
+      </div>
+    </aside>
+    
+    <div class="content">
+      <header class="topbar">
+        <button class="menu-btn" data-menu type="button">☰ 메뉴</button>
+        <div><strong>00. 전체 업무 메인</strong></div>
+        <div class="top-actions">
+          <button class="action-btn" data-reset type="button">체크 초기화</button>
+          <button class="action-btn" data-print type="button">인쇄</button>
         </div>
-    </div>
+      </header>
+      
+      <main class="main">
+        <div class="breadcrumb">디자인팀 업무 인수인계 / 전체 업무 / 00</div>
+        
+        <section class="hero">
+          <div class="eyebrow">WORK GUIDE 00</div>
+          <h2>전체 업무 메인</h2>
+          <p>디자인팀의 패키지 개발, 홈페이지 운영, 박람회 디자인 업무를 한눈에 확인하는 시작 페이지입니다.</p>
+          <div class="hero-meta">
+            <span class="pill">업무 설명</span>
+            <span class="pill">진행 순서</span>
+            <span class="pill">실무 체크리스트</span>
+          </div>
+        </section>
 
+        <div class="progress-card">
+          <div class="progress-row">
+            <strong>페이지 체크 진행률</strong>
+            <span data-progress-text></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" data-progress-fill></div>
+          </div>
+        </div>
+
+        <div class="toc">
+          <h3>이 페이지의 구성</h3>
+          <ol>
+            <li><a href="#overview">전체 업무 구성</a></li>
+            <li><a href="#workflow">전체 업무 흐름</a></li>
+            <li><a href="#package-map">패키지 개발 페이지</a></li>
+            <li><a href="#other-map">홈페이지·박람회 페이지</a></li>
+            <li><a href="#master-check">전체 프로젝트 핵심 체크리스트</a></li>
+          </ol>
+        </div>
+
+        <section class="section" id="overview">
+          <h3>전체 업무 구성</h3>
+          <p>이 사이트는 디자인팀에서 실제로 진행했던 업무를 세 가지 영역으로 나누어 정리한 인수인계 가이드입니다. 패키지 디자인만이 아니라 제품 개발 준비, 부자재 발주, 생산 전달, 홈페이지 운영, 박람회 디자인까지 포함합니다.</p>
+          <div class="three-col">
+            <div class="mini-card">
+              <h4>A. 패키지 개발 및 생산 준비</h4>
+              <p>브랜드 기획부터 용기·단상자 디자인, QC 검수, 발주, 감리, 제품사양서, 물류 계산, 고객사 자료까지 관리합니다.</p>
+            </div>
+            <div class="mini-card">
+              <h4>B. 홈페이지 운영 및 유지보수</h4>
+              <p>다국어몰 콘텐츠, 배너, 제품 및 회사정보, HTML·CSS, 게시판, 링크와 반응형 화면을 관리합니다.</p>
+            </div>
+            <div class="mini-card">
+              <h4>C. 박람회 및 전시 디자인</h4>
+              <p>부스 규격과 백월 분할 여부를 확인하고, 개최 국가와 언어에 맞춰 출력용 디자인을 제작합니다.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="workflow">
+          <h3>전체 업무 흐름</h3>
+          <div class="flow">
+            <span class="flow-step">프로젝트 접수</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">브랜드·제품 기획</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">용기 선정</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">패키지 디자인</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">QC 검수</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">칼선·목형</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">견적·발주</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">색상 감리</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">제품사양서</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">생산·관리샘플</span> <span class="flow-arrow">→</span>
+            <span class="flow-step">고객사 자료</span>
+          </div>
+          <div class="note">모든 제품이 동일한 순서로 진행되는 것은 아니지만, 누락 방지를 위해 위 흐름을 기본 기준으로 사용합니다. 내용물 개발·디자인·용기 제작은 일정에 따라 병행될 수 있습니다.</div>
+        </section>
+
+        <section class="section" id="package-map">
+          <h3>패키지 개발 페이지</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>페이지</th>
+                  <th>핵심 업무</th>
+                  <th>바로가기</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>01</td><td>고객사 구분, 브랜드·제품 기획, 연구소 컨셉 성분</td><td><a href="01_project-planning.html">열기</a></td></tr>
+                <tr><td>02</td><td>용기 종류, 사양 확인, 간이 점검, CT 테스트</td><td><a href="02_container.html">열기</a></td></tr>
+                <tr><td>03</td><td>용기·단상자 디자인, 필수 표시자료, 코리안넷 바코드</td><td><a href="03_package-design.html">열기</a></td></tr>
+                <tr><td>04</td><td>전성분과 디자인 파일을 QC팀에 전달해 검수</td><td><a href="04_qc-review.html">열기</a></td></tr>
+                <tr><td>05</td><td>칼선·목형, 박스코리아, 아웃박스 디자인</td><td><a href="05_dieline.html">열기</a></td></tr>
+                <tr><td>06</td><td>견적, 입금, 생산 시작, 납기와 공장 입고일</td><td><a href="06_order-schedule.html">열기</a></td></tr>
+                <tr><td>07</td><td>인쇄소 색상 감리, 용기 샘플, 후가공 참고</td><td><a href="07_color-proofing.html">열기</a></td></tr>
+                <tr><td>08</td><td>제품사양서, 조립 순서, 관리 샘플 수령</td><td><a href="08_product-spec.html">열기</a></td></tr>
+                <tr><td>09</td><td>아웃박스 규격·중량·파레트 단수 계산</td><td><a href="09_logistics.html">열기</a></td></tr>
+                <tr><td>10</td><td>완제품 누끼, 제품 설명, 상세페이지, 고객사 자료</td><td><a href="10_customer-assets.html">열기</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="other-map">
+          <h3>홈페이지·박람회 페이지</h3>
+          <div class="two-col">
+            <div class="mini-card">
+              <h4>홈페이지 운영</h4>
+              <p><a href="11_website-content.html">11. 콘텐츠 및 운영 관리</a><br><a href="12_website-code.html">12. HTML·CSS 및 기능 수정</a></p>
+            </div>
+            <div class="mini-card">
+              <h4>박람회 디자인</h4>
+              <p><a href="13_exhibition-planning.html">13. 박람회 정보 및 부스 규격 확인</a><br><a href="14_exhibition-design.html">14. 백월 디자인 및 국가별 언어</a></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="master-check">
+          <h3>전체 프로젝트 핵심 체크리스트</h3>
+          <div class="checklist">
+            <label class="check-item"><input type="checkbox"><span>고객사·담당 영업사원·제품 발주 수량을 확인했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>브랜드명·로고·컨셉과 제품 라인을 확인했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>연구소에서 컨셉 성분 또는 최종 전성분을 받았다</span></label>
+            <label class="check-item"><input type="checkbox"><span>용기 사양과 실제 충전 가능 여부를 확인했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>용기·단상자 디자인 필수 표시사항을 적용했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>코리안넷에서 필요한 바코드를 직접 생성했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>QC팀에 전성분과 디자인 파일 검수를 요청했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>용기·단상자·아웃박스 견적과 납기를 받았다</span></label>
+            <label class="check-item"><input type="checkbox"><span>단상자 색상 감리 일정과 참석자를 확인했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>제품사양서에 결합·박킹·선대·마킹 정보를 적었다</span></label>
+            <label class="check-item"><input type="checkbox"><span>용기·단상자·완제품 디자인팀 관리 샘플을 요청했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>아웃박스 입수·무게·파레트 적재 단수를 계산했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>고객사 요청 이미지와 제품 설명 자료를 정리했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>홈페이지 수정 시 백업·PC·모바일·링크를 확인했다</span></label>
+            <label class="check-item"><input type="checkbox"><span>박람회 백월 분할 수와 국가별 언어를 확인했다</span></label>
+          </div>
+        </section>
+
+        <nav class="page-nav">
+          <a class="next" href="01_project-planning.html">
+            <small>다음 페이지</small>
+            <strong>프로젝트 시작 및 브랜드 기획 →</strong>
+          </a>
+        </nav>
+      </main>
+      
+      <footer class="footer">디자인팀 실무 프로세스 및 업무 인수인계 · 체크 상태는 현재 브라우저에 저장됩니다.</footer>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
 </body>
 </html>
